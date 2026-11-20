@@ -4,6 +4,7 @@ import {
   NpvException,
   parseWebUrl,
   type ScreenId,
+  type StudioLaunch,
   toOriginPermissionPattern,
 } from '@neruz/core';
 import { t } from '../i18n';
@@ -16,13 +17,44 @@ const hasOriginAccess = (url: URL) =>
 
 export async function openPage(raw: string): Promise<boolean> {
   const url = normalizeAddress(raw);
-  if (!url) {
-    showToast({ tone: 'error', title: t('state.error.invalidUrl') });
-    return false;
-  }
+  if (!url) return false;
   const access = (await hasOriginAccess(url)) ? 'granted' : 'missing';
   useStudio.getState().showPage(url.href, access);
   return true;
+}
+
+export async function applyLaunch(launch: StudioLaunch, isReuse: boolean): Promise<void> {
+  const previousUrl = useStudio.getState().pageUrl;
+  const url = launch.url && !launch.url.startsWith('file:') ? normalizeAddress(launch.url) : null;
+  if (!url) {
+    const isFile = launch.url?.startsWith('file:') || launch.notice === 'file-access';
+    if (isReuse && !launch.notice && !isFile) return;
+    useStudio.getState().showEmpty(isFile ? 'file-access' : (launch.notice ?? 'none'));
+    return;
+  }
+  const hasAccess = await hasOriginAccess(url);
+  const access = hasAccess ? 'granted' : launch.permission === 'denied' ? 'denied' : 'missing';
+  if (isReuse && previousUrl === url.href && hasAccess) return;
+  useStudio.getState().showPage(url.href, access);
+  if (isReuse && previousUrl && previousUrl !== url.href) {
+    showToast({
+      tone: 'neutral',
+      title: t('entry.siteSwitched', { domain: url.hostname }),
+      actions: [{ label: t('state.undo'), onPress: () => void openPage(previousUrl) }],
+    });
+  }
+}
+
+export async function runInitialLaunch(): Promise<void> {
+  const launch = await getStudioClient()
+    .requestLaunch()
+    .catch(() => null);
+  if (launch) await applyLaunch(launch, false);
+}
+
+export function openExtensionsPage(): void {
+  const isFirefox = navigator.userAgent.includes('Firefox');
+  void chrome.tabs.create({ url: isFirefox ? 'about:addons' : 'chrome://extensions' });
 }
 
 export async function allowPageOrigin(): Promise<void> {
@@ -50,7 +82,8 @@ export async function loadScreen(
   signal: AbortSignal,
 ): Promise<void> {
   const { pageUrl, setScreenStatus, setAccess } = useStudio.getState();
-  if (!pageUrl) return;
+  if (!pageUrl || useStudio.getState().screens.find((screen) => screen.id === screenId)?.isFrozen)
+    return;
   setScreenStatus(screenId, 'loading');
   try {
     await getStudioClient().openScreen({ iframe, screenId, presetId, url: pageUrl, signal });
@@ -85,8 +118,23 @@ export function startStudioSession(): () => void {
     client.close();
   };
   window.addEventListener('pagehide', handlePageHide, { once: true });
+  const stopListening = client.onEvent((event) => {
+    if (event.type === 'ui.openUrl') void applyLaunch(event.payload, true);
+    if (event.type === 'ui.actionClicked')
+      document.querySelector<HTMLElement>('.capture-panel__footer button')?.focus();
+  });
   return () => {
+    stopListening();
     window.removeEventListener('pagehide', handlePageHide);
     mirror.stop();
   };
+}
+
+export function removeScreenWithUndo(screenId: ScreenId): void {
+  useStudio.getState().removeScreen(screenId);
+  showToast({
+    tone: 'neutral',
+    title: t('studio.screen.removed'),
+    actions: [{ label: t('state.undo'), onPress: () => useStudio.getState().undo() }],
+  });
 }

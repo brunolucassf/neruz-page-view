@@ -402,3 +402,53 @@ button {
     border: 1px solid ButtonText;
   }
 }
+
+.sim-host {
+  container: forno / inline-size;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+
+.scene-copy__index {
+  display: flex;
+  align-items: center;
+  gap: var(--pv-space-4);
+  margin-bottom: var(--pv-space-8);
+  color: var(--pv-text-2);
+}
+
+.scene-copy__index::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  background: var(--pv-accent);
+  transform: rotate(45deg);
+}
+
+.scene-copy__title {
+  max-width: 16ch;
+  font-family: var(--pv-fs-h2-ff);
+  font-size: var(--pv-fs-h2);
+  font-weight: var(--pv-fs-h2-fw);
+  line-height: var(--pv-fs-h2-lh);
+  letter-spacing: var(--pv-fs-h2-ls);
+  text-wrap: balance;
+}
+
+.scene-copy__subtitle {
+  max-width: 44ch;
+  margin-top: var(--pv-space-6);
+  color: var(--pv-text-2);
+  font-size: var(--pv-fs-body);
+  line-height: var(--pv-fs-body-lh);
+}
+
+.scene-copy__note {
+  max-width: 62ch;
+  color: var(--pv-text-2);
+  font-size: var(--pv-fs-small, 0.875rem);
+  line-height: 1.5;
+}

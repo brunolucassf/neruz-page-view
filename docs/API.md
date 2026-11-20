@@ -1,18 +1,23 @@
 # API interna: Neruz Page View
 
-**CONGELADO 2026-11-20 v1.1** (protocolo `v: 1`; v1.1 aplica a revisão de segurança do contrato, sem mudança incompatível). Qualquer mudança depois desta data exige ADR em [DECISOES.md](DECISOES.md) e aviso ao Maestro. Base: [ARQUITETURA.md](ARQUITETURA.md) §3, §4, §7 e o relatório da POC (P1 a P4 no Chrome, 2026-11-20).
+**CONGELADO 2026-11-20 v1.2** (protocolo `v: 1`). Qualquer mudança depois desta data exige ADR em [DECISOES.md](DECISOES.md) e aviso ao Maestro. Base: [ARQUITETURA.md](ARQUITETURA.md) §3, §4, §7 e o relatório da POC (P1 a P4 no Chrome, 2026-11-20).
 
-A extensão não tem servidor nem API HTTP. "API" aqui é o contrato de mensagens entre as superfícies da extensão (Estúdio, background, frame-agent, offscreen, popup), os erros, os tempos-limite e os schemas de armazenamento. Implementação em `packages/core` (dono: software-architect).
+Changelog:
+- **v1.2 (ADR-016):** sem popup; clique no ícone e atalho `_execute_action` abrem/focam o Estúdio (§6.5). Novos: `bg.studio.launch`, eventos `ui.openUrl` e `ui.actionClicked`, tipo `StudioLaunch`, campo `tryStartNow` em `bg.rec.arm`, chaves `session:studioOrigins` e `session:studioLaunch`. Removidos: `bg.popup.openStudio`, `bg.rec.trigger`, comando `record`; `bg.tab.capture` arquivado ("Print com moldura" é opção do painel de captura do Estúdio). `v` continua 1: extensão é empacotada inteira, não há versão publicada com popup.
+- **v1.1:** revisão de segurança do contrato, sem mudança incompatível.
+- **v1:** contrato inicial (ADR-014).
+
+A extensão não tem servidor nem API HTTP. "API" aqui é o contrato de mensagens entre as superfícies da extensão (Estúdio, background, frame-agent, offscreen), os erros, os tempos-limite e os schemas de armazenamento. Implementação em `packages/core` (dono: software-architect).
 
 ## 1. Convenções
 
 | Item | Regra |
 |---|---|
-| Transporte | Estúdio → frame: `tabs.sendMessage(studioTabId, msg, { frameId })`. Frame → background: `runtime.sendMessage`. Background → Estúdio: `runtime.Port` aberta pelo Estúdio (`runtime.connect({ name: 'npv-studio' })`). Estúdio/popup → background e background → offscreen: `runtime.sendMessage`. Nunca `window.postMessage`. |
+| Transporte | Estúdio → frame: `tabs.sendMessage(studioTabId, msg, { frameId })`. Frame → background: `runtime.sendMessage`. Background → Estúdio: `runtime.Port` aberta pelo Estúdio (`runtime.connect({ name: 'npv-studio' })`). Estúdio → background e background → offscreen: `runtime.sendMessage`. Ícone/atalho → background: `action.onClicked` (§6.5), sem mensagem. Nunca `window.postMessage`. |
 | Envelope | Toda mensagem é `Envelope` (§2). Receptor valida com Valibot antes de qualquer uso; falhou, responde `NPV-INVALID-MESSAGE` e descarta. |
 | Versão | `v: 1`. Receptor com outra versão responde `NPV-VERSION-MISMATCH`. Mudança incompatível sobe `v` e exige ADR. Campo novo opcional não muda `v`. |
 | `seq` | Inteiro >= 1, crescente por remetente e por sessão do Estúdio. A resposta repete o `seq` do pedido. |
-| `frameId` | Número do `frameId` do Chrome. Estúdio → frame: frame de destino. Frame → background: o remetente preenche `-1`; o background **sobrescreve** com `sender.frameId` e nunca confia no valor recebido. Estúdio/popup/offscreen ↔ background: `0`. |
+| `frameId` | Número do `frameId` do Chrome. Estúdio → frame: frame de destino. Frame → background: o remetente preenche `-1`; o background **sobrescreve** com `sender.frameId` e nunca confia no valor recebido. Estúdio/offscreen ↔ background: `0`. |
 | IDs de domínio | `screenId`: `s1` a `s16`. `presetId` e `kitId`: `^[a-z0-9-]{1,56}$`. IDs criados pelo usuário: `crypto.randomUUID()`. |
 | Datas | Instantes em `number` (ms desde epoch, `Date.now()`); durações sempre com sufixo `Ms`. Datas em storage e export: ISO 8601 UTC (`toISOString()`). |
 | Unidades | Sufixo explícito quando não for px CSS: `*Device` = px físicos. Retângulos: `Rect = { x, y, width, height }`. |
@@ -45,7 +50,7 @@ export type NpvError = {
 };
 ```
 
-Eventos (`frame.*`, `rec.progress`, `rec.started`, `rec.done`, `rec.failed`) não têm resposta; usam o mesmo `Envelope`.
+Eventos (`frame.*`, `ui.*`, `rec.progress`, `rec.started`, `rec.done`, `rec.failed`) não têm resposta; usam o mesmo `Envelope`.
 
 ### 2.1 Códigos de erro
 
@@ -68,7 +73,7 @@ Eventos (`frame.*`, `rec.progress`, `rec.started`, `rec.done`, `rec.failed`) nã
 | `NPV-CANVAS-LIMIT` | Área acima do limite mesmo fatiando | não |
 | `NPV-ELEMENT-NOT-FOUND` | Clique/digitação espelhados sem alvo no destino | não |
 | `NPV-INPUT-SENSITIVE` | Tentativa de espelhar campo sensível (regra 7) | não |
-| `NPV-REC-GESTURE-REQUIRED` | `getMediaStreamId` sem invocação do usuário, ou armação expirada | não |
+| `NPV-REC-GESTURE-REQUIRED` | `getMediaStreamId` sem invocação do usuário fora de `tryStartNow`, ou armação expirada no clique do ícone | não |
 | `NPV-REC-BUSY` | Já há gravação ativa ou armada | não |
 | `NPV-REC-UNSUPPORTED` | Navegador sem `tabCapture`/offscreen e sem `getDisplayMedia` | não |
 | `NPV-ENCODER-UNSUPPORTED` | Nenhum codec de `preferredCodecs` codificável | não |
@@ -176,13 +181,13 @@ Regras do agente:
 - `studio.hideScrollbar { hidden: true }` antes de print e de gravação; `false` ao terminar, inclusive em erro (`finally` no Estúdio).
 - Watchdog do autoscroll no Estúdio: `durationMs + soma das pausas + 5000`. Pausa manual com teto de 10 min; depois o Estúdio envia `stop` e finaliza a gravação.
 
-## 6. `bg.*` e `rec.*` (Estúdio/popup ↔ background ↔ offscreen)
+## 6. `bg.*`, `ui.*` e `rec.*` (Estúdio ↔ background ↔ offscreen)
 
-O background só aceita `bg.*` de `sender.id === runtime.id`; como isso também vale para content scripts, não basta. Todo `bg.*` exige `sender.frameId === 0`, `sender.url` começando com `chrome-extension://<id>/` (`moz-extension://` no Firefox) e a página esperada por tipo: Estúdio para `bg.studio.*`, `bg.scripts.sync`, `bg.frames.list`, `bg.rec.arm/cancel/release`; popup para `bg.popup.*` e `bg.rec.trigger`. `onConnect` da Port `npv-studio` aplica a mesma checagem. Content script só envia `frame.*`. `rec.start`/`rec.stop` só são aceitos pelo offscreen se vierem do background (campo `target: 'offscreen'` fora do envelope, `sender.id` checado).
+O background só aceita `bg.*` de `sender.id === runtime.id`; como isso também vale para content scripts, não basta. Todo `bg.*` exige `sender.frameId === 0`, `sender.url` começando com `chrome-extension://<id>/studio.html` (`moz-extension://` no Firefox); não há outra página da extensão que envie `bg.*`. `onConnect` da Port `npv-studio` aplica a mesma checagem. Content script só envia `frame.*`. `rec.start`/`rec.stop` só são aceitos pelo offscreen se vierem do background (campo `target: 'offscreen'` fora do envelope, `sender.id` checado).
 
 ### 6.1 Regras do background
 
-1. **Mutações serializadas:** `bg.studio.enable`, `bg.studio.disable`, `bg.scripts.sync`, limpeza em `tabs.onRemoved`, `permissions.onAdded/onRemoved` e `runtime.onStartup` passam por uma única fila serial (uma promessa encadeada). Nenhum unregister/register de content script nem `updateSessionRules` fora dela (corrida observada no P1).
+1. **Mutações serializadas:** `bg.studio.enable`, `bg.studio.disable`, `bg.scripts.sync`, abrir/focar Estúdio do `action.onClicked` (depois do pedido de permissão, §6.5), limpeza em `tabs.onRemoved`, `permissions.onAdded/onRemoved` e `runtime.onStartup` passam por uma única fila serial (uma promessa encadeada). Nenhum unregister/register de content script nem `updateSessionRules` fora dela (corrida observada no P1).
 2. `frame.hello` só de `sender.frameId !== 0` em aba presente em `studioTabs`; `sender.id` checado em toda mensagem. O `origin` do `FrameInfo` vem de `sender.origin`/`sender.url`, nunca do payload do hello; `frameId` e `tabId` só de `sender`. Registra só se `tabId` estiver em `studioTabs`.
 3. Estado que precisa sobreviver ao reinício do service worker fica em `storage.session` (§7.2), nunca em variável de módulo.
 4. A Port `npv-studio` é o sinal de vida do Estúdio: `onDisconnect` dispara `disable` da aba na fila serial.
@@ -196,20 +201,19 @@ O background só aceita `bg.*` de `sender.id === runtime.id`; como isso também 
 | `bg.studio.disable` | Estúdio | `{}` | `{}` | 10 s |
 | `bg.scripts.sync` | Estúdio | `{}` | `{ origins: string[] }` | 10 s |
 | `bg.frames.list` | Estúdio | `{}` | `{ frames: FrameInfo[] }` | 3 s |
-| `bg.popup.openStudio` | popup | `{ url?: string }` | `{ tabId: number }` | 10 s |
-| `bg.rec.arm` | Estúdio | `RecConfig` | `{ armedUntil: number }` (expira em 60 s e só vale para a aba que armou) | 3 s |
-| `bg.rec.trigger` | popup | `{}` (gesto: popup aberto sobre a aba do Estúdio armado) | `{}` | 10 s |
+| `bg.studio.launch` | Estúdio | `{}` (aba = `sender.tab.id`) | `StudioLaunch` (consome a entrada de `session:studioLaunch` daquela aba; sem entrada, devolve `{ url: null, notice: null, permission: 'not-requested' }`) | 3 s |
+| `bg.rec.arm` | Estúdio | `RecConfig & { tryStartNow?: boolean }` | `{ armedUntil: number; started: boolean }` (expira em 60 s e só vale para a aba que armou). `tryStartNow`: o background tenta `getMediaStreamId` já; recusado pelo navegador, fica armado com `started: false`, sem erro | 3 s |
 | `bg.rec.cancel` | Estúdio | `{}` | `{}` (desarma ou interrompe com `rec.stop`) | 10 s |
 | `bg.rec.release` | Estúdio | `{ blobUrl: string }` | `{}` (offscreen revoga a URL e fecha). `blobUrl` precisa ser o emitido pelo offscreen para aquela gravação (`blob:chrome-extension://<id>/...`); qualquer outro valor: `NPV-BAD-REQUEST` | 10 s |
 
-Reservados, sem contrato na v1 (entram por ADR antes da feature): `bg.tab.capture` (print rápido de aba comum pelo popup) e `bg.tab.record` (gravar aba comum).
+Reservado, sem contrato (entra por ADR antes da feature): `bg.tab.record` (gravar aba comum). Arquivados na v1.2 (ADR-016), não reutilizar o nome: `bg.tab.capture` (o "Print com moldura" é opção do painel de captura do Estúdio, sobre a tela aberta, com `captureVisibleTab` do próprio Estúdio), `bg.popup.openStudio`, `bg.rec.trigger`.
 
 ### 6.3 Gravação (Chromium)
 
-Gravação sempre nasce de **gesto do usuário na action ou no atalho** (POC P4: `tabCapture.getMediaStreamId` exige invocação). Fluxo:
+Gravação sempre nasce de **gesto do usuário no ícone ou no atalho `_execute_action` com o Estúdio em primeiro plano** (POC P4: `tabCapture.getMediaStreamId` só aceita alvo com `activeTab`; o clique na página do site concede `activeTab` à aba do site, não ao Estúdio, por isso não existe gravação com um clique só a partir da página comum, ADR-016). Fluxo:
 
-1. Estúdio entra no modo gravação (só a tela escolhida, zoom por aba para a tela ocupar a maior altura possível), envia `studio.hideScrollbar { hidden: true }` e `bg.rec.arm` com `RecConfig`. A UI pede: "Clique no ícone da extensão ou use o atalho para começar".
-2. Gesto: `commands.onCommand('record')` com a aba ativa = Estúdio armado, ou `bg.rec.trigger` do popup aberto sobre essa aba. Sem armação válida: `NPV-REC-GESTURE-REQUIRED`. Já gravando: `NPV-REC-BUSY`.
+1. Estúdio entra no modo gravação (só a tela escolhida, zoom por aba para a tela ocupar a maior altura possível), envia `studio.hideScrollbar { hidden: true }` e `bg.rec.arm` com `RecConfig` e `tryStartNow: true` (o clique em "Gravar" é gesto dentro do Estúdio). `started: true`: segue no passo 3 sem pedir nada. `started: false`: a UI pede "Clique no ícone da extensão ou use o atalho para começar".
+2. Gesto: `action.onClicked` com `tab.id` = Estúdio armado (§6.5; o atalho chega pelo mesmo evento). Armação expirada: `rec.failed` com `NPV-REC-GESTURE-REQUIRED` pela Port. Sem armação: `ui.actionClicked`. Gravando: o mesmo clique para (`rec.stop`). Pedido de `bg.rec.arm` com gravação já ativa ou armada: `NPV-REC-BUSY`.
 3. Background: `tabCapture.getMediaStreamId({ targetTabId })`, cria o offscreen (`reasons: ['USER_MEDIA']`) se não existir, envia `rec.start`. Emite `rec.started` ao Estúdio pela Port.
 4. Estúdio, ao receber `rec.started`, envia `studio.autoscroll.start`. Offscreen emite `rec.progress` a cada ~1 s.
 5. Fim: offscreen responde `rec.start`; background emite `rec.done` (ou `rec.failed`). Estúdio faz `fetch(blobUrl)`, guarda no OPFS, envia `bg.rec.release`.
@@ -260,7 +264,40 @@ Regras do pipeline no offscreen (provadas no P4):
 
 ### 6.4 Firefox
 
-Sem offscreen e sem tabCapture. O Estúdio grava a si mesmo com `getDisplayMedia` (seletor do navegador, que já é gesto) e `requestVideoFrameCallback`, usando o mesmo `RecConfig`/`RecResult` por chamada de função local (módulo `packages/capture/video`), sem mensagens `rec.*`. Recorte idêntico, com `viewport` = tamanho do quadro escolhido pelo usuário quando ele escolher a aba do Estúdio; outra superfície escolhida: `NPV-REC-FAILED` com `details.reason = 'wrong-surface'`. Validação no P5 (construção, antes da auditoria).
+Sem offscreen e sem tabCapture. O Estúdio grava a si mesmo com `getDisplayMedia` (seletor do navegador, que já é gesto) e `requestVideoFrameCallback`, usando o mesmo `RecConfig`/`RecResult` por chamada de função local (módulo `packages/capture/video`), sem mensagens `rec.*`. Recorte idêntico, com `viewport` = tamanho do quadro escolhido pelo usuário quando ele escolher a aba do Estúdio; outra superfície escolhida: `NPV-REC-FAILED` com `details.reason = 'wrong-surface'`. Validação no P5 (construção, antes da auditoria). No Firefox o clique no ícone sobre o Estúdio nunca inicia gravação (não há `rec.*`): emite `ui.actionClicked`.
+
+### 6.5 Ícone e atalho (ADR-016)
+
+Manifest sem `default_popup`. `commands`: só `_execute_action` (sugestão `Alt+Shift+P`), que dispara `action.onClicked` igual ao clique. Sem `contextMenus`.
+
+```ts
+export type StudioNotice =
+  | 'browser-page'      // chrome:, edge:, about:, view-source:, outra extensão, aba sem tab.url
+  | 'store-page'        // lojas de extensões (chromewebstore.google.com, chrome.google.com/webstore, microsoftedge.microsoft.com/addons, addons.mozilla.org)
+  | 'file-access';      // file: sem "Permitir acesso a URLs de arquivo"
+
+export type StudioLaunch = {
+  url: string | null;                 // URL da aba de origem (http/https/file), <= 2048 caracteres; null = Estúdio vazio
+  notice: StudioNotice | null;        // aviso de uma frase quando url é null por página não suportada
+  permission: 'granted' | 'denied' | 'not-requested';   // resultado do pedido feito no gesto; 'denied' cobre recusa e rejeição por falta de gesto
+};
+```
+
+Algoritmo do `action.onClicked(tab)` no background:
+
+1. **Síncrono, antes de qualquer `await`:** classificar `tab.url`. Só URL `http:`/`https:`/`file:` dispara pedido de permissão (um Estúdio nunca tem esse esquema, então não há corrida com o worker recém-acordado). Sem `tab.url` ou com esquema de extensão: ler `session:studioTabs`; se `tab.id` estiver lá, vai ao passo 4, senão é página não suportada. URL suportada: `permissionPromise = permissions.request({ origins: [originPattern(tab.url)] })` dentro de `try` (`http://localhost/*` para localhost com porta; padrão de match não tem porta). Exceção síncrona ou rejeição: `permission = 'denied'`.
+2. Aguardar `permissionPromise` fora da fila serial (o diálogo não bloqueia limpeza de DNR). Cliques repetidos na mesma aba enquanto o diálogo está aberto são ignorados (conjunto em memória, transitório).
+3. Na fila serial: procurar em `session:studioOrigins` um Estúdio vivo com `originTabId === tab.id`.
+   - Achou: `tabs.update(studioTabId, { active: true })`, `windows.update(windowId, { focused: true })`, evento `ui.openUrl` (`StudioLaunch`) pela Port. Port ausente (Estúdio carregando): grava em `session:studioLaunch` para o `bg.studio.launch`.
+   - Não achou: grava `StudioLaunch` provisório, `tabs.create({ url: browser.runtime.getURL('/studio.html'), index: tab.index + 1, windowId: tab.windowId })`, registra `{ studioTabId, originTabId: tab.id }` e move o `StudioLaunch` para o `studioTabId`.
+4. **Aba clicada é Estúdio:** `session:recording.state === 'armed'` com `tabId` igual e `armedUntil` no futuro: inicia (§6.3 passo 3). `'armed'` vencido: `rec.failed` `NPV-REC-GESTURE-REQUIRED` e volta a `idle`. `'recording'`: `rec.stop`. Outros: `ui.actionClicked`.
+
+| type | Direção | Payload | Notas |
+|---|---|---|---|
+| `ui.openUrl` | background → Estúdio (Port) | `StudioLaunch` | Estúdio reaproveitado. Navega as telas só se `url` mudou; `permission: 'denied'` mostra o cartão de permissão |
+| `ui.actionClicked` | background → Estúdio (Port) | `{ recording: 'idle' \| 'finalizing' }` | Clique no ícone sobre o Estúdio sem gravação para iniciar ou parar; a UI aponta o painel de captura |
+
+Ao abrir, o Estúdio sempre chama `bg.studio.launch` antes de `bg.studio.enable` e depois trata `ui.openUrl` pela Port. Nunca lê URL de query string ou hash.
 
 ## 7. Armazenamento
 
@@ -324,6 +361,8 @@ Regra de migração: cada salto de `version` tem função pura `(old) => new` em
 | `session:dnrRules` | `{ tabId: number; ruleIds: number[] }[]` | Regras de sessão por aba (limpeza) |
 | `session:frames` | `{ tabId: number; frames: FrameInfo[] }[]` | Frames aceitos no `frame.hello` |
 | `session:recording` | `{ state: 'idle' \| 'armed' \| 'recording' \| 'finalizing'; tabId?: number; armedUntil?: number; config?: RecConfig; startedAt?: number }` | Máquina de estado da gravação |
+| `session:studioOrigins` | `{ studioTabId: number; originTabId: number \| null }[]` (teto 50) | Reaproveitar o Estúdio da aba de origem (§6.5). `tabs.onRemoved` do Estúdio remove a linha; da origem, põe `originTabId: null` |
+| `session:studioLaunch` | `{ studioTabId: number; launch: StudioLaunch }[]` (teto 50) | Entrega pendente ao `bg.studio.launch`; consumida na leitura |
 
 Todas versão 1, sem migração (são descartadas no reinício).
 
@@ -361,7 +400,7 @@ packages/core/
 ├─ messaging/errors.ts       NpvErrorCode, NpvError
 ├─ messaging/frame.ts        schemas e tipos frame.*
 ├─ messaging/studio.ts       schemas e tipos studio.*
-├─ messaging/background.ts   schemas e tipos bg.*
+├─ messaging/background.ts   schemas e tipos bg.*, ui.*, StudioLaunch
 ├─ messaging/recording.ts    RecConfig, RecResult, rec.*
 ├─ storage/items.ts          defineItem de §7
 ├─ storage/migrations.ts

@@ -1,0 +1,114 @@
+{
+  "frames": {
+    "phone": {
+      "width": 422,
+      "height": 876,
+      "screen": {
+        "x": 16,
+        "y": 16,
+        "width": 390,
+        "height": 844
+      },
+      "hasOverlay": false,
+      "files": {
+        "dark": "frame-phone-dark.svg",
+        "light": "frame-phone-light.svg"
+      }
+    },
+    "foldable": {
+      "width": 768,
+      "height": 864,
+      "screen": {
+        "x": 16,
+        "y": 16,
+        "width": 736,
+        "height": 832
+      },
+      "hasOverlay": true,
+      "files": {
+        "dark": "frame-foldable-dark.svg",
+        "light": "frame-foldable-light.svg"
+      }
+    },
+    "tablet": {
+      "width": 824,
+      "height": 1080,
+      "screen": {
+        "x": 28,
+        "y": 28,
+        "width": 768,
+        "height": 1024
+      },
+      "hasOverlay": false,
+      "files": {
+        "dark": "frame-tablet-dark.svg",
+        "light": "frame-tablet-light.svg"
+      }
+    },
+    "notebook": {
+      "width": 1688,
+      "height": 1000,
+      "screen": {
+        "x": 124,
+        "y": 28,
+        "width": 1440,
+        "height": 900
+      },
+      "hasOverlay": false,
+      "files": {
+        "dark": "frame-notebook-dark.svg",
+        "light": "frame-notebook-light.svg"
+      }
+    },
+    "monitor": {
+      "width": 1968,
+      "height": 1318,
+      "screen": {
+        "x": 24,
+        "y": 24,
+        "width": 1920,
+        "height": 1080
+      },
+      "hasOverlay": false,
+      "files": {
+        "dark": "frame-monitor-dark.svg",
+        "light": "frame-monitor-light.svg"
+      }
+    },
+    "browser": {
+      "width": 1444,
+      "height": 962,
+      "screen": {
+        "x": 2,
+        "y": 48,
+        "width": 1440,
+        "height": 900
+      },
+      "hasOverlay": false,
+      "files": {
+        "dark": "frame-browser-dark.svg",
+        "light": "frame-browser-light.svg"
+      }
+    }
+  },
+  "backgrounds": {
+    "night": {
+      "file": "bg-night.svg",
+      "fill": "#080D14",
+      "gridColor": "#F4F8FC",
+      "gridOpacity": 0.05
+    },
+    "ice": {
+      "file": "bg-ice.svg",
+      "fill": "#E8EEF4",
+      "gridColor": "#080D14",
+      "gridOpacity": 0.06
+    },
+    "petrol": {
+      "file": "bg-petrol.svg",
+      "fill": "#007D8A",
+      "gridColor": "#F4F8FC",
+      "gridOpacity": 0.1
+    }
+  }
+}

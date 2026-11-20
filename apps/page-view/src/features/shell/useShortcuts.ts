@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { cancelCapture, runCapture, useCapture } from '../capture/captureStore';
+import { useLibrary } from '../library/libraryStore';
 import { stepZoom } from '../screens/layout';
+import { removeScreenWithUndo } from './studioSession';
 import { useStudio } from './studioStore';
 
 const isTypingTarget = (target: EventTarget | null) =>
@@ -19,7 +21,12 @@ export function useShortcuts() {
         cancelCapture();
         return;
       }
-      if (event.ctrlKey || event.metaKey || event.altKey || isTypingTarget(event.target)) return;
+      if (isTypingTarget(event.target)) return;
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') {
+        if (useStudio.getState().undo()) event.preventDefault();
+        return;
+      }
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
       const studio = useStudio.getState();
       if (!studio.pageUrl) return;
       const key = event.key.toLowerCase();
@@ -28,6 +35,8 @@ export function useShortcuts() {
       else if (key === '0') studio.fitToBench();
       else if (key === 'm') studio.setMirror(!studio.isMirrorOn);
       else if (key === 'c') void runCapture();
+      else if (key === 'delete') removeScreenWithUndo(studio.activeScreenId);
+      else if (key === '/') useLibrary.getState().open();
       else if (/^[1-9]$/.test(key)) focusScreen(Number(key));
       else return;
       event.preventDefault();

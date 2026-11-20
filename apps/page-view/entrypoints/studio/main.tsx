@@ -4,8 +4,10 @@ import '@neruz/ui/base.css';
 import '@neruz/ui/graphics.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { useFramed } from '../../src/features/capture/framedStore';
+import { useLibrary } from '../../src/features/library/libraryStore';
 import { StudioApp } from '../../src/features/shell/StudioApp';
-import { openPage, startStudioSession } from '../../src/features/shell/studioSession';
+import { runInitialLaunch, startStudioSession } from '../../src/features/shell/studioSession';
 
 const container = document.querySelector<HTMLElement>('#app');
 
@@ -16,6 +18,7 @@ if (container) {
       <StudioApp />
     </StrictMode>,
   );
-  const initialAddress = new URLSearchParams(location.search).get('url');
-  if (initialAddress) void openPage(initialAddress);
+  void useLibrary.getState().hydrate();
+  void useFramed.getState().hydrate();
+  void runInitialLaunch();
 }

@@ -1,7 +1,9 @@
 ---
 import type { LandingCopy } from '../i18n';
 import FornoSite from './FornoSite.astro';
-import PopupIllustration from './PopupIllustration.astro';
+import SceneAuto from './SceneAuto.astro';
+import SceneDevices from './SceneDevices.astro';
+import StudioIllustration from './StudioIllustration.astro';
 
 interface Props {
   copy: LandingCopy;
@@ -52,19 +54,20 @@ const swatchColors = ['#1B2635', '#E8EEF4', '#C4532D'];
             <span class="ewin__scan" data-window-scan></span>
           </div>
         </div>
-        <div
-          class="ewin__handle"
-          role="slider"
-          tabindex="0"
-          aria-label={copy.hero.windowWidthLabel}
-          aria-valuemin="320"
-          aria-valuemax="1280"
-          aria-valuenow="1280"
-          aria-valuetext="1280 px"
-          data-window-handle
-        >
-          <span></span>
-        </div>
+      </div>
+
+      <div
+        class="ewin__handle"
+        role="slider"
+        tabindex="0"
+        aria-label={copy.hero.windowWidthLabel}
+        aria-valuemin="320"
+        aria-valuemax="1280"
+        aria-valuenow="1280"
+        aria-valuetext="1280 px"
+        data-window-handle
+      >
+        <span></span>
       </div>
 
       <div class="evp" data-detached aria-hidden="true">
@@ -99,8 +102,8 @@ const swatchColors = ['#1B2635', '#E8EEF4', '#C4532D'];
         <p class="scene-click__subtitle">{scene.subtitle}</p>
       </div>
       <div class="scene-click__phone-slot" data-phone-slot aria-hidden="true"></div>
-      <div class="scene-click__popup" data-popup aria-hidden="true">
-        <PopupIllustration copy={copy} />
+      <div class="scene-click__studio" data-studio aria-hidden="true">
+        <StudioIllustration copy={copy} />
       </div>
       <div class="scene-click__media" data-media>
         <div class="compare" data-compare>
@@ -145,6 +148,9 @@ const swatchColors = ['#1B2635', '#E8EEF4', '#C4532D'];
       </div>
     </section>
 
+    <SceneDevices copy={copy} />
+    <SceneAuto copy={copy} />
+
     <canvas class="strip2d" data-strip2d aria-hidden="true"></canvas>
     <button type="button" class="intro-skip cota-text" data-intro-skip>{copy.hero.skipIntro}</button>
   </div>
@@ -152,14 +158,14 @@ const swatchColors = ['#1B2635', '#E8EEF4', '#C4532D'];
 
 <style>
   .journey {
-    --journey-track: 170vh;
+    --journey-track: 520vh;
     position: relative;
     z-index: 1;
   }
 
   @media (min-width: 1024px) {
     .journey {
-      --journey-track: 210vh;
+      --journey-track: 600vh;
     }
   }
 
@@ -291,8 +297,8 @@ const swatchColors = ['#1B2635', '#E8EEF4', '#C4532D'];
 
   .ewin__shadow {
     position: absolute;
-    left: 4%;
-    right: 4%;
+    left: 0;
+    right: 0;
     bottom: -36px;
     height: 72px;
     background: radial-gradient(50% 50% at 50% 50%, rgb(0 0 0 / 0.7), transparent);
@@ -331,7 +337,7 @@ const swatchColors = ['#1B2635', '#E8EEF4', '#C4532D'];
     align-items: center;
     gap: var(--pv-space-6);
     height: var(--bar-h);
-    padding-inline: calc(var(--cut) + 6px) var(--pv-space-6);
+    padding-inline: calc(var(--pv-cut-xl) + 6px) var(--pv-space-6);
     overflow: hidden;
     border-bottom: 1px solid var(--pv-line-soft);
   }
@@ -354,9 +360,10 @@ const swatchColors = ['#1B2635', '#E8EEF4', '#C4532D'];
   }
 
   .ewin__host {
-    position: relative;
-    flex: 1;
+    position: absolute;
+    inset: 0;
     overflow: hidden;
+    transform: translateY(var(--bar-h));
   }
 
   .forno-host {
@@ -391,13 +398,14 @@ const swatchColors = ['#1B2635', '#E8EEF4', '#C4532D'];
 
   .ewin__handle {
     position: absolute;
-    top: 50%;
-    right: -22px;
+    top: 0;
+    left: 0;
+    z-index: 3;
     display: grid;
     place-items: center;
     width: 44px;
     height: 64px;
-    margin-top: -32px;
+    will-change: transform;
     cursor: ew-resize;
     touch-action: none;
   }
@@ -519,12 +527,11 @@ const swatchColors = ['#1B2635', '#E8EEF4', '#C4532D'];
     display: none;
   }
 
-  .scene-click__popup {
+  .scene-click__studio {
     width: min(100%, 360px);
   }
 
-  .popup-art,
-  .scene-click__popup :global(.popup-art) {
+  .scene-click__studio :global(.studio-art) {
     width: 100%;
     height: auto;
   }
@@ -611,12 +618,22 @@ const swatchColors = ['#1B2635', '#E8EEF4', '#C4532D'];
     position: absolute;
     top: 0;
     bottom: 0;
-    left: var(--split);
+    left: 0;
+    width: 100%;
+    transform: translateX(var(--split));
+    pointer-events: none;
+  }
+
+  .compare__line::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
     width: 1px;
     margin-left: -0.5px;
     background: var(--pv-cyan);
     box-shadow: 0 0 10px rgb(0 229 255 / 0.35);
-    pointer-events: none;
   }
 
   .compare__line span {
@@ -732,7 +749,7 @@ const swatchColors = ['#1B2635', '#E8EEF4', '#C4532D'];
       grid-column: 1 / span 4;
     }
 
-    .scene-click__popup {
+    .scene-click__studio {
       grid-column: 5 / span 3;
       align-self: start;
     }
@@ -747,7 +764,7 @@ const swatchColors = ['#1B2635', '#E8EEF4', '#C4532D'];
   }
 
   :global(.is-motion) .journey {
-    height: calc(100svh + var(--journey-track, 210vh));
+    height: calc(100svh + var(--journey-track, 600vh));
   }
 
   :global(.is-motion) .journey__stage {
@@ -872,12 +889,23 @@ const swatchColors = ['#1B2635', '#E8EEF4', '#C4532D'];
     display: -webkit-box;
     overflow: hidden;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 5;
-    line-clamp: 5;
+    -webkit-line-clamp: 7;
+    line-clamp: 7;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  @media (min-width: 768px) {
+    :global(.is-motion) .scene-click__subtitle {
+      -webkit-line-clamp: 9;
+      line-clamp: 9;
+      font-size: var(--pv-fs-body);
+      line-height: var(--pv-fs-body-lh);
+    }
   }
 
   :global(.is-motion) .scene-click__phone-slot,
-  :global(.is-motion) .scene-click__popup,
+  :global(.is-motion) .scene-click__studio,
   :global(.is-motion) .scene-click__media {
     display: block;
     grid-row: 2;
@@ -889,7 +917,7 @@ const swatchColors = ['#1B2635', '#E8EEF4', '#C4532D'];
     height: 100%;
   }
 
-  :global(.is-motion) .scene-click__popup {
+  :global(.is-motion) .scene-click__studio {
     position: relative;
     z-index: 3;
     align-self: start;
@@ -1045,7 +1073,7 @@ const swatchColors = ['#1B2635', '#E8EEF4', '#C4532D'];
       grid-column: 1 / span 5;
     }
 
-    :global(.is-motion) .scene-click__popup {
+    :global(.is-motion) .scene-click__studio {
       grid-column: 5 / span 5;
       justify-self: start;
       width: min(100%, 320px);
@@ -1074,8 +1102,8 @@ const swatchColors = ['#1B2635', '#E8EEF4', '#C4532D'];
       grid-row: 1;
     }
 
-    :global(.is-motion) .scene-click__popup {
-      grid-column: 7 / span 3;
+    :global(.is-motion) .scene-click__studio {
+      grid-column: 8 / span 4;
       grid-row: 1;
       align-self: start;
       justify-self: center;

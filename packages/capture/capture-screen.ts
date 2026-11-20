@@ -6,6 +6,7 @@ import {
   sleep,
   studioHideFixed,
   studioHideScrollbar,
+  studioMeasure,
   studioMetrics,
   studioRestoreFixed,
   studioScrollTo,
@@ -14,10 +15,11 @@ import {
 } from '@neruz/core';
 import { type CaptureQueue, createCaptureQueue } from './capture-queue';
 import { createCleanupStack } from './cleanup-stack';
+import { planMoments } from './moments';
 import { assertCanvasBudget, computeSlice, planScrollTops } from './stitch';
-import { createStripedCanvas } from './striped-canvas';
+import { createStripedCanvas, type StripedCanvas } from './striped-canvas';
 
-export type CaptureMode = 'fast' | 'experience';
+export type CaptureMode = 'fast' | 'experience' | 'moments';
 
 export type CaptureProgress = {
   phase: 'preparing' | 'capturing' | 'encoding';
@@ -42,6 +44,7 @@ export type CaptureResult = {
   width: number;
   height: number;
   parts: Blob[];
+  partNames: string[];
   captureCount: number;
   scale: number;
   durationMs: number;
@@ -98,6 +101,67 @@ const applyTabZoom = async (tabId: number, zoom: number): Promise<() => Promise<
   };
 };
 
+type FrameMetrics = { innerHeight: number };
+
+type RowCaptureInput = {
+  iframe: HTMLIFrameElement;
+  windowId: number;
+  queue: CaptureQueue;
+  metrics: FrameMetrics;
+  frameScrollY: number;
+  getCanvas: (sliceWidth: number, scale: number, cssScale: number) => StripedCanvas;
+  ensureActive: () => void;
+};
+
+const captureIframeRows = async ({
+  iframe,
+  windowId,
+  queue,
+  metrics,
+  frameScrollY,
+  getCanvas,
+  ensureActive,
+}: RowCaptureInput): Promise<{ scale: number; captureCount: number }> => {
+  const cssScale = iframe.getBoundingClientRect().height / metrics.innerHeight;
+  const frameDocumentTop = iframe.getBoundingClientRect().top + window.scrollY;
+  let rowStart = 0;
+  let scale = 1;
+  let captureCount = 0;
+  while (rowStart < iframe.getBoundingClientRect().height) {
+    ensureActive();
+    window.scrollTo(window.scrollX, frameDocumentTop + rowStart);
+    await nextFrame();
+    await sleep(SCROLL_SETTLE_MS);
+    const bitmap = await queue.schedule(() => captureVisibleBitmap(windowId));
+    captureCount += 1;
+    scale = bitmap.width / window.innerWidth;
+    const rect = iframe.getBoundingClientRect();
+    const slice = computeSlice({
+      frameRect: rect,
+      viewportHeight: window.innerHeight,
+      rowStart,
+      frameScrollY,
+      captureScale: scale,
+      cssScale: rect.height / metrics.innerHeight,
+    });
+    if (!slice) {
+      bitmap.close();
+      throw new NpvException(
+        'NPV-CAPTURE-FAILED',
+        'screen iframe is not visible in the Studio viewport',
+      );
+    }
+    getCanvas(slice.width, scale, cssScale).drawSlice(
+      bitmap,
+      { x: slice.sourceX, y: slice.sourceY, width: slice.width, height: slice.height },
+      slice.destY,
+    );
+    bitmap.close();
+    rowStart = slice.nextRowStart;
+  }
+  return { scale, captureCount };
+};
+
 export const captureScreen = async (
   screenId: ScreenId,
   mode: CaptureMode,
@@ -111,6 +175,7 @@ export const captureScreen = async (
   const imageType = options.imageType ?? 'image/png';
   const startedAt = performance.now();
   const cleanup = createCleanupStack();
+  const isExperienceLike = mode !== 'fast';
   const ensureActive = () => {
     if (signal.aborted) throw abortError();
   };
@@ -124,9 +189,17 @@ export const captureScreen = async (
     }
     const { id: tabId, windowId } = currentTab;
 
-    if (mode === 'experience') await client.command(studioWarmup, screenId, {});
+    if (isExperienceLike) await client.command(studioWarmup, screenId, {});
     ensureActive();
     const metrics = await client.command(studioMetrics, screenId, {});
+    const moments =
+      mode === 'moments'
+        ? planMoments(
+            (await client.command(studioMeasure, screenId, {})).sections,
+            metrics.scrollHeight,
+            metrics.innerHeight,
+          )
+        : null;
 
     await client.command(studioHideScrollbar, screenId, { hidden: true });
     cleanup.push(() =>
@@ -137,7 +210,7 @@ export const captureScreen = async (
       const leave = hooks.leaveCaptureLayout;
       if (leave) cleanup.push(leave);
     }
-    if (mode === 'experience') cleanup.push(await applyTabZoom(tabId, EXPERIENCE_TAB_ZOOM));
+    if (isExperienceLike) cleanup.push(await applyTabZoom(tabId, EXPERIENCE_TAB_ZOOM));
     const initialScrollX = window.scrollX;
     const initialScrollY = window.scrollY;
     cleanup.push(() => window.scrollTo(initialScrollX, initialScrollY));
@@ -145,70 +218,82 @@ export const captureScreen = async (
     await nextFrame();
 
     const estimatedScale = window.devicePixelRatio;
+    const isPageCanvas = moments === null;
     assertCanvasBudget(
       Math.round(metrics.innerWidth * estimatedScale),
-      Math.round(metrics.scrollHeight * estimatedScale),
+      Math.round((isPageCanvas ? metrics.scrollHeight : metrics.innerHeight) * estimatedScale),
     );
 
-    const scrollTops = planScrollTops(metrics.scrollHeight, metrics.innerHeight);
-    let canvas: ReturnType<typeof createStripedCanvas> | null = null;
+    const steps =
+      moments ??
+      planScrollTops(metrics.scrollHeight, metrics.innerHeight).map((scrollTop) => ({
+        scrollTop,
+        name: '',
+      }));
+    const pageCanvasRef: { current: StripedCanvas | null } = { current: null };
+    const momentParts: Blob[] = [];
     let scale = 1;
     let captureCount = 0;
 
-    for (const [stepIndex, top] of scrollTops.entries()) {
+    for (const [stepIndex, step] of steps.entries()) {
       ensureActive();
-      const { scrollY: frameScrollY } = await client.command(studioScrollTo, screenId, { top });
-      if (mode === 'experience') await client.command(studioWaitStable, screenId, {});
+      const { scrollY: frameScrollY } = await client.command(studioScrollTo, screenId, {
+        top: step.scrollTop,
+      });
+      if (isExperienceLike) await client.command(studioWaitStable, screenId, {});
       else await sleep(FAST_SETTLE_MS);
       if (frameScrollY > 0) await client.command(studioHideFixed, screenId, {});
       await sleep(SLICE_SETTLE_MS);
 
-      const cssScale = iframe.getBoundingClientRect().height / metrics.innerHeight;
-      const frameDocumentTop = iframe.getBoundingClientRect().top + window.scrollY;
-      let rowStart = 0;
-      while (rowStart < iframe.getBoundingClientRect().height) {
-        ensureActive();
-        window.scrollTo(window.scrollX, frameDocumentTop + rowStart);
-        await nextFrame();
-        await sleep(SCROLL_SETTLE_MS);
-        const bitmap = await queue.schedule(() => captureVisibleBitmap(windowId));
-        captureCount += 1;
-        scale = bitmap.width / window.innerWidth;
-        const rect = iframe.getBoundingClientRect();
-        const slice = computeSlice({
-          frameRect: rect,
-          viewportHeight: window.innerHeight,
-          rowStart,
-          frameScrollY,
-          captureScale: scale,
-          cssScale: rect.height / metrics.innerHeight,
-        });
-        if (!slice) {
-          bitmap.close();
-          throw new NpvException(
-            'NPV-CAPTURE-FAILED',
-            'screen iframe is not visible in the Studio viewport',
-          );
-        }
-        if (!canvas) {
-          const canvasHeight = Math.round(metrics.scrollHeight * cssScale * scale);
-          assertCanvasBudget(slice.width, canvasHeight);
-          canvas = createStripedCanvas(slice.width, canvasHeight);
-        }
-        canvas.drawSlice(
-          bitmap,
-          { x: slice.sourceX, y: slice.sourceY, width: slice.width, height: slice.height },
-          slice.destY,
+      const momentCanvasRef: { current: StripedCanvas | null } = { current: null };
+      const canvasRef = isPageCanvas ? pageCanvasRef : momentCanvasRef;
+      const canvasRows = isPageCanvas ? metrics.scrollHeight : metrics.innerHeight;
+      const captured = await captureIframeRows({
+        iframe,
+        windowId,
+        queue,
+        metrics,
+        frameScrollY: isPageCanvas ? frameScrollY : 0,
+        ensureActive,
+        getCanvas: (sliceWidth, captureScale, cssScale) => {
+          if (!canvasRef.current) {
+            const canvasHeight = Math.round(canvasRows * cssScale * captureScale);
+            assertCanvasBudget(sliceWidth, canvasHeight);
+            canvasRef.current = createStripedCanvas(sliceWidth, canvasHeight);
+          }
+          return canvasRef.current;
+        },
+      });
+      scale = captured.scale;
+      captureCount += captured.captureCount;
+      if (momentCanvasRef.current) {
+        momentParts.push(
+          ...(await momentCanvasRef.current.exportParts(imageType, options.imageQuality)),
         );
-        bitmap.close();
-        rowStart = slice.nextRowStart;
       }
       await client.command(studioRestoreFixed, screenId, {});
-      onProgress({ phase: 'capturing', ratio: (stepIndex + 1) / scrollTops.length });
+      onProgress({ phase: 'capturing', ratio: (stepIndex + 1) / steps.length });
     }
 
-    if (!canvas) throw new NpvException('NPV-CAPTURE-FAILED', 'nothing was captured');
     onProgress({ phase: 'encoding', ratio: 0 });
+    const durationMs = () => Math.round(performance.now() - startedAt);
+    if (moments) {
+      if (momentParts.length === 0)
+        throw new NpvException('NPV-CAPTURE-FAILED', 'nothing was captured');
+      onProgress({ phase: 'encoding', ratio: 1 });
+      return {
+        mode,
+        width: Math.round(metrics.innerWidth * scale),
+        height: Math.round(metrics.innerHeight * scale),
+        parts: momentParts,
+        partNames: moments.map((moment) => moment.name),
+        captureCount,
+        scale,
+        durationMs: durationMs(),
+      };
+    }
+    const canvas = pageCanvasRef.current;
+    if (!canvas) throw new NpvException('NPV-CAPTURE-FAILED', 'nothing was captured');
     const parts = await canvas.exportParts(imageType, options.imageQuality);
     onProgress({ phase: 'encoding', ratio: 1 });
     return {
@@ -216,9 +301,10 @@ export const captureScreen = async (
       width: canvas.width,
       height: canvas.height,
       parts,
+      partNames: [],
       captureCount,
       scale,
-      durationMs: Math.round(performance.now() - startedAt),
+      durationMs: durationMs(),
     };
   } finally {
     await cleanup.runAll();

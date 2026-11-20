@@ -17,3 +17,5 @@ export const forwardToStudio = (tabId: number, message: unknown) => {
     portsByTab.delete(tabId);
   }
 };
+
+export const hasStudioPort = (tabId: number) => portsByTab.has(tabId);

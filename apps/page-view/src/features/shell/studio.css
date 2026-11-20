@@ -39,7 +39,7 @@ body {
 @media (min-width: 900px) {
   .studio__body {
     grid-template-rows: minmax(0, 1fr);
-    grid-template-columns: minmax(0, 1fr) var(--pv-panel-w);
+    grid-template-columns: auto minmax(0, 1fr) var(--pv-panel-w);
     overflow: hidden;
   }
 

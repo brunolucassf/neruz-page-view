@@ -5,13 +5,16 @@ import { Bench } from '../bench/Bench';
 import { CapturePanel } from '../capture/CapturePanel';
 import { useCapture } from '../capture/captureStore';
 import { t } from '../i18n';
+import { Library } from '../library/Library';
 import { ToastRegion } from '../toasts/ToastRegion';
+import { ShortcutsDialog, WelcomeDialog } from './Dialogs';
 import { useStudio } from './studioStore';
 import { useShortcuts } from './useShortcuts';
 import './studio.css';
 
 export function StudioApp() {
   const captureStageScreenId = useStudio((state) => state.captureStageScreenId);
+  const liveMessage = useStudio((state) => state.liveMessage);
   useShortcuts();
 
   useEffect(() => {
@@ -24,10 +27,16 @@ export function StudioApp() {
     <div className="studio">
       <StudioBar />
       <div className="studio__body">
+        <Library />
         <Bench />
         <CapturePanel />
       </div>
       <ToastRegion />
+      <WelcomeDialog />
+      <ShortcutsDialog />
+      <div className="live-region" aria-live="polite" role="status">
+        {liveMessage}
+      </div>
       {captureStageScreenId && <CaptureStageStatus />}
     </div>
   );

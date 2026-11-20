@@ -9,6 +9,13 @@ export default defineConfig({
     return {
       name: 'Neruz Page View',
       version: '0.0.0',
+      action: { default_title: 'Neruz Page View' },
+      commands: {
+        _execute_action: {
+          suggested_key: { default: 'Alt+Shift+P' },
+          description: 'Open Neruz Page View',
+        },
+      },
       permissions: [
         'storage',
         'scripting',

@@ -1,0 +1,91 @@
+---
+import type { LandingCopy } from '../i18n';
+
+interface Props {
+  copy: LandingCopy;
+}
+
+const { copy } = Astro.props;
+const studio = copy.studioArt;
+const symbolWindow = 'M24 20H104L112 28V46H100V32H28V88H54V100H24L16 92V28Z';
+const symbolViewport = 'M72 52H104L112 60V104L104 112H72L64 104V60ZM76 64V100H100V64Z';
+const top = 52;
+const modeWidth = 104;
+const modeGap = 8;
+const selectedMode = 1;
+const modePath = (x: number) =>
+  `M${x} ${top + 98}H${x + modeWidth - 6}L${x + modeWidth} ${top + 104}V${top + 142}H${x}Z`;
+---
+
+<svg
+  class="studio-art"
+  viewBox="0 0 360 336"
+  width="360"
+  height="336"
+  focusable="false"
+  aria-hidden="true"
+>
+  <g>
+    <rect x="0.5" y="0.5" width="359" height="39" fill="#0E1520" stroke="#304256"></rect>
+    <rect x="14" y="14" width="140" height="12" rx="2" fill="#141D29"></rect>
+    <rect x="262" y="12" width="16" height="16" rx="2" fill="none" stroke="#304256"></rect>
+    <rect x="290" y="12" width="16" height="16" rx="2" fill="none" stroke="#304256"></rect>
+    <rect x="316" y="6" width="28" height="28" rx="4" fill="#1B2635" opacity="0" data-studio-icon-hover></rect>
+    <g transform="translate(320 8) scale(0.1875)">
+      <path d="M24 0H104L128 24V104L104 128H24L0 104V24Z" fill="#080D14" stroke="#304256" stroke-width="5"></path>
+      <g transform="translate(5 4) scale(.92)" fill="#00E5FF" fill-rule="evenodd">
+        <path d={symbolWindow}></path>
+        <path d={symbolViewport}></path>
+      </g>
+    </g>
+  </g>
+  <g data-studio-panel>
+    <rect x="0.5" y={top + 0.5} width="359" height="283" fill="#0E1520" stroke="#304256"></rect>
+    <g transform={`translate(14 ${top + 11}) scale(0.14)`} fill="#00E5FF" fill-rule="evenodd">
+      <path d={symbolWindow}></path>
+      <path d={symbolViewport}></path>
+    </g>
+    <rect x="44.5" y={top + 8.5} width="299" height="27" rx="4" fill="#141D29" stroke="#64798F"></rect>
+    <text x="56" y={top + 26} fill="#F4F8FC" font-family="Inter, system-ui, sans-serif" font-size="12">{copy.forno.url}</text>
+    <path d={`M0 ${top + 44}H360`} stroke="#1F2B3A"></path>
+    <text x="16" y={top + 68} fill="#F4F8FC" font-family="Sora, system-ui, sans-serif" font-weight="600" font-size="14">{studio.captureTitle}</text>
+    <text x="16" y={top + 88} fill="#8296AC" font-family="Inter, system-ui, sans-serif" font-weight="500" font-size="11">{studio.modeLabel}</text>
+    {
+      studio.modes.map((label, index) => {
+        const x = 16 + index * (modeWidth + modeGap);
+        const isSelected = index === selectedMode;
+        return (
+          <g>
+            <path d={modePath(x)} fill="#141D29" stroke={isSelected ? '#00E5FF' : '#304256'}></path>
+            <text
+              x={x + modeWidth / 2}
+              y={top + 125}
+              text-anchor="middle"
+              fill={isSelected ? '#F4F8FC' : '#A6B5C5'}
+              font-family="Inter, system-ui, sans-serif"
+              font-weight="600"
+              font-size="12"
+            >
+              {label}
+            </text>
+          </g>
+        );
+      })
+    }
+    <rect x="16.5" y={top + 160.5} width="327" height="43" rx="4" fill="#141D29" stroke="#304256"></rect>
+    <text x="30" y={top + 187} fill="#F4F8FC" font-family="Inter, system-ui, sans-serif" font-weight="600" font-size="13">{studio.framedLabel}</text>
+    <path d={`M296 ${top + 173}H322L326 ${top + 177}V${top + 191}H296Z`} fill="#00E5FF"></path>
+    <rect x="316" y={top + 177} width="8" height="12" fill="#080D14"></rect>
+    <g data-studio-capture style="transform-box: fill-box; transform-origin: center">
+      <path
+        d={`M24 ${top + 220}H336L344 ${top + 228}V${top + 256}L336 ${top + 264}H24L16 ${top + 256}V${top + 228}Z`}
+        fill="#00E5FF"
+        data-studio-capture-fill
+      ></path>
+      <text x="180" y={top + 247} text-anchor="middle" fill="#080D14" font-family="Sora, system-ui, sans-serif" font-weight="600" font-size="16">{studio.captureLabel}</text>
+    </g>
+  </g>
+  <g data-studio-cursor>
+    <path d="M0 0V17L4.5 12.8L7.6 19.6L10.4 18.4L7.4 11.8H13.4Z" fill="#F4F8FC" stroke="#080D14" stroke-width="1.2" stroke-linejoin="round"></path>
+  </g>
+</svg>

@@ -1,8 +1,9 @@
 import { BrandSymbol, Button, Hint, IconButton, MirrorIcon } from '@neruz/ui';
-import { AppWindow, Minus, Plus, Scan } from 'lucide-react';
-import { type FormEvent, useEffect, useRef, useState } from 'react';
+import { AppWindow, Keyboard, Minus, Plus, Scan } from 'lucide-react';
+import { type FormEvent, type KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { Input, TextField, ToggleButton } from 'react-aria-components';
 import { formatInteger, t } from '../i18n';
+import { useLibrary } from '../library/libraryStore';
 import { stepZoom } from '../screens/layout';
 import { MAX_ACTIVE_SCREENS } from '../screens/presets';
 import { findCurrentTabAddress, openPage } from '../shell/studioSession';
@@ -29,6 +30,12 @@ export function StudioBar() {
         <MirrorToggle />
         {pageUrl && <ActiveCounter />}
         {pageUrl && <ZoomControls />}
+        <IconButton
+          label={t('studio.bar.shortcuts')}
+          onPress={() => useLibrary.getState().setShortcutsOpen(true)}
+        >
+          <Keyboard {...ICON_PROPS} aria-hidden="true" />
+        </IconButton>
       </div>
     </header>
   );
@@ -36,13 +43,17 @@ export function StudioBar() {
 
 function AddressForm({ pageUrl }: { pageUrl: string }) {
   const [address, setAddress] = useState(pageUrl);
+  const [hasError, setHasError] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => setAddress(pageUrl), [pageUrl]);
+  useEffect(() => {
+    setAddress(pageUrl);
+    setHasError(false);
+  }, [pageUrl]);
 
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
-    void openPage(address);
+    setHasError(!(await openPage(address)));
   };
 
   const openCurrentTab = async () => {
@@ -51,13 +62,24 @@ function AddressForm({ pageUrl }: { pageUrl: string }) {
     else inputRef.current?.focus();
   };
 
+  const restoreAddress = (event: KeyboardEvent) => {
+    if (event.key !== 'Escape') return;
+    setAddress(pageUrl);
+    setHasError(false);
+  };
+
   return (
-    <form className="studio-bar__address" onSubmit={submit}>
+    <form className="studio-bar__address" onSubmit={(event) => void submit(event)}>
       <TextField
         className="studio-bar__field"
         aria-label={t('studio.bar.url.placeholder')}
         value={address}
-        onChange={setAddress}
+        isInvalid={hasError}
+        onChange={(value) => {
+          setAddress(value);
+          setHasError(false);
+        }}
+        onKeyDown={restoreAddress}
       >
         <Input
           ref={inputRef}
@@ -65,6 +87,7 @@ function AddressForm({ pageUrl }: { pageUrl: string }) {
           placeholder={t('studio.bar.url.placeholder')}
           spellCheck={false}
           autoComplete="off"
+          aria-describedby={hasError ? 'bar-url-error' : undefined}
         />
       </TextField>
       <Button type="submit" variant="secondary">
@@ -73,6 +96,11 @@ function AddressForm({ pageUrl }: { pageUrl: string }) {
       <IconButton label={t('studio.bar.useCurrentTab')} onPress={() => void openCurrentTab()}>
         <AppWindow {...ICON_PROPS} aria-hidden="true" />
       </IconButton>
+      {hasError && (
+        <p id="bar-url-error" className="studio-bar__error" role="alert">
+          {t('studio.bar.url.error')}
+        </p>
+      )}
     </form>
   );
 }
@@ -98,7 +126,7 @@ function MirrorToggle() {
 
 function ActiveCounter() {
   const activeCount = useStudio(
-    (state) => state.screens.filter((screen) => screen.status !== 'blocked').length,
+    (state) => state.screens.filter((screen) => !screen.isFrozen).length,
   );
   return (
     <Hint text={t('studio.bar.active.tooltip', { total: MAX_ACTIVE_SCREENS })}>

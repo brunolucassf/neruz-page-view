@@ -129,3 +129,22 @@
     transform: none;
   }
 }
+
+.studio-bar__address {
+  position: relative;
+}
+
+.studio-bar__error {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  z-index: 5;
+  margin: 0;
+  padding: var(--pv-space-2) var(--pv-space-4);
+  background: var(--pv-bg-raised);
+  box-shadow:
+    inset 2px 0 0 var(--pv-danger),
+    var(--pv-shadow-popover);
+  color: var(--pv-text);
+  font-size: var(--pv-ui-12);
+}

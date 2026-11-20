@@ -38,9 +38,10 @@ Validação da infraestrutura de Bruno: a extensão não usa servidor. A landing
 
 ```
                   ┌───────────── Navegador do usuário ─────────────┐
- clique no ícone  │  Popup (atalhos)     Service worker / event page│
- ──────────────▶  │   │ abrir Estúdio      DNR de sessão, permissões│
-                  │   ▼                    comandos, roteamento msg │
+ clique no ícone  │  action.onClicked ─▶ Service worker / event page│
+ ou atalho        │   (sem popup)          abre/foca o Estúdio,     │
+ ──────────────▶  │   │                    DNR, permissões, msgs    │
+                  │   ▼                                             │
                   │  ESTÚDIO (aba chrome-extension://.../studio)    │
                   │   ├ iframe tela 1 ─ content script (isolado)    │
                   │   ├ iframe tela 2 ─ content script (isolado)    │
@@ -53,16 +54,16 @@ Validação da infraestrutura de Bruno: a extensão não usa servidor. A landing
 | Superfície | Papel | Notas |
 |---|---|---|
 | **Estúdio** (`entrypoints/studio`, página HTML da extensão aberta em aba) | Aplicação principal: grade de telas, toolbar, biblioteca, captura, mockups, relatório, exportação | Não usa side panel: estreito demais para várias telas e inexistente no Firefox (que tem `sidebar_action`, outra API). Exportação por `<a download>` com Blob URL (sem permissão `downloads`) |
-| **Popup** (`entrypoints/popup`) | Atalhos: "Abrir esta página no Page View", "Print rápido desta aba", "Gravar esta aba", idioma | Sem lógica pesada; fecha sozinho. O print rápido da aba comum usa `activeTab` + `scripting` + `captureVisibleTab`, sem permissão de host |
-| **Background** (`entrypoints/background`) | Service worker no Chromium, event page (scripts) no Firefox, gerado pelo WXT | Fino e sem estado em memória que precise sobreviver: estado persistido em `storage.session`. Funções: criar/limpar regras DNR por aba do Estúdio, validar e rotear mensagens, `commands`, ciclo de vida do offscreen |
+| **Ícone da extensão** (sem popup, ADR-016) | Clique ou atalho `_execute_action` abre o Estúdio com a URL da aba atual, já pedindo a permissão daquela origem no mesmo gesto; reaproveita o Estúdio daquela aba; página não suportada abre o Estúdio vazio com aviso. Sobre um Estúdio armado, o clique inicia (ou para) a gravação | Algoritmo em API.md §6.5. Idioma e demais opções ficam nas configurações do Estúdio |
+| **Background** (`entrypoints/background`) | Service worker no Chromium, event page (scripts) no Firefox, gerado pelo WXT | Fino e sem estado em memória que precise sobreviver: estado persistido em `storage.session`. Funções: `action.onClicked` (abrir/focar Estúdio, gesto de gravação), criar/limpar regras DNR por aba do Estúdio, validar e rotear mensagens, ciclo de vida do offscreen |
 | **Content script `frame-agent`** (isolado, registrado dinamicamente) | Em cada frame de origem autorizada: espelhamento, aquecimento, detecção de seções, rolagem para captura, ocultar fixos, aviso de rolagem lateral, emulação de reduzir movimento via CSSOM | Inerte fora do Estúdio: em `window.top === window` sai na hora; em subframe pergunta ao background (`frame.hello`), que responde com base em `sender.tab.id` pertencer ao conjunto de abas do Estúdio |
 | **Script `frame-env`** (world MAIN, opcional, ADR-011) | Sobrescrever `matchMedia('(prefers-reduced-motion)')`, `navigator.userAgent/userAgentData/maxTouchPoints` | Lê configuração só de `window.name` (definido pelo atributo `name` do iframe). Não escuta eventos, não envia mensagens, não acessa API de extensão. Desligado por padrão até aprovação do security-engineer |
-| **Offscreen document** (só Chromium, `reasons: ['USER_MEDIA']`) | Toda gravação Chromium (Estúdio e aba comum) com o stream de `tabCapture.getMediaStreamId`: recorte, composição, encode e mux | Provado no P4. Início sempre por gesto na action/atalho (ADR-015); resultado volta ao Estúdio por `blobUrl` |
+| **Offscreen document** (só Chromium, `reasons: ['USER_MEDIA']`) | Toda gravação Chromium (Estúdio e aba comum) com o stream de `tabCapture.getMediaStreamId`: recorte, composição, encode e mux | Provado no P4. Início por gesto: clique em "Gravar" no Estúdio se o navegador aceitar, senão clique no ícone/atalho com o Estúdio armado em primeiro plano (ADR-015, ADR-016); resultado volta ao Estúdio por `blobUrl` |
 | **Workers** (dentro do Estúdio) | `stitch.worker`, `video.worker` (VideoEncoder + Mediabunny), `gif.worker`, `zip.worker`, `pdf` sob demanda | Transferência com `ImageBitmap`/`VideoFrame` transferíveis; nada de base64 |
 
 ### 3.1 Abrir sites em iframe
 
-1. Usuário digita URL ou vem da aba atual. Estúdio verifica `permissions.contains({origins:[origem]})`; se faltar, mostra cartão explicativo com botão que chama `permissions.request` (gesto do usuário). Opção "permitir todos os sites" pede `http://*/*` e `https://*/*` de uma vez.
+1. Usuário digita URL no campo do topo do Estúdio (troca de site a qualquer momento) ou vem da aba atual pelo clique no ícone (`bg.studio.launch`/`ui.openUrl`; a permissão da origem já foi pedida no gesto, ADR-016). Estúdio verifica `permissions.contains({origins:[origem]})`; se faltar, mostra cartão explicativo com botão que chama `permissions.request` (gesto do usuário). Opção "permitir todos os sites" pede `http://*/*` e `https://*/*` de uma vez.
 2. Com permissão, o Estúdio pede ao background `dnr.enable({tabId})`. O background cria **regras de sessão** (`updateSessionRules`) com `condition: { tabIds:[tabIdDoEstudio], resourceTypes:['sub_frame'] }` e `action: modifyHeaders` removendo `x-frame-options`, `content-security-policy` e `content-security-policy-report-only` da resposta. `tabIds` só existe em regras de sessão, o que é desejado: somem ao reiniciar o navegador. Limpeza em `tabs.onRemoved` (evento não exige permissão `tabs`), ao fechar o Estúdio e no startup do worker.
 3. Permissão usada: `declarativeNetRequestWithHostAccess` (sem aviso na instalação; age só em hosts concedidos). `declarativeNetRequest` não pode ser opcional e gera aviso, por isso não é usado.
 4. Background registra `frame-agent` via `scripting.registerContentScripts` com `matches` = origens concedidas, `allFrames: true`, `matchOriginAsFallback: true`, `runAt: 'document_start'`. Atualiza a lista em `permissions.onAdded/onRemoved`.
@@ -111,13 +112,13 @@ Primitiva única: `tabs.captureVisibleTab` do Estúdio (limite de 2 chamadas por
 | Área | Seleção retangular sobre a tile; recorte do quadro |
 | Todas as telas | Fila sequencial por tela; resultado vai para mockups/ZIP |
 
-Mockup: composição em `OffscreenCanvas` com molduras SVG próprias (sem arte oficial de fabricante), fundo editável (cor, gradiente, imagem do usuário). Exportação PNG, JPEG, WebP via `convertToBlob`.
+**Print com moldura** (nome aprovado por Bruno, P16; antes "print bonito"): opção do painel de captura do Estúdio, aplicada ao print da tela aberta (não existe mais print de aba comum fora do Estúdio, ADR-016). Mockup: composição em `OffscreenCanvas` com molduras SVG próprias (sem arte oficial de fabricante), fundo editável (cor, gradiente, imagem do usuário). Exportação PNG, JPEG, WebP via `convertToBlob`.
 
 Tamanho máximo de canvas (~16k px de altura no Chromium; limites de área): páginas mais longas são divididas em partes numeradas, nunca truncadas em silêncio.
 
 ### 4.2 Vídeo
 
-1. Fonte: Chromium usa `tabCapture` (permissão opcional) para a aba do Estúdio, sempre via offscreen, iniciado por gesto na action ou atalho com a gravação já armada no Estúdio (ADR-015, fluxo em API.md §6.3); Firefox usa `getDisplayMedia` no próprio Estúdio (o usuário escolhe a aba no seletor do navegador).
+1. Fonte: Chromium usa `tabCapture` (permissão opcional) para a aba do Estúdio, sempre via offscreen, iniciado por gesto com a gravação armada no Estúdio: o próprio clique em "Gravar" se o navegador aceitar, senão clique no ícone/atalho sobre o Estúdio (ADR-015, ADR-016, fluxo em API.md §6.3). Gravar com um clique só a partir da página do site não é possível: o `activeTab` desse clique vale para a aba do site, não para o Estúdio; Firefox usa `getDisplayMedia` no próprio Estúdio (o usuário escolhe a aba no seletor do navegador).
 2. Modo gravação: o Estúdio mostra só a tela escolhida, sem chrome de UI, oculta a barra de rolagem do iframe, ajusta zoom por aba para a tela ocupar a maior altura física possível (para 1080 px nativos a tela precisa ocupar ~1080 px físicos no quadro; recomendado abrir o Estúdio em janela dedicada alta) e executa o roteiro de scroll automático (seções detectadas, velocidade, pausas manuais pela mini barra) dentro do `frame-agent`.
 3. Pipeline: `MediaStreamTrackProcessor` (Chromium, no offscreen) ou `requestVideoFrameCallback` em `<video>` (Firefox) produz `VideoFrame`; recorte por escala+centralização (o quadro do tabCapture traz a aba escalada e centralizada) e encaixe em 1080×1920 ou 1920×1080 com composição de fundo/mockup em `OffscreenCanvas`; leitura com teto e repetição do último quadro até a duração pedida; `VideoEncoder` (H.264 `avc1` para MP4, VP9 para WebM) e Mediabunny faz o mux. Cursor opcional desenhado por cima a partir das posições do `frame-agent`.
 4. Fallback: se `VideoEncoder` não suportar H.264 no navegador/SO, oferece WebM e explica; `MediaRecorder` fica como plano C.
@@ -144,7 +145,9 @@ Lista colada, `sitemap.xml` (fetch do Estúdio com permissão de host da origem,
 | `optional_permissions` | `tabCapture` (só Chromium), `clipboardWrite` | Pedido sob demanda |
 | `optional_host_permissions` | `http://*/*`, `https://*/*` (cobre localhost) | Pedido por origem, com gesto |
 | `host_permissions` | vazio | |
-| `commands` | atalhos (abrir Estúdio, print rápido, gravar) | |
+| `action` | ícone e título, **sem `default_popup`** (ADR-016) | |
+| `commands` | só `_execute_action` (sugestão `Alt+Shift+P`), mesmo efeito do clique | |
+| `contextMenus` | não usado na v1 (ADR-016) | |
 | Proibidos | `debugger`, `tabs`, `webNavigation`, `cookies`, `history`, `downloads`, `unlimitedStorage`, `declarativeNetRequest`, `<all_urls>` obrigatório | CI compara com allowlist |
 | CSP | `script-src 'self' 'wasm-unsafe-eval'` só se algum wasm entrar (hoje nenhum); `object-src 'self'` | |
 | Firefox | `browser_specific_settings.gecko.id`, `data_collection_permissions: {required:["none"]}`; sem `offscreen`/`tabCapture` | |
@@ -163,13 +166,14 @@ Sem dados pessoais. `storage.local` via `storage.defineItem` do WXT, versionado 
 
 Export/import: JSON `{schema: 'neruz.pageview.settings', version, data}` validado com Valibot, máx. 1 MB. Schemas, versões, padrões e migrações de cada chave: [API.md](API.md) §7.
 
-## 7. Contrato interno (resumo; a especificação congelada está em [API.md](API.md), v1 de 2026-11-20, ADR-014)
+## 7. Contrato interno (resumo; a especificação congelada está em [API.md](API.md), v1.2 de 2026-11-20, ADR-014 e ADR-016)
 
 Mensagens tipadas em `packages/core/messaging` como união discriminada no envelope `{v, type, frameId, seq, payload}` validada com Valibot no receptor; respostas `Reply` com erro tipado `NPV-*` e teto de tempo em todo pedido. Famílias:
 
 - `frame.*` (frame-agent → background → Estúdio pela Port `npv-studio`): `hello`, `ready`, `stable`, `sections`, `scroll`, `click`, `navigate`, `input`, `overflow`, `autoscroll.ended`, `error`.
 - `studio.*` (Estúdio → frame): `ping`, `metrics`, `measure`, `applyScroll`, `applyClick`, `applyInput`, `navigate`, `scrollTo`, `waitStable`, `warmup`, `hideFixed`, `restoreFixed`, `hideScrollbar`, `autoscroll.start|pause|resume|stop`, `emulate`.
-- `bg.*` (Estúdio/popup → background): `studio.enable|disable`, `scripts.sync`, `frames.list`, `popup.openStudio`, `rec.arm|trigger|cancel|release`.
+- `bg.*` (Estúdio → background): `studio.enable|disable|launch`, `scripts.sync`, `frames.list`, `rec.arm|cancel|release`.
+- `ui.*` (background → Estúdio pela Port, eventos): `openUrl`, `actionClicked`. Ícone e atalho entram por `action.onClicked`, sem mensagem.
 - `rec.*` (background ↔ offscreen, eventos ao Estúdio): `start`, `stop`, `progress`, `started`, `done`, `failed`.
 - Background rejeita `sender.id` diferente, `sender.tab.id` fora de `studioTabs` e `frame.hello` de `frameId 0`; mutações de DNR e registro de scripts numa fila serial única.
 
@@ -193,8 +197,7 @@ Sem telemetria (promessa central). Em seu lugar:
 ├─ apps/
 │  ├─ page-view/                 WXT
 │  │  ├─ entrypoints/
-│  │  │  ├─ background.ts
-│  │  │  ├─ popup/
+│  │  │  ├─ background.ts        inclui action.onClicked (sem popup, ADR-016)
 │  │  │  ├─ studio/              Estúdio (React)
 │  │  │  ├─ offscreen/           só Chromium
 │  │  │  ├─ frame-agent.content.ts   registrado dinamicamente (registration: 'runtime')
@@ -222,7 +225,7 @@ Sem telemetria (promessa central). Em seu lugar:
 |---|---|
 | `apps/page-view/entrypoints/background.ts`, `offscreen/` | frontend-engineer (motor; revisão: security-engineer) |
 | `apps/page-view/entrypoints/*.content.ts`, `src/features/mirror` | frontend-engineer (motor; `frame-env` com revisão obrigatória do security-engineer) |
-| `apps/page-view/entrypoints/studio`, `popup`, `src/features/*` (UI) | frontend-engineer (UI) |
+| `apps/page-view/entrypoints/studio`, `src/features/*` (UI) | frontend-engineer (UI) |
 | `packages/capture` | frontend-engineer (motor) |
 | `apps/page-view/wxt.config.ts`, manifest, scaffold do monorepo (`package.json`, `pnpm-workspace.yaml`) | devops-engineer (revisão de permissões: security-engineer) |
 | `packages/core` | software-architect (contrato); implementação: frontend-engineer; mudanças por ADR |
@@ -266,6 +269,7 @@ Edge, Opera e Brave usam o build Chromium. Brave Shields pode bloquear recursos 
 | R8 | Firefox: DNR, WebCodecs H.264 e getDisplayMedia com UX diferente | P5 na construção, antes da auditoria (não bloqueia o corte inicial); recursos degradam com mensagem, não somem em silêncio |
 | R9 | ADR-011 (script MAIN) conflita com a regra 6 de segurança | Desligado até aprovação; sem ele, reduzir movimento só vale para CSS e UA só no modo tela única |
 | R10 | Canvas gigante estoura memória | Fatiamento automático e limites de área |
+| R11 | `permissions.request` dentro de `action.onClicked` no service worker sem garantia documentada (Chrome e Firefox) | Chamada síncrona antes de qualquer `await`; recusa ou rejeição caem no cartão de permissão do Estúdio, sem mudar contrato. Teste na construção nos dois navegadores |
 
 ## 13. Prova de conceito recomendada (corte inicial)
 
@@ -279,4 +283,4 @@ Objetivo: provar as 5 incertezas que podem derrubar o produto antes de qualquer 
 
 Critério de saída: P1 a P4 passam no Chrome; P5 documenta as degradações. Resultado vira ADR de confirmação (ou de troca de abordagem) antes da construção paralela.
 
-**Resultado (2026-11-20):** P1 a P4 passaram no Chrome (relatório da POC). ADR-006 e ADR-007 aceitas; novas ADR-014 (contrato v1) e ADR-015 (gravação por gesto via offscreen). Pendências: P5 Firefox (construção, antes da auditoria), comparação com GoFullPage, teste de clique dentro do Estúdio como invocação do tabCapture.
+**Resultado (2026-11-20):** P1 a P4 passaram no Chrome (relatório da POC). ADR-006 e ADR-007 aceitas; novas ADR-014 (contrato v1) e ADR-015 (gravação por gesto via offscreen). Pendências: P5 Firefox (construção, antes da auditoria), comparação com GoFullPage, teste de clique dentro do Estúdio como invocação do tabCapture (`bg.rec.arm` com `tryStartNow`), teste de `permissions.request` no `action.onClicked` (R11). ADR-016 (2026-11-20) retirou o popup: contrato v1.2.

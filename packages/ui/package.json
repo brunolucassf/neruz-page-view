@@ -8,7 +8,8 @@
     "./tokens.css": "./src/tokens.css",
     "./fonts.css": "./src/fonts.css",
     "./base.css": "./src/base.css",
-    "./graphics.css": "./src/graphics.css"
+    "./graphics.css": "./src/graphics.css",
+    "./frames/*": "./src/frames/*"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

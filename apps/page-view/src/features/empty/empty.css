@@ -124,3 +124,17 @@
     transform: none;
   }
 }
+
+.empty__title--calm {
+  font-size: var(--pv-ui-16);
+  line-height: var(--pv-ui-16-lh);
+  max-width: 44ch;
+}
+
+.empty__error {
+  margin: 0;
+  color: var(--pv-text-2);
+  font-size: var(--pv-ui-12);
+  box-shadow: inset 2px 0 0 var(--pv-danger);
+  padding-left: var(--pv-space-4);
+}

@@ -16,8 +16,9 @@ import { formatSize, t } from '../i18n';
 import { loadScreen } from '../shell/studioSession';
 import { type Screen, useStudio } from '../shell/studioStore';
 import type { ScreenBox } from './layout';
-import { KIND_LABEL } from './presets';
+import { MAX_ACTIVE_SCREENS } from './presets';
 import { ResizeHandles } from './ResizeHandles';
+import { ScreenMenu } from './ScreenMenu';
 import './screen.css';
 
 const IFRAME_SANDBOX =
@@ -38,12 +39,15 @@ export function ScreenView({ screen, index, box, zoom }: ScreenViewProps) {
   const pageUrl = useStudio((state) => state.pageUrl);
   const isActive = useStudio((state) => state.activeScreenId === screen.id);
   const isCaptureTarget = useStudio((state) => state.captureStageScreenId === screen.id);
+  const isJustAdded = useStudio((state) => state.justAddedScreenId === screen.id);
+  const total = useStudio((state) => state.screens.length);
+  const unfreezeScreen = useStudio((state) => state.unfreezeScreen);
   const activateScreen = useStudio((state) => state.activateScreen);
   const rotateScreen = useStudio((state) => state.rotateScreen);
   const toggleScreenDark = useStudio((state) => state.toggleScreenDark);
   const reloadScreen = useStudio((state) => state.reloadScreen);
 
-  const label = t(KIND_LABEL[screen.kind]);
+  const label = screen.name;
   const accessibleName = t('studio.screen.a11yName', {
     n: index + 1,
     device: label,
@@ -60,11 +64,21 @@ export function ScreenView({ screen, index, box, zoom }: ScreenViewProps) {
 
   useEffect(() => {
     const iframe = iframeRef.current;
-    if (!iframe || access !== 'granted' || !pageUrl || screen.loadKey === 0) return;
+    if (!iframe || access !== 'granted' || !pageUrl || screen.loadKey === 0 || screen.isFrozen)
+      return;
     const controller = new AbortController();
     void loadScreen(iframe, screen.id, screen.presetId, controller.signal);
     return () => controller.abort();
-  }, [access, pageUrl, screen.id, screen.presetId, screen.loadKey]);
+  }, [access, pageUrl, screen.id, screen.presetId, screen.loadKey, screen.isFrozen]);
+
+  useEffect(() => {
+    if (!isJustAdded) return;
+    const section = sectionRef.current;
+    section?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+    section?.querySelector<HTMLElement>('[data-screen-key]')?.focus({ preventScroll: true });
+    const timer = setTimeout(() => useStudio.getState().clearJustAdded(), 1000);
+    return () => clearTimeout(timer);
+  }, [isJustAdded]);
 
   const sectionStyle: CSSProperties = {
     left: isCaptureTarget ? 0 : box.x,
@@ -81,6 +95,8 @@ export function ScreenView({ screen, index, box, zoom }: ScreenViewProps) {
       data-screen-id={screen.id}
       data-status={screen.status}
       data-active={isActive || undefined}
+      data-frozen={screen.isFrozen || undefined}
+      data-added={isJustAdded || undefined}
       data-capture-target={isCaptureTarget || undefined}
       onPointerDownCapture={() => activateScreen(screen.id)}
       onFocusCapture={() => activateScreen(screen.id)}
@@ -97,20 +113,24 @@ export function ScreenView({ screen, index, box, zoom }: ScreenViewProps) {
         <span className="screen__size pv-tnum" aria-hidden="true">
           {formatSize(screen.width, screen.height)}
         </span>
+        {isJustAdded && <span className="screen__badge">{t('studio.screen.added.badge')}</span>}
         <div className="screen__actions">
-          <IconButton label={t('studio.screen.rotate')} onPress={() => rotateScreen(screen.id)}>
-            <RotateIcon size={16} />
-          </IconButton>
-          <Hint text={t('studio.screen.dark')}>
-            <ToggleButton
-              className="pv-button pv-button--icon screen__dark"
-              aria-label={t('studio.screen.dark')}
-              isSelected={screen.isDark}
-              onChange={() => toggleScreenDark(screen.id)}
-            >
-              <Moon size={16} strokeWidth={1.75} aria-hidden="true" />
-            </ToggleButton>
-          </Hint>
+          <div className="screen__inline-actions">
+            <IconButton label={t('studio.screen.rotate')} onPress={() => rotateScreen(screen.id)}>
+              <RotateIcon size={16} />
+            </IconButton>
+            <Hint text={t('studio.screen.dark')}>
+              <ToggleButton
+                className="pv-button pv-button--icon screen__dark"
+                aria-label={t('studio.screen.dark')}
+                isSelected={screen.isDark}
+                onChange={() => toggleScreenDark(screen.id)}
+              >
+                <Moon size={16} strokeWidth={1.75} aria-hidden="true" />
+              </ToggleButton>
+            </Hint>
+          </div>
+          <ScreenMenu screenId={screen.id} index={index} total={total} />
         </div>
       </header>
       <div className="screen__viewport" style={{ width: viewportWidth, height: viewportHeight }}>
@@ -122,25 +142,54 @@ export function ScreenView({ screen, index, box, zoom }: ScreenViewProps) {
             transform: effectiveZoom === 1 ? undefined : `scale(${effectiveZoom})`,
           }}
         >
-          <iframe
-            key={screen.loadKey}
-            ref={iframeRef}
-            className="screen__frame"
-            name={buildScreenName(screen.id, screen.presetId)}
-            title={accessibleName}
-            sandbox={IFRAME_SANDBOX}
-            allow={IFRAME_ALLOW}
-            width={screen.width}
-            height={screen.height}
-            style={{ colorScheme: screen.isDark ? 'dark' : 'light' }}
-          />
+          {!screen.isFrozen && (
+            <iframe
+              key={screen.loadKey}
+              ref={iframeRef}
+              className="screen__frame"
+              name={buildScreenName(screen.id, screen.presetId)}
+              title={accessibleName}
+              sandbox={IFRAME_SANDBOX}
+              allow={IFRAME_ALLOW}
+              width={screen.width}
+              height={screen.height}
+              style={{ colorScheme: screen.isDark ? 'dark' : 'light' }}
+            />
+          )}
         </div>
-        {screen.status !== 'blocked' && <ScreenCurtain status={screen.status} label={label} />}
-        {screen.status === 'blocked' && <BlockedCard onRetry={() => reloadScreen(screen.id)} />}
+        {screen.isFrozen && (
+          <FrozenCard total={MAX_ACTIVE_SCREENS} onActivate={() => unfreezeScreen(screen.id)} />
+        )}
+        {!screen.isFrozen && screen.status !== 'blocked' && (
+          <ScreenCurtain status={screen.status} label={label} />
+        )}
+        {!screen.isFrozen && screen.status === 'blocked' && (
+          <BlockedCard onRetry={() => reloadScreen(screen.id)} />
+        )}
         <CutMarks className="screen__marks" />
         <ResizeHandles screen={screen} label={label} />
       </div>
     </section>
+  );
+}
+
+function FrozenCard({ total, onActivate }: { total: number; onActivate: () => void }) {
+  return (
+    <div className="screen__frozen">
+      <div className="screen__skeleton" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className="screen__frozen-card pv-cut">
+        <span className="pv-chip screen__frozen-chip">{t('studio.screen.paused')}</span>
+        <p className="screen__frozen-body">{t('studio.screen.limit.frozen.body', { total })}</p>
+        <Button variant="secondary" onPress={onActivate}>
+          {t('studio.screen.limit.frozen.action')}
+        </Button>
+      </div>
+    </div>
   );
 }
 

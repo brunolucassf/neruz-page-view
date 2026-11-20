@@ -1,0 +1,260 @@
+---
+import type { LandingCopy } from '../i18n';
+
+interface Props {
+  copy: LandingCopy;
+}
+
+const { copy } = Astro.props;
+const scene = copy.sceneDevices;
+---
+
+<section class="scene-devices" id="role-uma-tela" aria-labelledby="devices-title" data-scene-devices>
+  <div class="scene-devices__text" data-devices-text>
+    <p class="scene-copy__index eyebrow">
+      <span>{scene.stepLabel}</span>
+      <span class="visually-hidden">
+        {copy.ruler.counter.replace('{n}', '3').replace('{total}', '8')}
+      </span>
+    </p>
+    <h2 id="devices-title" class="scene-copy__title scene-devices__title">{scene.title}</h2>
+    <p class="scene-copy__subtitle">{scene.subtitle}</p>
+  </div>
+  <div class="scene-devices__slot" data-devices-slot aria-hidden="true"></div>
+  <p class="scene-copy__note scene-devices__note" data-devices-note>{scene.note}</p>
+  <div class="devices" aria-hidden="true" data-devices>
+    {
+      scene.names.map((name, index) => (
+        <div class="sdev" data-sdev={index}>
+          <div class="sdev__screen" data-sdev-screen>
+            <div class="sdev__inner" data-sdev-inner>
+              <span class="sdev__dot" data-sdev-dot></span>
+            </div>
+          </div>
+          <div class="sdev__cota cota-text">
+            <span class="sdev__line"></span>
+            <span class="sdev__label">
+              <span class="sdev__name">{name}</span>
+              <span data-sdev-width></span>
+            </span>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .scene-devices {
+    position: relative;
+    display: grid;
+    gap: var(--pv-space-9);
+  }
+
+  .scene-devices__title {
+    max-width: 20ch;
+    font-size: clamp(1.75rem, 1.15rem + 2.2vw, 3.5rem);
+  }
+
+  .scene-devices__slot {
+    min-height: clamp(320px, 56vw, 560px);
+  }
+
+  .scene-devices__note {
+    max-width: 58ch;
+  }
+
+  .devices {
+    display: none;
+  }
+
+  :global(.is-motion) .devices,
+  :global(.is-static) .devices {
+    position: absolute;
+    inset: 0;
+    display: block;
+    pointer-events: none;
+  }
+
+  .sdev {
+    --rotation: 0deg;
+    position: absolute;
+    top: 0;
+    left: 0;
+    visibility: hidden;
+    transform-origin: 0 0;
+    will-change: transform, opacity;
+  }
+
+  .sdev[data-off] {
+    display: none;
+  }
+
+  .sdev__screen {
+    --cut: 10px;
+    position: relative;
+    height: calc(100% - 30px);
+    background: var(--pv-line);
+    box-shadow: var(--pv-shadow-frame);
+    transform: rotate(var(--rotation));
+    transform-origin: 50% 100%;
+    clip-path: polygon(
+      var(--cut) 0,
+      calc(100% - var(--cut)) 0,
+      100% var(--cut),
+      100% calc(100% - var(--cut)),
+      calc(100% - var(--cut)) 100%,
+      var(--cut) 100%,
+      0 calc(100% - var(--cut)),
+      0 var(--cut)
+    );
+  }
+
+  .sdev__inner {
+    position: absolute;
+    inset: 1px;
+    overflow: hidden;
+    background: var(--pv-bg-chrome);
+    clip-path: inherit;
+  }
+
+  .sdev__dot {
+    position: absolute;
+    top: -7px;
+    left: -7px;
+    z-index: 2;
+    width: 14px;
+    height: 14px;
+    background: var(--pv-cyan);
+    opacity: 0;
+    transform: rotate(45deg);
+    transition: opacity var(--pv-dur-fast) var(--pv-ease-out);
+  }
+
+  .sdev__dot.is-on {
+    opacity: 1;
+  }
+
+  .sdev__cota {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    height: 22px;
+    align-items: center;
+    justify-content: center;
+    color: var(--pv-text-2);
+  }
+
+  .sdev__line {
+    position: absolute;
+    inset: 50% 0 auto;
+    height: 1px;
+    background: var(--pv-line-strong);
+  }
+
+  .sdev__line::before,
+  .sdev__line::after {
+    content: "";
+    position: absolute;
+    top: -4px;
+    width: 1px;
+    height: 9px;
+    background: var(--pv-text-2);
+    transform: rotate(45deg);
+  }
+
+  .sdev__line::before {
+    left: 0;
+  }
+
+  .sdev__line::after {
+    right: 0;
+  }
+
+  .sdev__label {
+    position: relative;
+    display: inline-flex;
+    gap: var(--pv-space-3);
+    padding-inline: var(--pv-space-3);
+    background: var(--pv-bg-mat);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .sdev__name {
+    display: none;
+    color: var(--pv-text);
+  }
+
+  @media (min-width: 768px) {
+    .sdev__name {
+      display: inline;
+    }
+
+    .scene-devices__slot {
+      min-height: clamp(360px, 40vw, 560px);
+    }
+  }
+
+  :global(.is-motion) .scene-devices {
+    position: absolute;
+    inset: 0;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: var(--pv-space-6);
+    padding: var(--pv-space-13) var(--pv-site-inline) 96px;
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  :global(.is-motion) .scene-devices__slot {
+    min-height: 0;
+  }
+
+  :global(.is-motion) .scene-devices__text {
+    position: relative;
+    z-index: 4;
+    clip-path: polygon(0 0, 0 0, 0 0);
+  }
+
+  :global(.is-motion) .scene-devices__note {
+    position: relative;
+    z-index: 4;
+    opacity: 0;
+  }
+
+  :global(.is-motion) .scene-devices .scene-copy__subtitle {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 7;
+    line-clamp: 7;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  @media (min-width: 768px) {
+    :global(.is-motion) .scene-devices {
+      padding: var(--pv-space-15) var(--pv-site-inline) var(--pv-space-12);
+    }
+
+    :global(.is-motion) .scene-devices__text {
+      max-width: min(100%, 760px);
+    }
+
+    :global(.is-motion) .scene-devices .scene-copy__subtitle {
+      max-width: 62ch;
+      -webkit-line-clamp: 6;
+      line-clamp: 6;
+      font-size: var(--pv-fs-body);
+      line-height: var(--pv-fs-body-lh);
+    }
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .sdev__screen {
+      box-shadow: none;
+    }
+  }
+</style>

@@ -1,0 +1,395 @@
+---
+import type { LandingCopy } from '../i18n';
+
+interface Props {
+  copy: LandingCopy;
+}
+
+const { copy } = Astro.props;
+const scene = copy.sceneAuto;
+const marks = scene.sections;
+const lastMark = marks.length - 1;
+---
+
+<section class="scene-auto" id="pagina-rola-sozinha" aria-labelledby="auto-title" data-scene-auto>
+  <div class="scene-auto__text" data-auto-text>
+    <p class="scene-copy__index eyebrow">
+      <span>{scene.stepLabel}</span>
+      <span class="visually-hidden">
+        {copy.ruler.counter.replace('{n}', '4').replace('{total}', '8')}
+      </span>
+    </p>
+    <h2 id="auto-title" class="scene-copy__title scene-auto__title">{scene.title}</h2>
+    <p class="scene-copy__subtitle">{scene.subtitle}</p>
+  </div>
+  <div class="scene-auto__slot" data-auto-slot aria-hidden="true"></div>
+  <p class="scene-copy__note scene-auto__note" data-auto-note>{scene.note}</p>
+  <div class="afr" aria-hidden="true" data-afr data-recording={scene.recording}>
+    <div class="afr__screen" data-afr-screen>
+      <div class="afr__inner" data-afr-inner></div>
+      <span class="afr__tag cota-text" data-afr-tag>9:16 · 1080×1920</span>
+      <div class="afr__bar" data-afr-bar>
+        <span class="afr__grip"><i></i><i></i><i></i></span>
+        <span class="afr__rec"></span>
+        <span class="afr__time cota-text" data-afr-time>{scene.recording.replace('{time}', '00:00')}</span>
+        <span class="afr__ctl afr__ctl--extra">
+          <svg viewBox="0 0 16 16" width="16" height="16" focusable="false"><path d="M5 3V13M11 3V13" stroke="currentColor" stroke-width="1.75" fill="none"></path></svg>
+        </span>
+        <span class="afr__ctl">
+          <svg viewBox="0 0 16 16" width="16" height="16" focusable="false"><path d="M4 4H12V12H4Z" fill="currentColor"></path></svg>
+        </span>
+      </div>
+    </div>
+    <div class="atl" data-atl>
+      <span class="atl__line"><span class="atl__fill" data-atl-fill></span></span>
+      {
+        marks.map((label, index) => (
+          <span class="atl__mark" style={`--t: ${index / lastMark}`} data-atl-mark={index}>
+            <i></i>
+            <span class="atl__label cota-text">{label}</span>
+          </span>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .scene-auto {
+    position: relative;
+    display: grid;
+    gap: var(--pv-space-9);
+  }
+
+  .scene-auto__title {
+    max-width: 20ch;
+    font-size: clamp(1.75rem, 1.15rem + 2.2vw, 3.5rem);
+  }
+
+  .scene-auto__slot {
+    min-height: clamp(380px, 70vw, 640px);
+  }
+
+  .afr {
+    display: none;
+  }
+
+  :global(.is-motion) .afr,
+  :global(.is-static) .afr {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    display: block;
+    visibility: hidden;
+    transform-origin: 50% 50%;
+    will-change: transform, opacity;
+  }
+
+  .afr__screen {
+    --cut: 16px;
+    container: afr / inline-size;
+    position: absolute;
+    inset: 0;
+    background: var(--pv-line);
+    box-shadow: var(--pv-shadow-frame);
+    clip-path: polygon(
+      var(--cut) 0,
+      calc(100% - var(--cut)) 0,
+      100% var(--cut),
+      100% calc(100% - var(--cut)),
+      calc(100% - var(--cut)) 100%,
+      var(--cut) 100%,
+      0 calc(100% - var(--cut)),
+      0 var(--cut)
+    );
+  }
+
+  .afr__inner {
+    position: absolute;
+    inset: 1px;
+    overflow: hidden;
+    background: var(--pv-bg-chrome);
+    clip-path: inherit;
+  }
+
+  .afr__tag {
+    position: absolute;
+    top: var(--pv-space-6);
+    left: var(--pv-space-8);
+    z-index: 2;
+    padding: 4px 6px;
+    background: rgb(8 13 20 / 0.82);
+    color: var(--pv-text);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .afr__bar {
+    --cut: var(--pv-cut-md);
+    position: absolute;
+    bottom: var(--pv-space-6);
+    left: 50%;
+    z-index: 2;
+    display: flex;
+    max-width: calc(100% - 16px);
+    height: 40px;
+    align-items: center;
+    gap: var(--pv-space-4);
+    padding-inline: var(--pv-space-5);
+    background: rgb(20 29 41 / 0.94);
+    color: var(--pv-text);
+    transform: translateX(-50%);
+    backdrop-filter: blur(12px);
+    clip-path: polygon(
+      var(--cut) 0,
+      calc(100% - var(--cut)) 0,
+      100% var(--cut),
+      100% calc(100% - var(--cut)),
+      calc(100% - var(--cut)) 100%,
+      var(--cut) 100%,
+      0 calc(100% - var(--cut)),
+      0 var(--cut)
+    );
+  }
+
+  .afr__grip {
+    display: grid;
+    gap: 3px;
+  }
+
+  .afr__grip i {
+    width: 10px;
+    height: 2px;
+    background: var(--pv-line-strong);
+  }
+
+  .afr__rec {
+    width: 8px;
+    height: 8px;
+    flex: none;
+    background: var(--pv-danger);
+    animation: rec-pulse 1.6s ease-in-out infinite;
+  }
+
+  .afr__time {
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .afr__ctl {
+    display: grid;
+    width: 24px;
+    height: 24px;
+    flex: none;
+    place-items: center;
+    color: var(--pv-text-2);
+  }
+
+  @container afr (max-width: 240px) {
+    .afr__ctl--extra,
+    .afr__grip {
+      display: none;
+    }
+  }
+
+  @keyframes rec-pulse {
+    50% {
+      opacity: 0.35;
+    }
+  }
+
+  .atl {
+    --atl-width: 100px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--atl-width);
+    pointer-events: none;
+    visibility: hidden;
+    touch-action: pan-y;
+  }
+
+  .atl__line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 10px;
+    width: 2px;
+    background: var(--pv-line);
+  }
+
+  .atl__fill {
+    position: absolute;
+    inset: 0;
+    background: var(--pv-accent);
+    transform: scaleY(0);
+    transform-origin: 50% 0;
+  }
+
+  .atl__mark {
+    position: absolute;
+    top: calc(var(--t) * 100%);
+    left: 11px;
+    display: flex;
+    align-items: center;
+    gap: var(--pv-space-4);
+    color: var(--pv-text-2);
+    transform: translate(-50%, -50%);
+  }
+
+  .atl__mark i {
+    --cut: 3px;
+    display: block;
+    width: 12px;
+    height: 12px;
+    flex: none;
+    background: var(--pv-line-strong);
+    clip-path: polygon(
+      var(--cut) 0,
+      calc(100% - var(--cut)) 0,
+      100% var(--cut),
+      100% calc(100% - var(--cut)),
+      calc(100% - var(--cut)) 100%,
+      var(--cut) 100%,
+      0 calc(100% - var(--cut)),
+      0 var(--cut)
+    );
+    transition: background-color var(--pv-dur-fast) var(--pv-ease-out);
+  }
+
+  .atl__mark.is-passed i {
+    background: var(--pv-accent);
+  }
+
+  .atl__mark.is-passed {
+    color: var(--pv-text);
+  }
+
+  .atl__label {
+    display: none;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 768px) {
+    .atl__label {
+      display: inline;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .atl {
+      --atl-width: 28px;
+    }
+  }
+
+  .scene-auto__note {
+    max-width: 58ch;
+  }
+
+  @media (min-width: 1024px) {
+    .scene-auto {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      align-items: center;
+      column-gap: var(--pv-space-9);
+    }
+
+    .scene-auto__text {
+      grid-column: 1 / span 4;
+    }
+
+    .scene-auto__slot {
+      grid-column: 5 / span 8;
+      grid-row: 1 / span 2;
+      min-height: 560px;
+    }
+
+    .scene-auto__note {
+      grid-column: 1 / span 4;
+    }
+  }
+
+  :global(.is-motion) .scene-auto {
+    position: absolute;
+    inset: 0;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: var(--pv-space-6);
+    padding: var(--pv-space-13) var(--pv-site-inline) 96px;
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  :global(.is-motion) .scene-auto__slot {
+    min-height: 0;
+  }
+
+  :global(.is-motion) .scene-auto__text {
+    position: relative;
+    z-index: 4;
+    clip-path: polygon(0 0, 0 0, 0 0);
+  }
+
+  :global(.is-motion) .scene-auto__note {
+    position: relative;
+    z-index: 4;
+    opacity: 0;
+  }
+
+  :global(.is-motion) .scene-auto .scene-copy__subtitle {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 7;
+    line-clamp: 7;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  @media (min-width: 768px) {
+    :global(.is-motion) .scene-auto {
+      padding: var(--pv-space-15) var(--pv-site-inline) var(--pv-space-12);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    :global(.is-motion) .scene-auto {
+      grid-template-rows: minmax(0, 1fr) auto;
+      align-items: stretch;
+    }
+
+    :global(.is-motion) .scene-auto__text {
+      grid-row: 1;
+      align-self: center;
+    }
+
+    :global(.is-motion) .scene-auto__slot {
+      grid-row: 1;
+    }
+
+    :global(.is-motion) .scene-auto__note {
+      grid-row: 2;
+      grid-column: 1 / span 6;
+    }
+
+    :global(.is-motion) .scene-auto .scene-copy__subtitle {
+      -webkit-line-clamp: 10;
+      line-clamp: 10;
+      font-size: var(--pv-fs-body);
+      line-height: var(--pv-fs-body-lh);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .afr__rec {
+      animation: none;
+    }
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .afr__bar {
+      background: var(--pv-bg-raised);
+      backdrop-filter: none;
+    }
+  }
+</style>

@@ -1,4 +1,5 @@
 .bench {
+  --pv-bench-bar-h: 52px;
   position: relative;
   min-width: 0;
   min-height: 0;
@@ -259,4 +260,309 @@
   gap: var(--pv-space-3);
   align-self: stretch;
   margin-top: var(--pv-space-4);
+}
+
+.bench-bar {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  height: var(--pv-bench-bar-h);
+  padding: 0 var(--pv-space-5);
+  background: var(--pv-bg-chrome);
+  box-shadow: inset 0 -1px 0 var(--pv-line-soft);
+}
+
+.bench:has(.bench-bar) .bench__scroller {
+  top: var(--pv-bench-bar-h);
+}
+
+.bench-bar__add {
+  position: relative;
+}
+
+.bench-bar__add-button.pv-button {
+  min-height: 36px;
+}
+
+.bench-hint {
+  --cut: var(--pv-cut-sm);
+  position: absolute;
+  top: calc(100% + var(--pv-space-3));
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--pv-space-3);
+  padding: var(--pv-space-3) var(--pv-space-3) var(--pv-space-3) var(--pv-space-5);
+  background: var(--pv-bg-raised);
+  box-shadow: var(--pv-shadow-popover);
+  color: var(--pv-text);
+  font-size: var(--pv-ui-12);
+  white-space: nowrap;
+  animation: hint-in 200ms var(--pv-ease-out);
+}
+
+@keyframes hint-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.ghost-slot {
+  position: absolute;
+}
+
+.ghost-slot__button {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pv-space-3);
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--pv-text-2);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    background-color var(--pv-dur-fast) var(--pv-ease-hover),
+    color var(--pv-dur-fast) var(--pv-ease-hover),
+    transform var(--pv-dur-press) var(--pv-ease-out);
+  clip-path: polygon(
+    var(--pv-cut-md) 0,
+    100% 0,
+    100% calc(100% - var(--pv-cut-md)),
+    calc(100% - var(--pv-cut-md)) 100%,
+    0 100%,
+    0 var(--pv-cut-md)
+  );
+}
+
+.ghost-slot__button:active {
+  transform: scale(0.97);
+}
+
+.ghost-slot__button:focus-visible {
+  outline: 2px solid var(--pv-focus);
+  outline-offset: 2px;
+  clip-path: none;
+}
+
+.ghost-slot__border {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.ghost-slot__border rect {
+  fill: none;
+  stroke: var(--pv-line-strong);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 6;
+  vector-effect: non-scaling-stroke;
+}
+
+.ghost-slot__marks.pv-cut-marks {
+  color: var(--pv-line-strong);
+}
+
+.ghost-slot__plus path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: square;
+}
+
+.ghost-slot__label {
+  font-size: var(--pv-ui-13);
+  line-height: var(--pv-ui-13-lh);
+  font-weight: 500;
+}
+
+.ghost-slot__empty {
+  color: var(--pv-text-2);
+  font-size: var(--pv-ui-13);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ghost-slot__button:hover {
+    background: color-mix(in srgb, var(--pv-bg-hover) 40%, transparent);
+    color: var(--pv-accent-text);
+  }
+
+  .ghost-slot__button:hover .ghost-slot__border rect {
+    stroke: var(--pv-accent-text);
+    animation: ghost-march 600ms linear 1;
+  }
+
+  .ghost-slot__button:hover .ghost-slot__marks.pv-cut-marks {
+    color: var(--pv-accent-text);
+  }
+}
+
+@keyframes ghost-march {
+  to {
+    stroke-dashoffset: -12;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ghost-slot__button:hover .ghost-slot__border rect,
+  .bench-hint {
+    animation: none;
+  }
+}
+
+:root[data-capture-stage] .bench-bar,
+:root[data-capture-stage] .ghost-slot {
+  display: none;
+}
+
+.welcome__symbol {
+  display: block;
+  margin-bottom: var(--pv-space-5);
+  color: var(--pv-accent);
+  animation: welcome-draw 600ms var(--pv-ease-out) both;
+}
+
+@keyframes welcome-draw {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.welcome__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: var(--pv-space-6);
+  background: rgb(8 13 20 / 0.6);
+}
+
+.welcome__overlay[data-entering] {
+  animation: welcome-fade 200ms var(--pv-ease-out);
+}
+
+.welcome__overlay[data-exiting] {
+  animation: welcome-fade 120ms var(--pv-ease-out) reverse forwards;
+}
+
+@keyframes welcome-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.welcome__dialog.pv-cut {
+  --cut: var(--pv-cut-lg);
+  width: min(440px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  padding: var(--pv-space-8);
+  background: var(--pv-bg-raised);
+  outline: none;
+}
+
+.welcome__title,
+.shortcuts__title {
+  margin: 0 0 var(--pv-space-5);
+  color: var(--pv-text);
+  font-family: var(--pv-ui-20-ff);
+  font-size: var(--pv-ui-20);
+  line-height: var(--pv-ui-20-lh);
+  font-weight: 600;
+}
+
+.welcome__benefits {
+  display: grid;
+  gap: var(--pv-space-4);
+  margin: 0 0 var(--pv-space-7);
+  padding: 0;
+  list-style: none;
+  color: var(--pv-text-2);
+  font-size: var(--pv-ui-14);
+  line-height: var(--pv-ui-14-lh);
+}
+
+.welcome__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--pv-space-4);
+}
+
+.shortcuts__list {
+  display: grid;
+  gap: var(--pv-space-3);
+  margin: 0 0 var(--pv-space-5);
+}
+
+.shortcuts__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pv-space-5);
+}
+
+.shortcuts__row dt {
+  color: var(--pv-text-2);
+  font-size: var(--pv-ui-13);
+}
+
+.shortcuts__row dd {
+  margin: 0;
+}
+
+.shortcuts__key {
+  display: inline-block;
+  min-width: 24px;
+  padding: 2px var(--pv-space-3);
+  background: var(--pv-bg-chrome);
+  box-shadow: inset 0 0 0 1px var(--pv-line);
+  color: var(--pv-text);
+  font-size: var(--pv-ui-12);
+  text-align: center;
+  font-feature-settings: var(--pv-font-numeric);
+}
+
+.shortcuts__note {
+  margin: 0 0 var(--pv-space-5);
+  color: var(--pv-text-3);
+  font-size: var(--pv-ui-12);
+}
+
+.live-region {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.state-card__alt {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pv-space-3);
+  align-self: stretch;
 }

@@ -109,7 +109,7 @@ export async function runCapture(): Promise<void> {
   if (state.isRunning) return;
   const screenIds = listTargetScreens(state.target);
   if (screenIds.length === 0) return;
-  const mode = state.mode === 'fast' ? 'fast' : 'experience';
+  const mode = state.mode;
   const controller = new AbortController();
   useCapture.setState({
     isRunning: true,

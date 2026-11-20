@@ -8,6 +8,7 @@ import { createSpring, snapSpring, stepSpring } from '../spring';
 import { createComparator } from './comparator';
 import { drawHorizontalRuler } from './horizontalRuler';
 import { drawFornoPrint, getPrintHeight, PRINT_WIDTH, paintPrintTargets } from './printCanvas';
+import { type CrossReading, createScenes } from './scenes';
 import {
   SYMBOL_VIEWPORT_BOX,
   SYMBOL_WINDOW_BOX,
@@ -29,6 +30,57 @@ const IDLE_MS = 1200;
 const BAR_HEIGHT = 32;
 const BACKGROUND_STEPS = ['#1B2635', '#E8EEF4', '#C4532D'];
 const STRIP_RADIUS = 26;
+const SITE_VARIANT_WIDTHS = [320, 390, 480, 600, 720, 880, 1024, 1152, 1280];
+const HANDLE_OFFSET = 22;
+const HANDLE_HALF_HEIGHT = 32;
+const HANDLE_WIDTH = 44;
+const WIDE_VIEWPORT = 1024;
+const TRACKS = {
+  wide: { click: 210, dwell: 45, devices: 130, hold: 25, auto: 190 },
+  compact: { click: 170, dwell: 40, devices: 120, hold: 20, auto: 170 },
+};
+
+interface SiteVariant {
+  width: number;
+  element: HTMLElement;
+  flipTargets: HTMLElement[];
+}
+
+function currentTrack() {
+  const track = window.innerWidth >= WIDE_VIEWPORT ? TRACKS.wide : TRACKS.compact;
+  return { ...track, total: track.click + track.dwell + track.devices + track.hold + track.auto };
+}
+
+function buildSiteVariants(source: HTMLElement): SiteVariant[] {
+  const parent = source.parentElement as HTMLElement;
+  const variants = SITE_VARIANT_WIDTHS.map((width) => {
+    const element = source.cloneNode(true) as HTMLElement;
+    element.removeAttribute('data-window-site');
+    element.style.width = `${width}px`;
+    element.style.visibility = 'hidden';
+    parent.append(element);
+    return {
+      width,
+      element,
+      flipTargets: [...element.querySelectorAll<HTMLElement>('[data-flip]')],
+    };
+  });
+  source.remove();
+  return variants;
+}
+
+function variantIndexFor(variants: SiteVariant[], virtualWidth: number): number {
+  let index = 0;
+  variants.forEach((variant, position) => {
+    if (virtualWidth >= variant.width) index = position;
+  });
+  return index;
+}
+
+function sizeVariant(variant: SiteVariant, hostHeight: number, scale: number): void {
+  setStyleIfChanged(variant.element, 'height', `${(hostHeight / scale).toFixed(1)}px`);
+  setStyleIfChanged(variant.element, 'transform', `scale(${scale.toFixed(4)})`);
+}
 
 interface Rect {
   x: number;
@@ -55,6 +107,7 @@ interface Layout {
   symbolX: number;
   symbolY: number;
   textBottom: number;
+  track: ReturnType<typeof currentTrack>;
 }
 
 function lerpRect(from: Rect, to: Rect, amount: number): Rect {
@@ -144,7 +197,7 @@ interface StageElements {
   rulerCanvas: HTMLCanvasElement;
   flags: HTMLElement[];
   phoneSlot: HTMLElement;
-  popup: HTMLElement;
+  studio: HTMLElement;
   media: HTMLElement;
   compare: HTMLElement;
   compareBg: HTMLElement;
@@ -176,7 +229,7 @@ function collectElements(journey: HTMLElement): StageElements {
     rulerCanvas: query(stage, '[data-hruler-canvas]'),
     flags: [...stage.querySelectorAll<HTMLElement>('[data-bp]')],
     phoneSlot: query(stage, '[data-phone-slot]'),
-    popup: query(stage, '[data-popup]'),
+    studio: query(stage, '[data-studio]'),
     media: query(stage, '[data-media]'),
     compare: query(stage, '[data-compare]'),
     compareBg: query(stage, '[data-compare-bg]'),
@@ -235,12 +288,16 @@ export function initMotionStage(journey: HTMLElement): StageHandle {
   const forno = readFornoCopy(journey);
   const comparator = createComparator(elements.compare);
   comparator.setLive(false);
-  const flipTargets = [...elements.windowSite.querySelectorAll<HTMLElement>('[data-flip]')];
-  const popupCursor = elements.popup.querySelector<SVGGElement>('[data-popup-cursor]');
-  const popupPanel = elements.popup.querySelector<SVGGElement>('[data-popup-panel]');
-  const popupIconHover = elements.popup.querySelector<SVGRectElement>('[data-popup-icon-hover]');
-  const popupQuick = elements.popup.querySelector<SVGGElement>('[data-popup-quick]');
-  const popupQuickFill = elements.popup.querySelector<SVGPathElement>('[data-popup-quick-fill]');
+  const siteTemplate = elements.detachedSite.firstElementChild as HTMLElement;
+  const variants = buildSiteVariants(elements.windowSite);
+  const scenes = createScenes(journey, siteTemplate);
+  const studioCursor = elements.studio.querySelector<SVGGElement>('[data-studio-cursor]');
+  const studioPanel = elements.studio.querySelector<SVGGElement>('[data-studio-panel]');
+  const studioIconHover = elements.studio.querySelector<SVGRectElement>('[data-studio-icon-hover]');
+  const studioCapture = elements.studio.querySelector<SVGGElement>('[data-studio-capture]');
+  const studioCaptureFill = elements.studio.querySelector<SVGPathElement>(
+    '[data-studio-capture-fill]',
+  );
   const introRoot = stage.querySelector<HTMLElement>('[data-intro]');
   const introStrokes = [
     stage.querySelector<SVGPathElement>('[data-intro-stroke-window]'),
@@ -264,7 +321,8 @@ export function initMotionStage(journey: HTMLElement): StageHandle {
   let isDragging = false;
   let hasUserDragged = false;
   let isStageVisible = true;
-  let previousBucket = bucketOf(widthSpring.value);
+  let activeVariant = variantIndexFor(variants, widthSpring.value);
+  variants[activeVariant].element.style.visibility = 'visible';
   let previousRulerKey = '';
   let previousCotaValue = -1;
   let previousActiveFlag = -1;
@@ -317,6 +375,7 @@ export function initMotionStage(journey: HTMLElement): StageHandle {
       symbolX: isCompact ? left + (available - symbolSize) / 2 : left + available * 0.58,
       symbolY: windowTop + (isCompact ? 8 : 24),
       textBottom: stageWidth >= 1024 ? 0 : textRect.y + textRect.h,
+      track: currentTrack(),
     };
   }
 
@@ -443,32 +502,32 @@ export function initMotionStage(journey: HTMLElement): StageHandle {
     setStyleIfChanged(element, 'clip-path', `inset(0 0 ${hiddenBottom.toFixed(1)}px 0)`);
   }
 
-  function renderPopup(progress: number): void {
-    const popupOpacity =
+  function renderStudio(progress: number): void {
+    const studioOpacity =
       rampProgress(progress, 0.2, 0.22) * (1 - rampProgress(progress, 0.37, 0.385));
-    setStyleIfChanged(elements.popup, 'opacity', popupOpacity.toFixed(3));
-    setStyleIfChanged(elements.popup, 'visibility', popupOpacity > 0 ? 'visible' : 'hidden');
-    if (popupOpacity <= 0) return;
-    if (popupPanel) setStyleIfChanged(popupPanel, 'opacity', progress >= 0.27 ? '1' : '0');
+    setStyleIfChanged(elements.studio, 'opacity', studioOpacity.toFixed(3));
+    setStyleIfChanged(elements.studio, 'visibility', studioOpacity > 0 ? 'visible' : 'hidden');
+    if (studioOpacity <= 0) return;
+    if (studioPanel) setStyleIfChanged(studioPanel, 'opacity', progress >= 0.27 ? '1' : '0');
     const iconPress = progress >= 0.25 && progress < 0.28;
-    if (popupIconHover) setStyleIfChanged(popupIconHover, 'opacity', iconPress ? '1' : '0');
+    if (studioIconHover) setStyleIfChanged(studioIconHover, 'opacity', iconPress ? '1' : '0');
     const toIcon = easeInOut(rampProgress(progress, 0.2, 0.25));
-    const toQuick = easeInOut(rampProgress(progress, 0.28, 0.33));
-    const cursorPositionX = lerp(lerp(230, 334, toIcon), 214, toQuick);
-    const cursorPositionY = lerp(lerp(330, 22, toIcon), 150, toQuick);
-    popupCursor?.setAttribute(
+    const toCapture = easeInOut(rampProgress(progress, 0.28, 0.33));
+    const cursorPositionX = lerp(lerp(250, 332, toIcon), 200, toCapture);
+    const cursorPositionY = lerp(lerp(310, 18, toIcon), 292, toCapture);
+    studioCursor?.setAttribute(
       'transform',
       `translate(${cursorPositionX.toFixed(1)} ${cursorPositionY.toFixed(1)})`,
     );
-    const quickPressed = progress >= 0.34 && progress < 0.36;
-    if (popupQuick)
-      setStyleIfChanged(popupQuick, 'transform', quickPressed ? 'scale(0.97)' : 'scale(1)');
-    popupQuickFill?.setAttribute('fill', progress >= 0.33 ? '#5CEEFF' : '#00E5FF');
+    const capturePressed = progress >= 0.34 && progress < 0.36;
+    if (studioCapture)
+      setStyleIfChanged(studioCapture, 'transform', capturePressed ? 'scale(0.97)' : 'scale(1)');
+    studioCaptureFill?.setAttribute('fill', progress >= 0.33 ? '#5CEEFF' : '#00E5FF');
   }
 
-  function renderCompare(progress: number): void {
-    const mediaVisible = progress >= 0.48;
-    setStyleIfChanged(elements.media, 'opacity', mediaVisible ? '1' : '0');
+  function renderCompare(progress: number, exit: number): void {
+    const mediaVisible = progress >= 0.48 && exit < 1;
+    setStyleIfChanged(elements.media, 'opacity', mediaVisible ? (1 - exit).toFixed(3) : '0');
     setStyleIfChanged(elements.media, 'visibility', mediaVisible ? 'visible' : 'hidden');
     const hasLanded = progress >= 0.76;
     elements.compareFrame.style.setProperty(
@@ -498,7 +557,7 @@ export function initMotionStage(journey: HTMLElement): StageHandle {
         setStyleIfChanged(element, 'opacity', reveal.toFixed(3));
       }
     }
-    const shouldBeLive = progress >= 0.97;
+    const shouldBeLive = progress >= 0.97 && exit === 0;
     if (!shouldBeLive) comparator.setSplit(lerp(100, 50, easeInOut(reveal)));
     if (shouldBeLive !== isCompareLive) {
       isCompareLive = shouldBeLive;
@@ -507,7 +566,16 @@ export function initMotionStage(journey: HTMLElement): StageHandle {
     }
   }
 
-  function renderClickText(progress: number): void {
+  function renderClickText(progress: number, exit: number): void {
+    if (exit > 0) {
+      const exitEdge = exit * 140;
+      setStyleIfChanged(
+        elements.clickText,
+        'clip-path',
+        `polygon(${exitEdge.toFixed(1)}% 0, 100% 0, 100% 100%, ${(exitEdge - 40).toFixed(1)}% 100%)`,
+      );
+      return;
+    }
     const reveal = cutEase(rampProgress(progress, 0.12, 0.26));
     const edge = reveal * 140;
     setStyleIfChanged(
@@ -585,10 +653,15 @@ export function initMotionStage(journey: HTMLElement): StageHandle {
     scale: number,
     compress: number,
     deltaSeconds: number,
+    deviceReading: CrossReading | null,
+    isHeroPhase: boolean,
   ): void {
     const { crossCursor, crossLabel } = elements;
     if (!crossCursor || !crossLabel || !isDesktopPointer()) return;
-    const isActive = pointer.isInside && compress < 0.08 && !isDragging;
+    const isActive =
+      pointer.isInside &&
+      !isDragging &&
+      (deviceReading !== null || (isHeroPhase && compress < 0.08));
     crossCursor.classList.toggle('is-active', isActive);
     if (!isActive) return;
     cursorX.target = pointer.x;
@@ -601,13 +674,19 @@ export function initMotionStage(journey: HTMLElement): StageHandle {
       `translate3d(${cursorX.value.toFixed(1)}px, ${cursorY.value.toFixed(1)}px, 0)`,
     );
     const measured = Math.round((pointer.x - stageClientLeft() - rect.x) / scale);
-    crossLabel.textContent = `x ${measured}`;
+    crossLabel.textContent = deviceReading ? deviceReading.label : `x ${measured}`;
   }
 
   function render(_time: number, deltaMs: number): void {
     if (!isStageVisible) return;
     const deltaSeconds = deltaMs / 1000;
-    const progress = journeyState.progress;
+    const units = journeyState.progress * layout.track.total;
+    const { click, dwell, devices, hold, auto } = layout.track;
+    const progress = clamp(units / click, 0, 1);
+    const devicesProgress = clamp((units - click - dwell) / devices, 0, 1);
+    const autoProgress = clamp((units - click - dwell - devices - hold) / auto, 0, 1);
+    const mediaExit = rampProgress(devicesProgress, 0, 0.12);
+    const textExit = cutEase(rampProgress(devicesProgress, 0, 0.1));
     const compress = easeInOut(rampProgress(progress, 0, 0.2));
 
     if (!layout.isTrueScale && !hasUserDragged && !isDragging) {
@@ -628,12 +707,14 @@ export function initMotionStage(journey: HTMLElement): StageHandle {
     const scale = innerWidth / virtualWidth;
     const hostHeight = Math.max(windowRect.h - 2 - barHeight, 1);
 
-    const nextBucket = bucketOf(virtualWidth);
-    const shouldFlip = nextBucket !== previousBucket && compress < 0.5 && intro.mix >= 1;
+    const nextVariant = variantIndexFor(variants, virtualWidth);
+    const hasVariantChanged = nextVariant !== activeVariant;
+    const shouldFlip = hasVariantChanged && compress < 0.5 && intro.mix >= 1;
     const flipBefore = shouldFlip
-      ? flipTargets.map((target) => target.getBoundingClientRect())
+      ? variants[activeVariant].flipTargets.map((target) => target.getBoundingClientRect())
       : [];
-    previousBucket = nextBucket;
+    const previousVariant = activeVariant;
+    activeVariant = nextVariant;
 
     const { windowEl } = elements;
     setStyleIfChanged(windowEl, 'width', `${windowRect.w.toFixed(1)}px`);
@@ -654,11 +735,22 @@ export function initMotionStage(journey: HTMLElement): StageHandle {
       '--phone-dim',
       (isPhoneBesideMedia ? phoneFade * 0.62 : 0).toFixed(3),
     );
-    const windowOpacity = introOpacity * (isPhoneBesideMedia ? 1 : 1 - phoneFade);
+    const windowOpacity = introOpacity * (isPhoneBesideMedia ? 1 : 1 - phoneFade) * (1 - mediaExit);
     setStyleIfChanged(windowEl, 'opacity', windowOpacity.toFixed(3));
-    sizeSite(elements.windowSite, virtualWidth, hostHeight, scale);
-    if (shouldFlip) applyFlip(flipTargets, flipBefore, scale);
+    const siteVariant = variants[activeVariant];
+    const contentScale = innerWidth / siteVariant.width;
+    if (hasVariantChanged) {
+      variants[previousVariant].element.style.visibility = 'hidden';
+      siteVariant.element.style.visibility = 'visible';
+    }
+    sizeVariant(siteVariant, hostHeight, contentScale);
+    if (shouldFlip) applyFlip(siteVariant.flipTargets, flipBefore, contentScale);
     setStyleIfChanged(elements.handle, 'visibility', compress > 0.05 ? 'hidden' : 'visible');
+    setStyleIfChanged(
+      elements.handle,
+      'transform',
+      `translate3d(${Math.min(windowRect.x + windowRect.w - HANDLE_OFFSET, layout.stageWidth - HANDLE_WIDTH).toFixed(1)}px, ${(windowRect.y + windowRect.h / 2 - HANDLE_HALF_HEIGHT).toFixed(1)}px, 0)`,
+    );
 
     const scan = rampProgress(progress, 0.36, 0.42);
     setStyleIfChanged(elements.windowScan, 'opacity', scan > 0 && scan < 1 ? '1' : '0');
@@ -705,11 +797,24 @@ export function initMotionStage(journey: HTMLElement): StageHandle {
     }
 
     if (intro.isRunning) renderIntroSymbol();
-    renderCrossCursor(windowRect, scale, compress, deltaSeconds);
-    renderClickText(progress);
-    renderPopup(progress);
+    const isScenePhase = devicesProgress > 0.3 && autoProgress < 0.02 && isDesktopPointer();
+    scenes.setEchoEnabled(isScenePhase);
+    const deviceReading =
+      isScenePhase && pointer.isInside ? scenes.readCross(pointer.x, pointer.y) : null;
+    renderCrossCursor(
+      windowRect,
+      scale,
+      compress,
+      deltaSeconds,
+      deviceReading,
+      devicesProgress === 0,
+    );
+    renderClickText(progress, textExit);
+    renderStudio(progress);
     const strip = renderStrip(progress, windowRect);
-    renderCompare(progress);
+    renderCompare(progress, mediaExit);
+    scenes.renderDevices(devicesProgress, autoProgress);
+    scenes.renderAuto(autoProgress);
     const benchDim = compress * 0.55;
     stage.style.setProperty('--bench-dim', benchDim.toFixed(3));
 
@@ -865,6 +970,7 @@ export function initMotionStage(journey: HTMLElement): StageHandle {
         widthSpring.value = clamp(widthSpring.value, MIN_WIDTH, layout.maxWidth);
         previousRulerKey = '';
         handleAria();
+        scenes.measure(layout.pageTarget);
         if (gl && glCanvas) gl.resize(layout.stageWidth, layout.stageHeight);
       });
     }).observe(stage);
@@ -875,6 +981,11 @@ export function initMotionStage(journey: HTMLElement): StageHandle {
   }
 
   handleAria();
+  scenes.measure(layout.pageTarget);
+  void document.fonts.ready.then(() => {
+    layout = measure();
+    scenes.measure(layout.pageTarget);
+  });
   setupPointer();
   setupHandle();
   setupScroll();
@@ -906,10 +1017,17 @@ export function initMotionStage(journey: HTMLElement): StageHandle {
     },
     getSceneOffsets() {
       const journeyTop = journey.getBoundingClientRect().top + window.scrollY;
-      const track = journey.offsetHeight - window.innerHeight;
+      const trackPx = journey.offsetHeight - window.innerHeight;
+      const { click, dwell, devices, hold, auto, total } = layout.track;
+      const unit = trackPx / total;
       return [
         { id: 'inicio', top: 0 },
-        { id: 'um-clique', top: journeyTop + track * 0.24 },
+        { id: 'um-clique', top: journeyTop + unit * click * 0.24 },
+        { id: 'role-uma-tela', top: journeyTop + unit * (click + dwell + devices * 0.45) },
+        {
+          id: 'pagina-rola-sozinha',
+          top: journeyTop + unit * (click + dwell + devices + hold + auto * 0.3),
+        },
       ];
     },
   };
@@ -919,11 +1037,18 @@ export function initStaticStage(journey: HTMLElement): void {
   const elements = collectElements(journey);
   const forno = readFornoCopy(journey);
   createComparator(elements.compare).setSplit(50);
-  const popupPanel = elements.popup.querySelector<SVGGElement>('[data-popup-panel]');
-  if (popupPanel) popupPanel.style.opacity = '1';
-  elements.popup
-    .querySelector<SVGGElement>('[data-popup-cursor]')
-    ?.setAttribute('transform', 'translate(214 150)');
+  const studioPanel = elements.studio.querySelector<SVGGElement>('[data-studio-panel]');
+  if (studioPanel) studioPanel.style.opacity = '1';
+  elements.studio
+    .querySelector<SVGGElement>('[data-studio-cursor]')
+    ?.setAttribute('transform', 'translate(200 292)');
+  const scenes = createScenes(journey, elements.detachedSite.firstElementChild as HTMLElement);
+  const placeScenes = () => {
+    scenes.measure({ x: 0, y: 0, w: 0, h: 0 });
+    scenes.renderDevices(1, 0);
+    scenes.renderAuto(0.5);
+    scenes.setEchoEnabled(true);
+  };
   onSwatchChoice(elements.swatches, (index) => {
     elements.compareBg.style.backgroundColor = BACKGROUND_STEPS[index];
     markPressedSwatch(elements.swatches, index);
@@ -957,6 +1082,13 @@ export function initStaticStage(journey: HTMLElement): void {
       flag.style.visibility = x < rulerWidth - 30 ? 'visible' : 'hidden';
       flag.classList.toggle('is-active', index === bucketOf(virtualWidth) - 1);
     });
+    const handleX = Math.min(
+      elements.windowEl.offsetLeft + windowWidth - HANDLE_OFFSET,
+      elements.stage.clientWidth - HANDLE_WIDTH,
+    );
+    const handleY =
+      elements.windowEl.offsetTop + elements.windowEl.offsetHeight / 2 - HANDLE_HALF_HEIGHT;
+    elements.handle.style.transform = `translate3d(${handleX}px, ${handleY}px, 0)`;
     const detachedWidth = elements.detached.clientWidth;
     if (detachedWidth > 0) {
       sizeSite(
@@ -1015,7 +1147,9 @@ export function initStaticStage(journey: HTMLElement): void {
   new ResizeObserver(() => {
     virtualWidth = virtualWidth ? clamp(virtualWidth, MIN_WIDTH, maxWidth()) : maxWidth();
     apply();
+    placeScenes();
   }).observe(elements.stage);
 
+  void document.fonts.ready.then(placeScenes);
   void preparePrint(elements, forno);
 }

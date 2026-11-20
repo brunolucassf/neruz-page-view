@@ -54,32 +54,48 @@ export const pt: LandingCopy = {
   },
   sceneOneClick: {
     stepLabel: 'Print',
-    title: 'Um clique e o print já sai pronto para mostrar.',
+    title: 'Dois cliques e o print já sai pronto para mostrar.',
     subtitle:
-      'Clique no ícone, escolha "Print bonito" e receba a página inteira dentro de uma moldura de aparelho. O modo Experiência espera as animações aparecerem antes de capturar, para nada sair pela metade.',
+      'Clique no ícone e o Estúdio abre na página que você está vendo; com "Print com moldura" ligado, Capturar entrega a página inteira dentro de uma moldura de aparelho. O modo Experiência espera as animações aparecerem antes de capturar, para nada sair pela metade.',
     before: 'Antes: print comum',
     after: 'Depois: página inteira, com moldura',
     compareLabel: 'Comparar antes e depois',
     backgroundLabel: 'Cor do fundo do print',
     backgrounds: ['Fundo grafite', 'Fundo claro', 'Fundo terracota'],
   },
-  popup: {
-    title: 'Neruz Page View',
-    quickShotLabel: 'Print bonito',
-    quickShotHint: 'Este site com moldura de aparelho, pronto para baixar.',
-    openStudioLabel: 'Abrir no Estúdio',
-    openStudioHint: 'Veja em várias telas ao mesmo tempo.',
-    urlPlaceholder: 'Ou cole um endereço (ex.: localhost:3000)',
-    urlButton: 'Abrir',
-    deviceLabel: 'Aparelho',
-    deviceChange: 'Trocar',
+  studioArt: {
+    title: 'Estúdio',
+    captureTitle: 'Captura',
+    modeLabel: 'Modo',
+    modes: ['Rápido', 'Experiência', 'Momentos'],
+    framedLabel: 'Print com moldura',
+    captureLabel: 'Capturar',
+  },
+  sceneDevices: {
+    stepLabel: 'Telas',
+    title: 'Role uma tela. Todas rolam junto.',
+    subtitle:
+      'Rolagem, cliques, navegação e digitação se repetem em todas as telas. Comece pelo kit Essenciais, com 12 tamanhos, ou monte o seu entre cerca de 45 aparelhos. Gire, redimensione arrastando e confira as larguras na régua. Funciona com localhost.',
+    note: 'As telas são simuladas pelo tamanho no seu navegador: o iPhone aqui é o seu navegador no tamanho do iPhone, não o Safari.',
+    names: ['Celular', 'Dobrável', 'Tablet', 'Notebook', 'Monitor'],
+  },
+  sceneAuto: {
+    stepLabel: 'Vídeo',
+    title: 'A página rola sozinha. Você só aperta Gravar.',
+    subtitle:
+      'A extensão encontra as seções da página e faz uma pausa em cada uma. Escolha a tela, ajuste a velocidade e salve em vertical 1080×1920, o formato de Reels e Shorts, ou em 16:9.',
+    note: 'MP4, WebM ou GIF · Cursor opcional · No Firefox, o navegador pergunta qual aba gravar antes de começar.',
+    recording: 'Gravando {time}',
+    sections: ['Início', 'Cardápio', 'Sobre', 'Rodapé'],
   },
   ruler: {
     label: 'Ir para a seção',
     counter: 'Cena {n} de {total}',
     scenes: [
       { id: 'inicio', label: 'Veja seu site em várias telas ao mesmo tempo.' },
-      { id: 'um-clique', label: 'Um clique e o print já sai pronto para mostrar.' },
+      { id: 'um-clique', label: 'Dois cliques e o print já sai pronto para mostrar.' },
+      { id: 'role-uma-tela', label: 'Role uma tela. Todas rolam junto.' },
+      { id: 'pagina-rola-sozinha', label: 'A página rola sozinha. Você só aperta Gravar.' },
     ],
   },
   footer: {

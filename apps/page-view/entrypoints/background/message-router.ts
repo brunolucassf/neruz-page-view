@@ -1,11 +1,11 @@
 import {
   type AnyMessageDefinition,
-  backgroundRoutes,
+  backgroundRequests,
   bgFramesList,
-  bgPopupOpenStudio,
   bgScriptsSync,
   bgStudioDisable,
   bgStudioEnable,
+  bgStudioLaunch,
   createNpvError,
   createRateLimiter,
   type DataOf,
@@ -21,7 +21,6 @@ import {
   okReply,
   type PayloadOf,
   parseEnvelope,
-  parseWebUrl,
   type RateLimiter,
   readEnvelopeHead,
   registerHello,
@@ -30,6 +29,7 @@ import {
   type SenderLike,
   toNpvError,
 } from '@neruz/core';
+import { consumeStudioLaunch } from './action-click';
 import { readFramesOfTab, writeFramesOfTab } from './session-state';
 import {
   disableStudioTab,
@@ -153,24 +153,7 @@ const resolveStudioTabId = (sender: SenderLike): number => {
   return tabId;
 };
 
-const openStudioTab = async (rawUrl: string | undefined): Promise<number> => {
-  const studioUrl = new URL(chrome.runtime.getURL('studio.html'));
-  if (rawUrl !== undefined) {
-    const checked = parseWebUrl(rawUrl);
-    if (!checked.ok)
-      throw new NpvException('NPV-BAD-REQUEST', 'only http and https URLs are allowed');
-    studioUrl.searchParams.set('url', checked.url.href);
-  }
-  const tab = await chrome.tabs.create({ url: studioUrl.href });
-  if (tab.id === undefined) throw new NpvException('NPV-UNKNOWN', 'tab created without id');
-  return tab.id;
-};
-
-const dispatchBackgroundRequest = async (
-  type: string,
-  payload: unknown,
-  sender: SenderLike,
-): Promise<unknown> => {
+const dispatchBackgroundRequest = async (type: string, sender: SenderLike): Promise<unknown> => {
   switch (type) {
     case bgStudioEnable.type:
       return enableStudioTab(resolveStudioTabId(sender));
@@ -181,8 +164,8 @@ const dispatchBackgroundRequest = async (
       return syncAgentScripts();
     case bgFramesList.type:
       return { frames: await readFramesOfTab(resolveStudioTabId(sender)) };
-    case bgPopupOpenStudio.type:
-      return { tabId: await openStudioTab((payload as PayloadOf<typeof bgPopupOpenStudio>).url) };
+    case bgStudioLaunch.type:
+      return consumeStudioLaunch(resolveStudioTabId(sender));
     default:
       throw new NpvException('NPV-REC-UNSUPPORTED', 'recording is not available in this build', {
         reason: 'not-in-this-cut',
@@ -192,19 +175,19 @@ const dispatchBackgroundRequest = async (
 
 const handleBackgroundMessage = async (raw: unknown, type: string, sender: SenderLike) => {
   const seq = readEnvelopeHead(raw)?.seq ?? 0;
-  const route = backgroundRoutes.find((item) => item.definition.type === type);
-  if (!route) return errorReply(seq, createNpvError('NPV-INVALID-MESSAGE', 'unknown message type'));
-  const page = route.audience === 'studio' ? 'studio.html' : 'popup.html';
-  if (!isExtensionPageSender(sender, getExtensionIdentity(), page)) {
+  const definition = findDefinition(backgroundRequests, type);
+  if (!definition)
+    return errorReply(seq, createNpvError('NPV-INVALID-MESSAGE', 'unknown message type'));
+  if (!isExtensionPageSender(sender, getExtensionIdentity(), 'studio.html')) {
     return errorReply(
       seq,
       createNpvError('NPV-FORBIDDEN-SENDER', 'sender not allowed for this message'),
     );
   }
-  const parsed = parseEnvelope(route.definition, raw);
+  const parsed = parseEnvelope(definition, raw);
   if (!parsed.ok) return errorReply(seq, parsed.error);
   try {
-    const data = await dispatchBackgroundRequest(type, parsed.envelope.payload, sender);
+    const data = await dispatchBackgroundRequest(type, sender);
     return okReply(parsed.envelope.seq, data);
   } catch (cause) {
     return errorReply(parsed.envelope.seq, toNpvError(cause));

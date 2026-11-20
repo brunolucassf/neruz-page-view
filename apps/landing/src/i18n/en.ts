@@ -54,32 +54,48 @@ export const en: LandingCopy = {
   },
   sceneOneClick: {
     stepLabel: 'Screenshot',
-    title: 'One click, and your screenshot is ready to share.',
+    title: 'Two clicks, and your screenshot is ready to share.',
     subtitle:
-      'Click the icon, choose "Quick mockup" and get the whole page inside a device frame. Experience mode waits for scroll animations to show up before capturing, so nothing comes out half-loaded.',
+      'Click the icon and the Studio opens on the page you\'re viewing; with "Framed screenshot" on, Capture gives you the whole page inside a device frame. Experience mode waits for scroll animations to show up before capturing, so nothing comes out half-loaded.',
     before: 'Before: plain screenshot',
     after: 'After: full page, framed',
     compareLabel: 'Compare before and after',
     backgroundLabel: 'Screenshot background color',
     backgrounds: ['Graphite background', 'Light background', 'Terracotta background'],
   },
-  popup: {
-    title: 'Neruz Page View',
-    quickShotLabel: 'Quick mockup',
-    quickShotHint: 'This page in a device frame, ready to download.',
-    openStudioLabel: 'Open in Studio',
-    openStudioHint: 'See it on many screens at once.',
-    urlPlaceholder: 'Or paste a URL (e.g. localhost:3000)',
-    urlButton: 'Open',
-    deviceLabel: 'Device',
-    deviceChange: 'Change',
+  studioArt: {
+    title: 'Studio',
+    captureTitle: 'Capture',
+    modeLabel: 'Mode',
+    modes: ['Quick', 'Experience', 'Moments'],
+    framedLabel: 'Framed screenshot',
+    captureLabel: 'Capture',
+  },
+  sceneDevices: {
+    stepLabel: 'Screens',
+    title: 'Scroll one screen. They all follow.',
+    subtitle:
+      'Scrolling, clicks, navigation and typing are mirrored on every screen. Start with the Essentials kit of 12 sizes, or build your own from about 45 devices. Rotate, drag to resize and check widths on the ruler. Works with localhost.',
+    note: 'Screens are simulated by size in your browser: the iPhone here is your browser at iPhone size, not Safari.',
+    names: ['Phone', 'Foldable', 'Tablet', 'Laptop', 'Monitor'],
+  },
+  sceneAuto: {
+    stepLabel: 'Video',
+    title: 'The page scrolls itself. You just hit Record.',
+    subtitle:
+      'The extension finds the sections on the page and pauses on each one. Pick a screen, set the speed and export in vertical 1080×1920, the Reels and Shorts format, or in 16:9.',
+    note: 'MP4, WebM or GIF · Optional cursor · In Firefox, the browser asks which tab to record before you start.',
+    recording: 'Recording {time}',
+    sections: ['Home', 'Menu', 'About', 'Footer'],
   },
   ruler: {
     label: 'Go to section',
     counter: 'Scene {n} of {total}',
     scenes: [
       { id: 'inicio', label: 'Your site on many screens, all at once.' },
-      { id: 'um-clique', label: 'One click, and your screenshot is ready to share.' },
+      { id: 'um-clique', label: 'Two clicks, and your screenshot is ready to share.' },
+      { id: 'role-uma-tela', label: 'Scroll one screen. They all follow.' },
+      { id: 'pagina-rola-sozinha', label: 'The page scrolls itself. You just hit Record.' },
     ],
   },
   footer: {

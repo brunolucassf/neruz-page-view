@@ -1,10 +1,11 @@
 import { sleep, withTimeout } from '../async/timeout';
 import {
   bgFramesList,
-  bgPopupOpenStudio,
   bgScriptsSync,
   bgStudioDisable,
   bgStudioEnable,
+  bgStudioLaunch,
+  uiEvents,
 } from '../messaging/background';
 import {
   type AnyMessageDefinition,
@@ -29,7 +30,7 @@ const IFRAME_HELLO_TIMEOUT_MS = 8000;
 const IFRAME_LOAD_CAP_MS = 45_000;
 const PORT_RECONNECT_DELAY_MS = 500;
 
-const incomingDefinitions = [...frameMessages, ...recordingEvents] as const;
+const incomingDefinitions = [...frameMessages, ...recordingEvents, ...uiEvents] as const;
 type IncomingDefinition = (typeof incomingDefinitions)[number];
 
 export type StudioEvent = {
@@ -51,6 +52,7 @@ export type OpenScreenInput = {
 };
 
 export type StudioClient = {
+  requestLaunch(): Promise<DataOf<typeof bgStudioLaunch>>;
   enable(): Promise<DataOf<typeof bgStudioEnable>>;
   disable(): Promise<void>;
   syncScripts(): Promise<DataOf<typeof bgScriptsSync>>;
@@ -276,7 +278,7 @@ export const createStudioClient = (): StudioClient => {
     await enable();
     throwIfAborted(signal);
     const since = Date.now();
-    iframe.name = buildScreenName(screenId, presetId);
+    iframe.setAttribute('name', buildScreenName(screenId, presetId));
     iframe.src = checked.url.href;
     const helloArrived = waitForFrame(screenId, {
       since,
@@ -321,6 +323,7 @@ export const createStudioClient = (): StudioClient => {
   };
 
   return {
+    requestLaunch: () => requestBackground(bgStudioLaunch, {}),
     enable,
     async disable() {
       isEnabled = false;
@@ -360,14 +363,4 @@ let sharedClient: StudioClient | null = null;
 export const getStudioClient = (): StudioClient => {
   sharedClient ??= createStudioClient();
   return sharedClient;
-};
-
-export const openStudioFromPopup = async (url?: string): Promise<number> => {
-  const seq = createSeqCounter()();
-  const raw = await withTimeout(
-    chrome.runtime.sendMessage(createEnvelope(bgPopupOpenStudio, url ? { url } : {}, seq)),
-    bgPopupOpenStudio.timeoutMs,
-    bgPopupOpenStudio.type,
-  );
-  return unwrapReply(bgPopupOpenStudio, raw, seq).tabId;
 };

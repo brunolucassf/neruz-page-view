@@ -8,7 +8,7 @@ export type SenderLike = {
   tab?: { id?: number };
 };
 
-export type ExtensionPage = 'studio.html' | 'popup.html';
+export type ExtensionPage = 'studio.html';
 
 export type ExtensionIdentity = {
   runtimeId: string;

@@ -3,6 +3,7 @@ export * from './async/serial-queue';
 export * from './async/timeout';
 export * from './client/scroll-mirror';
 export * from './client/studio-client';
+export * from './launch/click-decision';
 export * from './messaging/background';
 export * from './messaging/envelope';
 export * from './messaging/errors';

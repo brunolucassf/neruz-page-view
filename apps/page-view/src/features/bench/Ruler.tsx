@@ -6,6 +6,8 @@ import type { ResizeSession, Screen } from '../shell/studioStore';
 
 const RULER_HEIGHT = 24;
 const LABEL_CLEARANCE = 52;
+const MIN_LABELED_WIDTH = 240;
+const MIN_FLAG_WIDTH = 56;
 
 type RulerProps = {
   screens: Screen[];
@@ -75,11 +77,12 @@ function RulerSegment({
 
   const labels = useMemo(() => {
     const values: number[] = [];
+    if (box.scaledWidth < MIN_LABELED_WIDTH) return values;
     for (let value = 0; value <= screenWidth; value += labelStep) {
       if ((screenWidth - value) * zoom >= LABEL_CLEARANCE) values.push(value);
     }
     return values;
-  }, [screenWidth, labelStep, zoom]);
+  }, [screenWidth, labelStep, zoom, box.scaledWidth]);
 
   useEffect(() => {
     if (snapCount > 0 && flagRef.current) animateTick(flagRef.current);
@@ -101,14 +104,16 @@ function RulerSegment({
           {formatInteger(value)}
         </span>
       ))}
-      <span
-        ref={flagRef}
-        className="ruler__flag pv-cut pv-tnum"
-        data-active={isActive || undefined}
-        data-snapped={isSnapped || undefined}
-      >
-        {formatInteger(screenWidth)}
-      </span>
+      {(isActive || box.scaledWidth >= MIN_FLAG_WIDTH) && (
+        <span
+          ref={flagRef}
+          className="ruler__flag pv-cut pv-tnum"
+          data-active={isActive || undefined}
+          data-snapped={isSnapped || undefined}
+        >
+          {formatInteger(screenWidth)}
+        </span>
+      )}
     </div>
   );
 }

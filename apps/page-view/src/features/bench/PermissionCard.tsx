@@ -37,10 +37,11 @@ export function PermissionCard() {
             ? t('perm.localhost.body', { domain })
             : t('perm.site.body', { domain })}
         </p>
-        <p className="state-card__note">{t('perm.site.what')}</p>
-        <p className="state-card__note" aria-live="polite">
-          {isDenied ? t('perm.site.denied') : t('perm.site.next')}
-        </p>
+        {isDenied && (
+          <p className="state-card__note" aria-live="polite">
+            {t('perm.site.denied')}
+          </p>
+        )}
         <div className="state-card__actions">
           <Button
             variant="primary"
@@ -56,6 +57,14 @@ export function PermissionCard() {
             </Button>
           )}
         </div>
+        {isDenied && (
+          <div className="state-card__alt">
+            <Button variant="secondary" isDisabled>
+              {t('perm.site.captureTabOnly')}
+            </Button>
+            <p className="state-card__note">{t('perm.site.captureTabOnly.hint')}</p>
+          </div>
+        )}
       </section>
     </div>
   );

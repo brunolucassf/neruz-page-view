@@ -61,16 +61,28 @@ export interface LandingCopy {
     backgroundLabel: string;
     backgrounds: string[];
   };
-  popup: {
+  studioArt: {
     title: string;
-    quickShotLabel: string;
-    quickShotHint: string;
-    openStudioLabel: string;
-    openStudioHint: string;
-    urlPlaceholder: string;
-    urlButton: string;
-    deviceLabel: string;
-    deviceChange: string;
+    captureTitle: string;
+    modeLabel: string;
+    modes: string[];
+    framedLabel: string;
+    captureLabel: string;
+  };
+  sceneDevices: {
+    stepLabel: string;
+    title: string;
+    subtitle: string;
+    note: string;
+    names: string[];
+  };
+  sceneAuto: {
+    stepLabel: string;
+    title: string;
+    subtitle: string;
+    note: string;
+    recording: string;
+    sections: string[];
   };
   ruler: { label: string; counter: string; scenes: { id: string; label: string }[] };
   footer: {

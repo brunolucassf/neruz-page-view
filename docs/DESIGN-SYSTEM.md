@@ -175,6 +175,46 @@ Mantém opacidade e cor (crossfade de 200 ms); remove translate, scale, rotate, 
 - **Cartão de bloqueio/permissão**: máx. 320 px, centralizado na tela, raised, borda line, ícone text-2 24 px, título ui-20, corpo ui-13 text-2, ações empilhadas.
 - **Ícones**: Lucide (MIT) 16/20 px, traço 1.75, `stroke-linejoin: miter`, `stroke-linecap: square`. Próprios (grade 24, chanfro 45°): espelhar, girar tela, cota, moldura, momentos, rolagem lateral, pausada, kit.
 
+### 8.1 Molduras e componentes da construção
+**Molduras do Print com moldura** (`packages/ui/src/frames/`, manifesto em `frames.json`). Genéricas: sem entalhe, sem ilha, sem botões de fabricante, sem logos. Assinatura: corpo chanfrado a 45° (filete superior de luz, contorno de 2 unidades em `line`), anel interno em `chrome`/`hover` em volta da tela. Arquivos `frame-<aparelho>-<dark|light>.svg`; unidades do viewBox = px CSS do aparelho a 1x (exportar a 2x/3x multiplicando tudo).
+| Aparelho | viewBox (L × A) | `#screen` x, y, w, h | Proporção da tela | Chanfro do corpo |
+|---|---|---|---|---|
+| `phone` | 422 × 876 | 16, 16, 390, 844 | 9:19,5 | 28, 4 cantos |
+| `foldable` (aberto) | 768 × 864 | 16, 16, 736, 832 | 23:26 (2 folhas de 368) | 28, 4 cantos; dobra em x 384 |
+| `tablet` | 824 × 1080 | 28, 28, 768, 1024 | 3:4 | 36, 4 cantos |
+| `notebook` | 1688 × 1000 | 124, 28, 1440, 900 | 16:10 | 28, só superiores (tampa); base trapezoidal |
+| `monitor` | 1968 × 1318 | 24, 24, 1920, 1080 | 16:9 | 32, 4 cantos; pé em T |
+| `browser` | 1444 × 962 | 2, 48, 1440, 900 | 16:10 | 20, variante janela (inferior direito reto) |
+Contrato do compositor (sem ambiguidade):
+1. Ordem de pintura: fundo → sombra seca → SVG da moldura **sem** `#overlay` → print no retângulo `#screen` → `#overlay` (só `foldable`: dobra de 1 unidade a 14%/12% de opacidade).
+2. Encaixe: print escalado pela largura do `#screen` (`scale = w / larguraDoPrint`), alinhado ao topo, recortado na altura do `#screen` (print de página inteira usa só a 1ª dobra; aparelho girado usa a mesma moldura rotacionada 90° com `#screen` trocado para h × w). A tela é retangular: sem recorte extra.
+3. A área também vem no atributo `data-screen="x y w h"` da raiz e em `frames.json` (`frames.<id>.screen`). `browser` tem `#address` (campo de endereço; texto opcional do domínio em Inter 500 13 un., `text-2`, a partir de `data-text-x`/`data-text-y`).
+4. Tema da moldura: `dark` = corpo `#141D29`, contorno `#304256`, tela vazia `#080D14`; `light` = corpo `#F4F8FC`, contorno `#CBD6E1`, tela vazia `#FFFFFF`. Padrão: moldura segue o tema da tela ativa (escuro por tela ligado = `dark`).
+5. Sombra seca (canvas): `shadowColor rgba(0,0,0,.55)` no escuro / `rgba(8,13,20,.22)` no claro, `shadowOffsetY = 4%` da altura da moldura, `shadowBlur = 6%`; nunca colorida, nunca brilho.
+6. Margem do fundo em volta da moldura: 12% do maior lado da moldura; saída final arredondada para pares.
+
+**Fundos editáveis** (`bg-<id>.svg`, viewBox 1920 × 1200, `preserveAspectRatio="xMidYMid slice"`: cobre qualquer proporção sem esticar). Editar = trocar `fill` de `#bg` e, se quiser, `opacity` ou `display:none` de `#grid` (grade de base de corte 64 un., cruz a cada 512, guias de 45° nos cantos).
+| Id | `#bg` | Grade | Moldura recomendada |
+|---|---|---|---|
+| `night` | #080D14 | #F4F8FC a 5% | `light` (ou `dark` com contorno visível só por perto: evitar como padrão) |
+| `ice` (padrão) | #E8EEF4 | #080D14 a 6% | `dark` ou `light` |
+| `petrol` | #007D8A | #F4F8FC a 10% | `dark` ou `light` |
+Mais duas opções na interface: **Cor** (seletor livre, aplica em `#bg`, grade desligada) e **Transparente** (sem fundo, PNG com alfa, sombra mantida). Nunca degradê.
+
+**Slot-fantasma da grade** (fim da bancada, ux §7.5):
+- Mesmo tamanho da última tela adicionada (mín. 240 × 320 px, máx. 390 × 844 no zoom atual); se a bancada ficar vazia, vira o grande: 480 × 320 centralizado com a frase "Adicione uma tela para começar" em ui-13 `text-2`.
+- Corpo: fundo transparente, borda tracejada 1,5 px `line` (traço 6, vão 6) desenhada em SVG com `vector-effect: non-scaling-stroke` e chanfro **completo** `--pv-cut-md`; as 4 marcas de corte da tela (L 10 px, traço 1,5 px, afastamento 6 px) em `line-strong`. Sem cabeçalho de 28 px: no lugar dele, espaço vazio do mesmo tamanho para alinhar com as telas.
+- Centro: ícone próprio "+" (grade 24, hastes de 1,75 px com pontas a 45°) em `text-2` e rótulo "+ Adicionar tela" ui-13/500 `text-2`; abaixo, dica ui-11 `text-3` "ou arraste da biblioteca".
+- Hover (fino) e foco: borda e marcas passam a `accent-text`, fundo `bg-hover` a 40%, tracejado anda 12 px em 600 ms linear uma vez (o "laser" mede o espaço); 140 ms `--pv-ease-hover`. Foco: anel padrão 2 + 2 px seguindo o chanfro. Pressionado .97 (100 ms). Alvo inteiro clicável (`<button>`), nome acessível "Adicionar tela".
+- Arrastar da biblioteca sobre o slot: borda vira contínua `accent`, `--pv-lamp` a 8% embaixo. Reduced-motion: tracejado não anda; só troca de cor.
+- Claro: borda `line` #CBD6E1 fica abaixo de 3:1, por isso o tracejado usa `line-strong` nos dois temas e as marcas usam `text-3`.
+
+**Interruptor "Print com moldura" com miniatura** (linha do painel de captura, 280 px):
+- Desligado (1 linha, 44 px): alternador §8 (trilho 28 × 16, polegar quadrado chanfrado xs) + rótulo "Print com moldura" ui-13/500 `text`; à direita, miniatura apagada (opacidade .45, sem fundo). `role="switch"`, `aria-checked`, rótulo clicável.
+- Ligado: trilho `accent`, polegar `on-accent`, rótulo de estado ui-11 `accent-text` ("Ligado"). A linha expande (260 ms `--pv-ease-in-out`, só altura via grid-template-rows 0fr→1fr; reduced-motion: sem animação) e mostra, abaixo, 2 controles de 32 px: **Aparelho** (nome + "Trocar", fantasma) e **Fundo** (4 amostras quadradas 20 px chanfro xs: Gelo, Noite, Petróleo, Cor; 5ª amostra Transparente com xadrez 4 px `line-soft`; selecionada = contorno 1 px `accent` + 2 px de afastamento).
+- Miniatura: 56 × 56 px, chanfro dente `--pv-cut-sm`, fundo = fundo escolhido, moldura escolhida dentro com 10% de margem, tela com o último quadro da tela ativa (ou `bg-mat` se ainda não houver). Borda 1 px `line`. Ao trocar aparelho ou fundo: crossfade de 140 ms entre a miniatura antiga e a nova (nunca escala); reduced-motion igual (só opacidade). Clicar na miniatura abre a prévia em tamanho real num popover (`--pv-dur-base`).
+- Teclado: Espaço alterna; Tab vai a Aparelho, depois às amostras (setas escolhem, rádio). Leitor de tela anuncia "Print com moldura, ligado, celular, fundo Gelo".
+
 ## 9. Componentes da landing
 - **CTA da loja**: chanfro md (hover 12 px + fio ciano no contorno 280 ms), Sora 600 1rem, altura 52 px (desktop) / 48 px (celular), rótulo sem largura fixa. Secundário: link com sublinhado de 1 px que cresce da esquerda.
 - **Janela elástica**: chanfro xl variante janela, borda 1 px line, barra superior de 32 px com três traços curtos (genéricos, não os semáforos do macOS), cota acima, alça vertical de 4×40 px na borda direita (área de toque 44).

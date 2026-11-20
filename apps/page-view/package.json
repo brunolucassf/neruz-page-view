@@ -12,6 +12,7 @@
   "dependencies": {
     "@neruz/capture": "workspace:*",
     "@neruz/core": "workspace:*",
+    "@neruz/devices": "workspace:*",
     "@neruz/i18n": "workspace:*",
     "@neruz/ui": "workspace:*",
     "lucide-react": "1.72.0",

@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { EmptyState } from '../empty/EmptyState';
 import { formatInteger } from '../i18n';
+import { useLibrary } from '../library/libraryStore';
 import { layoutScreens } from '../screens/layout';
 import { ScreenView } from '../screens/ScreenView';
 import { useStudio } from '../shell/studioStore';
+import { BenchBar } from './BenchBar';
+import { GhostSlot } from './GhostSlot';
 import { PermissionCard } from './PermissionCard';
 import { Ruler } from './Ruler';
 import './bench.css';
@@ -50,7 +53,8 @@ export function Bench() {
   const resizingScreen = screens[resizingIndex];
   const resizingBox = layout.boxes[resizingIndex];
   const contentTop = contentRef.current?.getBoundingClientRect().top ?? 0;
-  const showsPermission = pageUrl !== null && PERMISSION_STATES.has(access);
+  const isWelcomeOpen = useLibrary((state) => state.isWelcomeOpen);
+  const showsPermission = pageUrl !== null && PERMISSION_STATES.has(access) && !isWelcomeOpen;
 
   return (
     <main
@@ -58,6 +62,7 @@ export function Bench() {
       data-resizing={resize ? '' : undefined}
       data-empty={!pageUrl || undefined}
     >
+      {pageUrl && <BenchBar />}
       <div ref={scrollerRef} className="bench__scroller">
         <div
           ref={contentRef}
@@ -81,6 +86,7 @@ export function Bench() {
                 <ScreenView key={screen.id} screen={screen} index={index} box={box} zoom={zoom} />
               ) : null;
             })}
+          {pageUrl && <GhostSlot slot={layout.slot} isEmpty={screens.length === 0} />}
           {resizingScreen && resizingBox && resize && (
             <div
               className="bench__guide"

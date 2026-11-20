@@ -18,7 +18,12 @@ export function downloadParts(results: CaptureResult[], host: string, extension:
   for (const result of results) {
     const baseName = `neruz-page-view-${host}-${result.width}x${result.height}`;
     result.parts.forEach((part, index) => {
-      const suffix = result.parts.length > 1 ? `-parte-${index + 1}` : '';
+      const momentName = result.partNames[index];
+      const suffix = momentName
+        ? `-${momentName}`
+        : result.parts.length > 1
+          ? `-parte-${index + 1}`
+          : '';
       downloadBlob(part, `${baseName}${suffix}.${extension}`);
     });
   }
@@ -27,7 +32,7 @@ export function downloadParts(results: CaptureResult[], host: string, extension:
 export async function copyImage(blob: Blob) {
   try {
     await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-    showToast({ tone: 'neutral', title: t('popup.preview.copied') });
+    showToast({ tone: 'neutral', title: t('state.copied') });
   } catch {
     showToast({ tone: 'error', title: t('state.error.copyFailed') });
   }

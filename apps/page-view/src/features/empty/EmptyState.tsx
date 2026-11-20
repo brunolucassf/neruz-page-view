@@ -1,20 +1,37 @@
 import { Button } from '@neruz/ui';
-import { AppWindow } from 'lucide-react';
-import { type FormEvent, useState } from 'react';
+import { AppWindow, ArrowLeft } from 'lucide-react';
+import { type FormEvent, useEffect, useState } from 'react';
 import { Input, TextField } from 'react-aria-components';
 import { t } from '../i18n';
-import { findCurrentTabAddress, openPage } from '../shell/studioSession';
+import { findCurrentTabAddress, openExtensionsPage, openPage } from '../shell/studioSession';
+import { type EmptyReason, useStudio } from '../shell/studioStore';
 import './empty.css';
 
 const EXAMPLE_ADDRESSES = ['localhost:3000', 'localhost:5173', 'localhost:4321'];
 
 export function EmptyState() {
+  const emptyReason = useStudio((state) => state.emptyReason);
+  const lastPageUrl = useStudio((state) => state.lastPageUrl);
   const [address, setAddress] = useState('');
   const [isFieldFocused, setIsFieldFocused] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [backUrl, setBackUrl] = useState<string | null>(lastPageUrl);
+  const isUnsupported = emptyReason !== 'none';
 
-  const submit = (event: FormEvent) => {
+  useEffect(() => {
+    if (!isUnsupported || lastPageUrl) return;
+    let isCurrent = true;
+    void findCurrentTabAddress()
+      .catch(() => null)
+      .then((found) => isCurrent && setBackUrl(found));
+    return () => {
+      isCurrent = false;
+    };
+  }, [isUnsupported, lastPageUrl]);
+
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
-    void openPage(address);
+    setHasError(!(await openPage(address)));
   };
 
   const openCurrentTab = async () => {
@@ -25,20 +42,30 @@ export function EmptyState() {
   return (
     <div className="empty" data-field-focused={isFieldFocused || undefined}>
       <EmptyIllustration />
-      <h1 className="empty__title">{t('state.empty.title')}</h1>
-      <p className="empty__body">{t('state.empty.body')}</p>
-      <form className="empty__form" onSubmit={submit}>
+      <EmptyHeading reason={emptyReason} />
+      {emptyReason === 'file-access' && (
+        <Button variant="primary" isLarge onPress={openExtensionsPage}>
+          {t('state.file.cta')}
+        </Button>
+      )}
+      <form className="empty__form" onSubmit={(event) => void submit(event)}>
         <TextField
           className="empty__field"
           aria-label={t('studio.bar.url.placeholder')}
           value={address}
-          onChange={setAddress}
+          isInvalid={hasError}
+          autoFocus={isUnsupported}
+          onChange={(value) => {
+            setAddress(value);
+            setHasError(false);
+          }}
         >
           <Input
             className="pv-input empty__input"
             placeholder={t('studio.bar.url.placeholder')}
             spellCheck={false}
             autoComplete="off"
+            aria-describedby={hasError ? 'empty-url-error' : undefined}
             onFocus={() => setIsFieldFocused(true)}
             onBlur={() => setIsFieldFocused(false)}
           />
@@ -47,7 +74,18 @@ export function EmptyState() {
           {t('studio.bar.url.go')}
         </Button>
       </form>
+      {hasError && (
+        <p id="empty-url-error" className="empty__error" role="alert">
+          {t('studio.bar.url.error')}
+        </p>
+      )}
       <div className="empty__extras">
+        {isUnsupported && backUrl && (
+          <Button variant="secondary" onPress={() => void openPage(backUrl)}>
+            <ArrowLeft size={16} strokeWidth={1.75} aria-hidden="true" />
+            {t('state.unsupported.back', { domain: safeHostname(backUrl) })}
+          </Button>
+        )}
         <Button variant="ghost" onPress={() => void openCurrentTab()}>
           <AppWindow size={16} strokeWidth={1.75} aria-hidden="true" />
           {t('studio.bar.useCurrentTab')}
@@ -68,6 +106,36 @@ export function EmptyState() {
         </ul>
       </div>
     </div>
+  );
+}
+
+function safeHostname(url: string) {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return url;
+  }
+}
+
+function EmptyHeading({ reason }: { reason: EmptyReason }) {
+  if (reason === 'none') {
+    return (
+      <>
+        <h1 className="empty__title">{t('state.empty.title')}</h1>
+        <p className="empty__body">{t('state.empty.body')}</p>
+      </>
+    );
+  }
+  if (reason === 'file-access') {
+    return <h1 className="empty__title empty__title--calm">{t('state.file.body')}</h1>;
+  }
+  return (
+    <>
+      <h1 className="empty__title empty__title--calm">
+        {t(reason === 'store-page' ? 'state.unsupported.store' : 'state.unsupported.title')}
+      </h1>
+      <p className="empty__body">{t('state.unsupported.body')}</p>
+    </>
   );
 }
 

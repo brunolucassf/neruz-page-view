@@ -21,6 +21,7 @@ import {
   type ImageFormat,
   useCapture,
 } from './captureStore';
+import { FramedSwitch } from './FramedSwitch';
 import './capture-panel.css';
 
 type ModeOption = {
@@ -47,7 +48,7 @@ const MODE_OPTIONS: ModeOption[] = [
     value: 'moments',
     label: 'studio.capture.mode.moments.label',
     description: 'studio.capture.mode.moments.desc',
-    isAvailable: false,
+    isAvailable: true,
   },
 ];
 
@@ -72,6 +73,7 @@ export function CapturePanel() {
         <ActiveScreenSize />
         <ModePicker />
         <TargetPicker />
+        <FramedSwitch />
         <AdvancedOptions />
       </div>
       <div className="capture-panel__footer">

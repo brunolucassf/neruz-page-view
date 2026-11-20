@@ -54,32 +54,48 @@ export const es: LandingCopy = {
   },
   sceneOneClick: {
     stepLabel: 'Captura',
-    title: 'Un clic y la captura ya está lista para mostrar.',
+    title: 'Dos clics y la captura ya está lista para mostrar.',
     subtitle:
-      'Haz clic en el ícono, elige "Captura con marco" y obtén la página completa dentro de un marco de dispositivo. El modo Experiencia espera a que aparezcan las animaciones antes de capturar, para que nada salga a medias.',
+      'Haz clic en el ícono y el Estudio se abre con la página que estás viendo; con "Captura con marco" activado, Capturar te da la página completa dentro de un marco de dispositivo. El modo Experiencia espera a que aparezcan las animaciones antes de capturar, para que nada salga a medias.',
     before: 'Antes: captura normal',
     after: 'Después: página completa, con marco',
     compareLabel: 'Comparar antes y después',
     backgroundLabel: 'Color de fondo de la captura',
     backgrounds: ['Fondo grafito', 'Fondo claro', 'Fondo terracota'],
   },
-  popup: {
-    title: 'Neruz Page View',
-    quickShotLabel: 'Captura con marco',
-    quickShotHint: 'Esta página en un marco de dispositivo, lista para bajar.',
-    openStudioLabel: 'Abrir en el Estudio',
-    openStudioHint: 'Mírala en varias pantallas a la vez.',
-    urlPlaceholder: 'O pega una dirección (ej.: localhost:3000)',
-    urlButton: 'Abrir',
-    deviceLabel: 'Dispositivo',
-    deviceChange: 'Cambiar',
+  studioArt: {
+    title: 'Estudio',
+    captureTitle: 'Captura',
+    modeLabel: 'Modo',
+    modes: ['Rápido', 'Experiencia', 'Momentos'],
+    framedLabel: 'Captura con marco',
+    captureLabel: 'Capturar',
+  },
+  sceneDevices: {
+    stepLabel: 'Pantallas',
+    title: 'Haz scroll en una pantalla. Todas te siguen.',
+    subtitle:
+      'El scroll, los clics, la navegación y lo que escribes se repiten en todas las pantallas. Empieza con el kit Esenciales de 12 tamaños o arma el tuyo entre unos 45 dispositivos. Gira, cambia el tamaño arrastrando y revisa los anchos con la regla. Funciona con localhost.',
+    note: 'Las pantallas se simulan por tamaño en tu navegador: el iPhone aquí es tu navegador con el tamaño del iPhone, no Safari.',
+    names: ['Celular', 'Plegable', 'Tablet', 'Portátil', 'Monitor'],
+  },
+  sceneAuto: {
+    stepLabel: 'Video',
+    title: 'La página se desplaza sola. Tú solo presionas Grabar.',
+    subtitle:
+      'La extensión detecta las secciones de la página y hace una pausa en cada una. Elige la pantalla, ajusta la velocidad y guarda en vertical 1080×1920, el formato de Reels y Shorts, o en 16:9.',
+    note: 'MP4, WebM o GIF · Cursor opcional · En Firefox, el navegador te pregunta qué pestaña grabar antes de empezar.',
+    recording: 'Grabando {time}',
+    sections: ['Inicio', 'Menú', 'Acerca de', 'Pie'],
   },
   ruler: {
     label: 'Ir a la sección',
     counter: 'Escena {n} de {total}',
     scenes: [
       { id: 'inicio', label: 'Mira tu sitio en varias pantallas a la vez.' },
-      { id: 'um-clique', label: 'Un clic y la captura ya está lista para mostrar.' },
+      { id: 'um-clique', label: 'Dos clics y la captura ya está lista para mostrar.' },
+      { id: 'role-uma-tela', label: 'Haz scroll en una pantalla. Todas te siguen.' },
+      { id: 'pagina-rola-sozinha', label: 'La página se desplaza sola. Tú solo presionas Grabar.' },
     ],
   },
   footer: {

@@ -47,7 +47,7 @@ export const syncAgentScripts = () =>
 
 export const isStudioTab = async (tabId: number) => (await readStudioTabs()).includes(tabId);
 
-const isTabAlive = async (tabId: number) => {
+export const isTabAlive = async (tabId: number) => {
   try {
     await chrome.tabs.get(tabId);
     return true;

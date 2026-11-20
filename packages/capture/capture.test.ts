@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createCaptureQueue } from './capture-queue';
 import { createCleanupStack } from './cleanup-stack';
+import { planMoments } from './moments';
 import {
   assertCanvasBudget,
   computeSlice,
@@ -96,5 +97,37 @@ describe('capture queue and cleanup', () => {
     stack.push(() => void order.push('c'));
     await stack.runAll();
     expect(order).toEqual(['c', 'a']);
+  });
+});
+
+describe('moments plan', () => {
+  const section = (top: number, height: number, label?: string) => ({
+    top,
+    height,
+    selector: `#s${top}`,
+    ...(label ? { label } : {}),
+  });
+  it('plans one moment per section with ordered slug names', () => {
+    expect(
+      planMoments([section(900, 600, 'Preços e Planos'), section(0, 900, 'Hero')], 3000, 800),
+    ).toEqual([
+      { scrollTop: 0, name: '01-hero' },
+      { scrollTop: 900, name: '02-precos-e-planos' },
+    ]);
+  });
+  it('clamps to max scroll and drops duplicated or too close moments', () => {
+    const plans = planMoments(
+      [section(0, 800), section(50, 800), section(2000, 500), section(2300, 500)],
+      2500,
+      800,
+    );
+    expect(plans.map((plan) => plan.scrollTop)).toEqual([0, 1700]);
+  });
+  it('falls back to viewport pages when there are no sections', () => {
+    expect(planMoments([], 2000, 844)).toEqual([
+      { scrollTop: 0, name: '01-secao' },
+      { scrollTop: 844, name: '02-secao' },
+      { scrollTop: 1156, name: '03-secao' },
+    ]);
   });
 });
