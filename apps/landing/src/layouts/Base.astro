@@ -1,0 +1,55 @@
+---
+import '@neruz/ui/tokens.css';
+import '../styles/global.css';
+import type { LandingCopy } from '../i18n';
+import { DICTIONARIES } from '../i18n';
+
+interface Props {
+  copy: LandingCopy;
+}
+
+const { copy } = Astro.props;
+const alternates = Object.values(DICTIONARIES);
+---
+
+<!doctype html>
+<html lang={copy.htmlLang} data-locale={copy.locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{copy.meta.title}</title>
+    <meta name="description" content={copy.meta.description} />
+    <meta name="theme-color" content="#080D14" />
+    <meta property="og:title" content={copy.meta.title} />
+    <meta property="og:description" content={copy.meta.ogDescription} />
+    <meta property="og:type" content="website" />
+    {alternates.map((alt) => <link rel="alternate" hreflang={alt.htmlLang} href={alt.path} />)}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="preload" href="/fonts/Sora-600.woff2" as="font" type="font/woff2" crossorigin />
+    <script is:inline>
+      (() => {
+        const root = document.documentElement;
+        const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const connection = navigator.connection;
+        const isSaveData = Boolean(connection && connection.saveData);
+        root.classList.add('has-js');
+        if (prefersReducedMotion) {
+          root.classList.add('is-static');
+          return;
+        }
+        root.classList.add('is-motion');
+        if (isSaveData) root.classList.add('is-lite');
+        let hasSeenIntro = false;
+        try {
+          hasSeenIntro = sessionStorage.getItem('pv-intro') === '1';
+        } catch {}
+        if (!hasSeenIntro) root.classList.add('is-intro');
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#conteudo">{copy.skipLink}</a>
+    <slot />
+  </body>
+</html>

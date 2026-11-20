@@ -1,0 +1,1092 @@
+---
+import type { LandingCopy } from '../i18n';
+import FornoSite from './FornoSite.astro';
+import PopupIllustration from './PopupIllustration.astro';
+
+interface Props {
+  copy: LandingCopy;
+}
+
+const { copy } = Astro.props;
+const breakpoints = [480, 720, 1024];
+const symbolWindow = 'M24 20H104L112 28V46H100V32H28V88H54V100H24L16 92V28Z';
+const symbolViewport = 'M72 52H104L112 60V104L104 112H72L64 104V60ZM76 64V100H100V64Z';
+const scene = copy.sceneOneClick;
+const swatchColors = ['#1B2635', '#E8EEF4', '#C4532D'];
+---
+
+<div class="journey" data-journey data-forno={JSON.stringify(copy.forno)}>
+  <div class="journey__stage" data-stage>
+    <div class="bench" aria-hidden="true"><div class="bench__floor"></div></div>
+    <canvas class="bench-gl" data-gl aria-hidden="true"></canvas>
+
+    <div class="stage-hero" data-stage-hero>
+      <div class="hruler" data-hruler aria-hidden="true">
+        <canvas class="hruler__ticks" data-hruler-canvas></canvas>
+        {
+          breakpoints.map((breakpoint) => (
+            <span class="hruler__flag cota-text" data-bp={breakpoint}>
+              {breakpoint}
+            </span>
+          ))
+        }
+      </div>
+      <div class="cota" data-cota aria-hidden="true">
+        <span class="cota__line"></span>
+        <span class="cota__value cota-text" data-cota-value>1280 px</span>
+      </div>
+
+      <div class="ewin" data-window>
+        <div class="ewin__shadow" aria-hidden="true"></div>
+        <div class="ewin__frame" role="img" aria-label={copy.forno.regionLabel}>
+          <div class="ewin__inner">
+            <div class="ewin__bar" data-window-bar>
+              <span class="ewin__strokes"><i></i><i></i><i></i></span>
+              <span class="ewin__url cota-text">{copy.forno.url}</span>
+            </div>
+            <div class="ewin__host" data-window-host>
+              <div class="ewin__site forno-host" data-window-site>
+                <FornoSite forno={copy.forno} />
+              </div>
+            </div>
+            <span class="ewin__scan" data-window-scan></span>
+          </div>
+        </div>
+        <div
+          class="ewin__handle"
+          role="slider"
+          tabindex="0"
+          aria-label={copy.hero.windowWidthLabel}
+          aria-valuemin="320"
+          aria-valuemax="1280"
+          aria-valuenow="1280"
+          aria-valuetext="1280 px"
+          data-window-handle
+        >
+          <span></span>
+        </div>
+      </div>
+
+      <div class="evp" data-detached aria-hidden="true">
+        <div class="evp__inner">
+          <div class="evp__host" data-detached-host>
+            <div class="evp__site forno-host" data-detached-site>
+              <FornoSite forno={copy.forno} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="intro" data-intro aria-hidden="true">
+        <svg class="intro__symbol" viewBox="0 0 128 128" data-intro-symbol>
+          <path class="intro__fill" d={symbolWindow} data-intro-fill-window></path>
+          <path class="intro__fill" d={symbolViewport} fill-rule="evenodd" data-intro-fill-viewport></path>
+          <path class="intro__stroke" d={symbolWindow} pathLength="1" data-intro-stroke-window></path>
+          <path class="intro__stroke" d={symbolViewport} pathLength="1" data-intro-stroke-viewport></path>
+        </svg>
+      </div>
+    </div>
+
+    <section class="scene-click" id="um-clique" aria-labelledby="click-title" data-scene-click>
+      <div class="scene-click__text" data-click-text>
+        <p class="scene-click__index eyebrow">
+          <span class="scene-click__step">{scene.stepLabel}</span>
+          <span class="visually-hidden">
+            {copy.ruler.counter.replace('{n}', '2').replace('{total}', '8')}
+          </span>
+        </p>
+        <h2 id="click-title" class="scene-click__title">{scene.title}</h2>
+        <p class="scene-click__subtitle">{scene.subtitle}</p>
+      </div>
+      <div class="scene-click__phone-slot" data-phone-slot aria-hidden="true"></div>
+      <div class="scene-click__popup" data-popup aria-hidden="true">
+        <PopupIllustration copy={copy} />
+      </div>
+      <div class="scene-click__media" data-media>
+        <div class="compare" data-compare>
+          <div class="compare__layer compare__before" aria-hidden="true">
+            <canvas class="compare__plain" data-print-before width="390" height="844"></canvas>
+          </div>
+          <div class="compare__layer compare__after" data-compare-after aria-hidden="true">
+            <div class="compare__bg" data-compare-bg></div>
+            <div class="compare__frame" data-compare-frame>
+              <canvas class="compare__page" data-print-after width="390" height="1320"></canvas>
+            </div>
+          </div>
+          <div class="compare__line" aria-hidden="true"><span></span></div>
+          <span class="compare__label compare__label--before cota-text">{scene.before}</span>
+          <span class="compare__label compare__label--after cota-text">{scene.after}</span>
+          <input
+            class="compare__range"
+            type="range"
+            min="0"
+            max="100"
+            value="50"
+            aria-label={scene.compareLabel}
+            data-compare-range
+          />
+        </div>
+        <div class="swatches" role="group" aria-label={scene.backgroundLabel} data-swatches>
+          {
+            swatchColors.map((color, index) => (
+              <button
+                type="button"
+                class="swatches__button"
+                style={`--swatch: ${color}`}
+                aria-label={scene.backgrounds[index]}
+                aria-pressed={index === swatchColors.length - 1 ? 'true' : 'false'}
+                data-swatch={index}
+              >
+                <span />
+              </button>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <canvas class="strip2d" data-strip2d aria-hidden="true"></canvas>
+    <button type="button" class="intro-skip cota-text" data-intro-skip>{copy.hero.skipIntro}</button>
+  </div>
+</div>
+
+<style>
+  .journey {
+    --journey-track: 170vh;
+    position: relative;
+    z-index: 1;
+  }
+
+  @media (min-width: 1024px) {
+    .journey {
+      --journey-track: 210vh;
+    }
+  }
+
+  .journey__stage {
+    position: relative;
+    display: grid;
+    gap: var(--pv-space-12);
+    padding: var(--pv-space-12) var(--pv-site-inline) var(--pv-section-y);
+    isolation: isolate;
+  }
+
+  .bench {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    overflow: hidden;
+    background-color: var(--pv-bg-mat);
+    background-image:
+      linear-gradient(var(--pv-mat-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--pv-mat-grid) 1px, transparent 1px);
+    background-size: 64px 64px;
+    background-position: center top;
+    mask-image: linear-gradient(transparent, #000 120px);
+  }
+
+  .bench__floor {
+    display: none;
+  }
+
+  .bench-gl {
+    display: none;
+  }
+
+  .stage-hero {
+    position: relative;
+    display: grid;
+    gap: var(--pv-space-3);
+  }
+
+  .hruler {
+    position: relative;
+    height: var(--pv-ruler-h);
+  }
+
+  .hruler__ticks {
+    width: 100%;
+    height: 100%;
+  }
+
+  .hruler__flag {
+    --cut: var(--pv-cut-xs);
+    position: absolute;
+    top: -22px;
+    left: 0;
+    padding: 4px 6px;
+    background: var(--pv-bg-raised);
+    color: var(--pv-text-2);
+    font-size: 11px;
+    clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+    transition:
+      background-color var(--pv-dur-fast) var(--pv-ease-hover),
+      color var(--pv-dur-fast) var(--pv-ease-hover);
+  }
+
+  .hruler__flag.is-active {
+    background: var(--pv-accent);
+    color: var(--pv-on-accent);
+  }
+
+  .hruler__flag.is-tick {
+    animation: flag-tick 120ms var(--pv-ease-out);
+  }
+
+  @keyframes flag-tick {
+    from {
+      transform: var(--flag-x, translateX(0)) translateY(-3px);
+    }
+  }
+
+  .cota {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 20px;
+    color: var(--pv-text);
+  }
+
+  .cota__line {
+    position: absolute;
+    inset: 50% 0 auto;
+    height: 1px;
+    background: var(--pv-line-strong);
+  }
+
+  .cota__line::before,
+  .cota__line::after {
+    content: "";
+    position: absolute;
+    top: -5px;
+    width: 1px;
+    height: 11px;
+    background: var(--pv-text-2);
+    transform: rotate(45deg);
+  }
+
+  .cota__line::before {
+    left: 0;
+  }
+
+  .cota__line::after {
+    right: 0;
+  }
+
+  .cota__value {
+    position: relative;
+    padding-inline: var(--pv-space-4);
+    background: var(--pv-bg-mat);
+  }
+
+  .ewin {
+    --cut: var(--pv-cut-xl);
+    --cut-br: 0px;
+    --bar-h: 32px;
+    position: relative;
+    width: 100%;
+    height: clamp(420px, 62vh, 760px);
+  }
+
+  .ewin__shadow {
+    position: absolute;
+    left: 4%;
+    right: 4%;
+    bottom: -36px;
+    height: 72px;
+    background: radial-gradient(50% 50% at 50% 50%, rgb(0 0 0 / 0.7), transparent);
+    pointer-events: none;
+  }
+
+  .ewin__frame {
+    position: absolute;
+    inset: 0;
+    background: var(--pv-line);
+    clip-path: polygon(
+      var(--cut) 0,
+      calc(100% - var(--cut)) 0,
+      100% var(--cut),
+      100% calc(100% - var(--cut-br)),
+      calc(100% - var(--cut-br)) 100%,
+      var(--cut) 100%,
+      0 calc(100% - var(--cut)),
+      0 var(--cut)
+    );
+  }
+
+  .ewin__inner {
+    position: absolute;
+    inset: 1px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--pv-bg-chrome);
+    clip-path: inherit;
+  }
+
+  .ewin__bar {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--pv-space-6);
+    height: var(--bar-h);
+    padding-inline: calc(var(--cut) + 6px) var(--pv-space-6);
+    overflow: hidden;
+    border-bottom: 1px solid var(--pv-line-soft);
+  }
+
+  .ewin__strokes {
+    display: flex;
+    gap: 6px;
+  }
+
+  .ewin__strokes i {
+    width: 12px;
+    height: 2px;
+    background: var(--pv-line-strong);
+  }
+
+  .ewin__url {
+    color: var(--pv-text-3);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .ewin__host {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .forno-host {
+    container: forno / inline-size;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform-origin: 0 0;
+  }
+
+  .ewin__inner::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--pv-bg-mat);
+    opacity: var(--phone-dim, 0);
+    pointer-events: none;
+  }
+
+  .ewin__scan {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 2px;
+    background: var(--pv-cyan);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .ewin__handle {
+    position: absolute;
+    top: 50%;
+    right: -22px;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 64px;
+    margin-top: -32px;
+    cursor: ew-resize;
+    touch-action: none;
+  }
+
+  .ewin__handle span {
+    width: 4px;
+    height: 40px;
+    background: var(--pv-line-strong);
+    transition: background-color var(--pv-dur-fast) var(--pv-ease-hover);
+  }
+
+  .ewin__handle:focus-visible {
+    outline-offset: -8px;
+  }
+
+  .ewin__handle:focus-visible span,
+  .ewin__handle.is-dragging span {
+    background: var(--pv-accent);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .ewin__handle:hover span {
+      background: var(--pv-accent);
+    }
+  }
+
+  .evp {
+    --cut: var(--pv-cut-lg);
+    display: none;
+  }
+
+  .evp__inner {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: var(--pv-line-strong);
+    clip-path: polygon(
+      var(--cut) 0,
+      calc(100% - var(--cut)) 0,
+      100% var(--cut),
+      100% calc(100% - var(--cut)),
+      calc(100% - var(--cut)) 100%,
+      var(--cut) 100%,
+      0 calc(100% - var(--cut)),
+      0 var(--cut)
+    );
+  }
+
+  .evp::before {
+    content: "";
+    position: absolute;
+    inset: -10px;
+    background: var(--pv-bg-mat);
+    clip-path: polygon(
+      calc(var(--cut) + 4px) 0,
+      calc(100% - var(--cut) - 4px) 0,
+      100% calc(var(--cut) + 4px),
+      100% calc(100% - var(--cut) - 4px),
+      calc(100% - var(--cut) - 4px) 100%,
+      calc(var(--cut) + 4px) 100%,
+      0 calc(100% - var(--cut) - 4px),
+      0 calc(var(--cut) + 4px)
+    );
+  }
+
+  .evp__host {
+    position: absolute;
+    inset: 1px;
+    overflow: hidden;
+    clip-path: inherit;
+  }
+
+  .intro,
+  .intro-skip,
+  .strip2d {
+    display: none;
+  }
+
+  .scene-click {
+    display: grid;
+    gap: var(--pv-space-9);
+  }
+
+  .scene-click__index {
+    display: flex;
+    align-items: center;
+    gap: var(--pv-space-4);
+    margin-bottom: var(--pv-space-8);
+    color: var(--pv-text-2);
+  }
+
+  .scene-click__index::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    background: var(--pv-accent);
+    transform: rotate(45deg);
+  }
+
+  .scene-click__title {
+    max-width: 16ch;
+    font-family: var(--pv-fs-h2-ff);
+    font-size: var(--pv-fs-h2);
+    font-weight: var(--pv-fs-h2-fw);
+    line-height: var(--pv-fs-h2-lh);
+    letter-spacing: var(--pv-fs-h2-ls);
+    text-wrap: balance;
+  }
+
+  .scene-click__subtitle {
+    max-width: 44ch;
+    margin-top: var(--pv-space-6);
+    color: var(--pv-text-2);
+    font-size: var(--pv-fs-body);
+    line-height: var(--pv-fs-body-lh);
+  }
+
+  .scene-click__phone-slot {
+    display: none;
+  }
+
+  .scene-click__popup {
+    width: min(100%, 360px);
+  }
+
+  .popup-art,
+  .scene-click__popup :global(.popup-art) {
+    width: 100%;
+    height: auto;
+  }
+
+  .scene-click__media {
+    display: grid;
+    gap: var(--pv-space-5);
+  }
+
+  .compare {
+    --split: 50%;
+    --cut: var(--pv-cut-lg);
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    clip-path: polygon(
+      var(--cut) 0,
+      calc(100% - var(--cut)) 0,
+      100% var(--cut),
+      100% calc(100% - var(--cut)),
+      calc(100% - var(--cut)) 100%,
+      var(--cut) 100%,
+      0 calc(100% - var(--cut)),
+      0 var(--cut)
+    );
+    touch-action: pan-y;
+  }
+
+  .compare__layer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .compare__before {
+    background: #1b2635;
+  }
+
+  .compare__plain {
+    width: auto;
+    height: 74%;
+    aspect-ratio: 390 / 844;
+  }
+
+  .compare__after {
+    clip-path: inset(0 0 0 var(--split));
+  }
+
+  .compare__bg {
+    position: absolute;
+    inset: 0;
+    background: #c4532d;
+  }
+
+  .compare__frame {
+    --cut: var(--pv-cut-lg);
+    --page-aspect: 390 / 1320;
+    position: relative;
+    height: 88%;
+    padding: 10px;
+    aspect-ratio: var(--page-aspect);
+    background: #0e1520;
+    box-shadow: var(--pv-shadow-frame);
+    clip-path: polygon(
+      var(--cut) 0,
+      calc(100% - var(--cut)) 0,
+      100% var(--cut),
+      100% calc(100% - var(--cut)),
+      calc(100% - var(--cut)) 100%,
+      var(--cut) 100%,
+      0 calc(100% - var(--cut)),
+      0 var(--cut)
+    );
+  }
+
+  .compare__page {
+    width: 100%;
+    height: 100%;
+  }
+
+  .compare__line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--split);
+    width: 1px;
+    margin-left: -0.5px;
+    background: var(--pv-cyan);
+    box-shadow: 0 0 10px rgb(0 229 255 / 0.35);
+    pointer-events: none;
+  }
+
+  .compare__line span {
+    position: absolute;
+    top: 50%;
+    left: -10px;
+    width: 21px;
+    height: 21px;
+    margin-top: -10px;
+    background: var(--pv-cyan);
+    clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%);
+  }
+
+  .compare__label {
+    position: absolute;
+    top: var(--pv-space-6);
+    max-width: 42%;
+    padding: 6px 8px;
+    background: rgb(8 13 20 / 0.82);
+    color: var(--pv-text);
+    line-height: 1.3;
+    pointer-events: none;
+  }
+
+  .compare__label--before {
+    left: var(--pv-space-6);
+  }
+
+  .compare__label--after {
+    right: var(--pv-space-6);
+    text-align: right;
+  }
+
+  .compare__range {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: ew-resize;
+  }
+
+  .compare:has(.compare__range:focus-visible) {
+    outline: 2px solid var(--pv-focus);
+    outline-offset: -2px;
+  }
+
+  .swatches {
+    display: flex;
+    gap: var(--pv-space-1);
+    margin-left: -12px;
+  }
+
+  .swatches__button {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform var(--pv-dur-press) var(--pv-ease-out);
+  }
+
+  .swatches__button span {
+    width: 20px;
+    height: 20px;
+    background: var(--swatch);
+    outline: 1px solid var(--pv-line-strong);
+    outline-offset: 3px;
+    transition:
+      outline-color var(--pv-dur-fast) var(--pv-ease-hover),
+      outline-offset var(--pv-dur-fast) var(--pv-ease-hover);
+  }
+
+  .swatches__button[aria-pressed="true"] span {
+    outline: 2px solid var(--pv-accent);
+    outline-offset: 3px;
+  }
+
+  .swatches__button:active {
+    transform: scale(0.97);
+  }
+
+  .swatches__button:focus-visible {
+    outline: 2px solid var(--pv-focus);
+    outline-offset: -2px;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .swatches__button:hover span {
+      outline-color: var(--pv-text);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .compare {
+      aspect-ratio: 5 / 4;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .scene-click {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      align-items: center;
+      column-gap: var(--pv-space-9);
+    }
+
+    .scene-click__text {
+      grid-column: 1 / span 4;
+    }
+
+    .scene-click__popup {
+      grid-column: 5 / span 3;
+      align-self: start;
+    }
+
+    .scene-click__media {
+      grid-column: 8 / span 5;
+    }
+
+    .compare {
+      aspect-ratio: 4 / 5;
+    }
+  }
+
+  :global(.is-motion) .journey {
+    height: calc(100svh + var(--journey-track, 210vh));
+  }
+
+  :global(.is-motion) .journey__stage {
+    position: sticky;
+    top: 0;
+    display: block;
+    height: 100svh;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  :global(.is-motion) .bench {
+    mask-image: linear-gradient(transparent, #000 160px);
+  }
+
+  :global(.is-motion) .bench__floor {
+    position: absolute;
+    left: -50%;
+    right: -50%;
+    top: 34%;
+    height: 140%;
+    display: block;
+    background-image:
+      linear-gradient(var(--pv-mat-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--pv-mat-grid) 1px, transparent 1px);
+    background-size: 64px 64px;
+    transform: perspective(700px) rotateX(62deg);
+    transform-origin: 50% 0;
+    mask-image: linear-gradient(transparent, #000 30%);
+  }
+
+  :global(.is-motion) .bench::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: #04070b;
+    opacity: var(--bench-dim, 0);
+  }
+
+  :global(.is-motion.has-gl) .bench-gl {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 600ms var(--pv-ease-out);
+  }
+
+  :global(.is-motion.has-gl.gl-ready) .bench-gl {
+    opacity: 1;
+  }
+
+  :global(.is-motion.has-gl.gl-ready) .bench__floor {
+    opacity: 0;
+    transition: opacity 600ms var(--pv-ease-out);
+  }
+
+  :global(.is-motion) .stage-hero {
+    position: absolute;
+    inset: 0;
+    display: block;
+  }
+
+  :global(.is-motion) .hruler,
+  :global(.is-motion) .cota,
+  :global(.is-motion) .ewin,
+  :global(.is-motion) .evp,
+  :global(.is-motion) .intro {
+    position: absolute;
+    top: 0;
+    left: 0;
+    will-change: transform;
+  }
+
+  :global(.is-motion) .hruler {
+    width: 0;
+  }
+
+  :global(.is-motion) .ewin,
+  :global(.is-motion) .evp {
+    height: auto;
+  }
+
+  :global(.is-motion) .evp,
+  :global(.is-static) .evp {
+    display: block;
+  }
+
+  :global(.is-motion) .evp {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  :global(.is-static) .evp {
+    position: absolute;
+    right: 3%;
+    bottom: -40px;
+    z-index: 2;
+    width: clamp(120px, 18%, 260px);
+    aspect-ratio: 390 / 844;
+  }
+
+  :global(.is-motion) .scene-click {
+    position: absolute;
+    inset: 0;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: var(--pv-space-6);
+    padding: var(--pv-space-13) var(--pv-site-inline) 96px;
+    pointer-events: none;
+  }
+
+  :global(.is-motion) .scene-click__text {
+    position: relative;
+    z-index: 4;
+    clip-path: polygon(0 0, 0 0, 0 0);
+  }
+
+  :global(.is-motion) .scene-click__subtitle {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 5;
+    line-clamp: 5;
+  }
+
+  :global(.is-motion) .scene-click__phone-slot,
+  :global(.is-motion) .scene-click__popup,
+  :global(.is-motion) .scene-click__media {
+    display: block;
+    grid-row: 2;
+    grid-column: 1;
+    min-height: 0;
+  }
+
+  :global(.is-motion) .scene-click__phone-slot {
+    height: 100%;
+  }
+
+  :global(.is-motion) .scene-click__popup {
+    position: relative;
+    z-index: 3;
+    align-self: start;
+    justify-self: end;
+    width: min(72%, 300px);
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  :global(.is-motion) .scene-click__media {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    height: 100%;
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  :global(.is-motion) .compare {
+    aspect-ratio: auto;
+    height: 100%;
+    min-height: 0;
+  }
+
+  :global(.is-motion) .compare__before,
+  :global(.is-motion) .compare__line,
+  :global(.is-motion) .compare__label,
+  :global(.is-motion) .compare__bg,
+  :global(.is-motion) .compare__page,
+  :global(.is-motion) .swatches {
+    opacity: 0;
+  }
+
+  :global(.is-motion) .compare__frame {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  :global(.is-motion) .compare__frame::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: #0e1520;
+    opacity: var(--frame-fill, 0);
+  }
+
+  :global(.is-motion) .compare__frame::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--pv-line-strong);
+    opacity: var(--frame-line, 0);
+    clip-path: inherit;
+  }
+
+  :global(.is-motion.is-compare-live) .scene-click__media {
+    pointer-events: auto;
+  }
+
+  :global(.is-motion) .strip2d {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    display: block;
+    width: 390px;
+    height: auto;
+    transform-origin: 0 0;
+    opacity: 0;
+    pointer-events: none;
+    box-shadow: 0 24px 40px -20px rgb(0 0 0 / 0.7);
+  }
+
+  :global(.is-motion) .ewin {
+    z-index: 1;
+  }
+
+  :global(.is-motion) .intro {
+    z-index: 4;
+    display: none;
+    width: 128px;
+    height: 128px;
+    transform-origin: 0 0;
+  }
+
+  :global(.is-motion.is-intro) .intro {
+    display: block;
+  }
+
+  .intro__symbol {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .intro__fill {
+    fill: var(--pv-cyan);
+    fill-opacity: 0;
+  }
+
+  .intro__stroke {
+    fill: none;
+    stroke: var(--pv-cyan);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+
+  :global(.is-motion.is-intro) .intro-skip {
+    position: absolute;
+    right: var(--pv-site-inline);
+    bottom: var(--pv-space-8);
+    z-index: 5;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: var(--pv-space-5);
+    border: 1px solid var(--pv-line-strong);
+    background: var(--pv-bg-mat);
+    color: var(--pv-text-2);
+    cursor: pointer;
+  }
+
+  :global(.is-motion.is-intro) .ewin,
+  :global(.is-motion.is-intro) .cota,
+  :global(.is-motion.is-intro) .hruler {
+    opacity: 0;
+    animation: intro-failsafe 0s 4s forwards;
+  }
+
+  @keyframes intro-failsafe {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @media (min-width: 768px) {
+    :global(.is-motion) .scene-click {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      grid-template-rows: auto minmax(0, 1fr);
+      column-gap: var(--pv-space-9);
+      padding: var(--pv-space-15) var(--pv-site-inline) var(--pv-space-13);
+    }
+
+    :global(.is-motion) .scene-click__text {
+      grid-column: 1 / -1;
+    }
+
+    :global(.is-motion) .scene-click__phone-slot {
+      grid-column: 1 / span 5;
+    }
+
+    :global(.is-motion) .scene-click__popup {
+      grid-column: 5 / span 5;
+      justify-self: start;
+      width: min(100%, 320px);
+    }
+
+    :global(.is-motion) .scene-click__media {
+      grid-column: 6 / span 7;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    :global(.is-motion) .scene-click {
+      grid-template-rows: minmax(0, 1fr);
+      align-items: stretch;
+      padding: var(--pv-space-15) var(--pv-site-inline) var(--pv-space-14);
+    }
+
+    :global(.is-motion) .scene-click__text {
+      grid-column: 1 / span 4;
+      grid-row: 1;
+      align-self: center;
+    }
+
+    :global(.is-motion) .scene-click__phone-slot {
+      grid-column: 5 / span 3;
+      grid-row: 1;
+    }
+
+    :global(.is-motion) .scene-click__popup {
+      grid-column: 7 / span 3;
+      grid-row: 1;
+      align-self: start;
+      justify-self: center;
+      width: min(100%, 340px);
+      margin-top: 4%;
+    }
+
+    :global(.is-motion) .scene-click__media {
+      grid-column: 8 / span 5;
+      grid-row: 1;
+    }
+  }
+
+</style>

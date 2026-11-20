@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fixture Neros</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:18px system-ui;background:#0e0e12;color:#eee}
+header{position:sticky;top:0;z-index:10;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#222;border-bottom:1px solid #444}
+section{min-height:90vh;padding:80px 24px;display:flex;flex-direction:column;gap:24px;justify-content:center}
+section:nth-of-type(odd){background:#15151c}section:nth-of-type(even){background:#1b1b26}
+.reveal{opacity:0;transform:translateY(60px)}
+h2{font-size:clamp(28px,5vw,64px);margin:0}
+img{width:100%;max-width:640px;height:auto;aspect-ratio:16/9;background:#333;border-radius:12px}
+footer{padding:80px 24px;background:#000}
+</style></head><body>
+<header><strong>Fixture</strong><nav>Inicio Sobre Contato</nav></header>
+<main>
+<section id="s1" data-s><h2 class="reveal">Secao 1</h2><p class="reveal">Texto que entra no scroll.</p><img class="reveal" loading="lazy" width="640" height="360" src="/img/1.svg" alt=""></section>
+<section id="s2" data-s><h2 class="reveal">Secao 2</h2><p class="reveal">Segunda entrada animada.</p><img class="reveal" loading="lazy" width="640" height="360" src="/img/2.svg" alt=""></section>
+<section id="s3" data-s><h2 class="reveal">Secao 3</h2><p class="reveal">Terceira entrada animada.</p><img class="reveal" loading="lazy" width="640" height="360" src="/img/3.svg" alt=""></section>
+<section id="s4" data-s><h2 class="reveal">Secao 4</h2><p class="reveal">Quarta entrada animada.</p><img class="reveal" loading="lazy" width="640" height="360" src="/img/4.svg" alt=""></section>
+<section id="s5" data-s><h2 class="reveal">Secao 5</h2><p class="reveal">Quinta entrada animada.</p><img class="reveal" loading="lazy" width="640" height="360" src="/img/5.svg" alt=""></section>
+<section id="s6" data-s><h2 class="reveal">Secao 6</h2><p class="reveal">Sexta entrada animada.</p><img class="reveal" loading="lazy" width="640" height="360" src="/img/6.svg" alt=""></section>
+</main>
+<footer>Rodape da fixture</footer>
+<script src="/vendor/gsap.min.js"></script><script src="/vendor/ScrollTrigger.min.js"></script><script src="/vendor/lenis.min.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+const lenis=new Lenis({lerp:0.08});
+lenis.on('scroll',ScrollTrigger.update);
+gsap.ticker.add(t=>lenis.raf(t*1000));gsap.ticker.lagSmoothing(0);
+document.querySelectorAll('[data-s]').forEach(s=>{
+ gsap.to(s.querySelectorAll('.reveal'),{opacity:1,y:0,duration:.8,stagger:.12,ease:'power3.out',scrollTrigger:{trigger:s,start:'top 70%',toggleActions:'play none none none'}});
+});
+</script></body></html>

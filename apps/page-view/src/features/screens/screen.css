@@ -1,0 +1,236 @@
+.screen {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen__header {
+  display: flex;
+  align-items: center;
+  gap: var(--pv-space-4);
+  height: var(--pv-screen-header-h);
+  min-width: 0;
+  padding-bottom: var(--pv-space-2);
+  container-type: inline-size;
+}
+
+.screen__name.pv-button {
+  flex: 0 1 auto;
+  min-width: 0;
+  height: 24px;
+  margin-left: calc(var(--pv-space-2) * -1);
+  padding: 0 var(--pv-space-2);
+  overflow: hidden;
+  color: var(--pv-text-3);
+  text-overflow: ellipsis;
+  font-size: var(--pv-ui-12);
+  font-weight: 500;
+}
+
+.screen[data-active] .screen__name.pv-button {
+  color: var(--pv-accent-text);
+}
+
+.screen__size {
+  flex: none;
+  color: var(--pv-text-2);
+  font-size: var(--pv-ui-11);
+  line-height: var(--pv-ui-11-lh);
+  font-weight: var(--pv-ui-11-fw);
+  font-feature-settings: var(--pv-font-numeric);
+}
+
+.screen__actions {
+  display: flex;
+  gap: var(--pv-space-1);
+  margin-left: auto;
+  opacity: 0;
+  transition: opacity var(--pv-dur-fast) var(--pv-ease-hover);
+}
+
+.screen__actions .pv-button--icon {
+  width: 24px;
+  height: 24px;
+}
+
+.screen__dark[data-selected] {
+  color: var(--pv-accent-text);
+}
+
+.screen:focus-within .screen__actions,
+.screen[data-active] .screen__actions {
+  opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .screen:hover .screen__actions {
+    opacity: 1;
+  }
+}
+
+@container (max-width: 190px) {
+  .screen__size {
+    display: none;
+  }
+}
+
+.screen__viewport {
+  position: relative;
+  background: var(--pv-bg-mat);
+  box-shadow: 0 0 0 1px var(--pv-line);
+}
+
+.screen__scale {
+  transform-origin: 0 0;
+}
+
+.screen__frame {
+  display: block;
+  border: 0;
+  background: #fff;
+}
+
+.screen__marks.pv-cut-marks {
+  color: var(--pv-text-3);
+}
+
+.screen[data-active] .screen__marks.pv-cut-marks {
+  color: var(--pv-accent);
+}
+
+.screen__curtain {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--pv-bg-mat);
+  transition: opacity var(--pv-dur-base) var(--pv-ease-out);
+}
+
+.screen[data-status="ready"] .screen__curtain {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--pv-dur-base) var(--pv-ease-out),
+    visibility 0s linear var(--pv-dur-base);
+}
+
+.screen__skeleton {
+  position: absolute;
+  inset: clamp(8px, 6%, 32px);
+  display: grid;
+  grid-template-rows: 8% 22% 6% 1fr;
+  gap: clamp(6px, 3%, 24px);
+}
+
+.screen__skeleton span {
+  background: var(--pv-bg-raised);
+  opacity: 0.7;
+}
+
+.screen__skeleton span:nth-child(1) {
+  width: 40%;
+}
+
+.screen__skeleton span:nth-child(3) {
+  width: 64%;
+}
+
+.screen[data-status="waiting"] .screen__skeleton {
+  opacity: 0.45;
+}
+
+.screen__loader {
+  position: relative;
+  max-width: calc(100% - 16px);
+  padding: var(--pv-space-4) var(--pv-space-5);
+  background: var(--pv-bg-mat);
+  box-shadow: 0 0 0 1px var(--pv-line-soft);
+}
+
+.screen__loader .pv-loader__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.screen__handle {
+  position: absolute;
+  z-index: 2;
+  touch-action: none;
+}
+
+.screen__handle--edge {
+  top: 0;
+  right: -10px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 100%;
+  cursor: ew-resize;
+}
+
+.screen__handle--edge:focus-visible {
+  outline-offset: -4px;
+}
+
+.screen__grip {
+  width: 4px;
+  height: min(40px, 40%);
+  background: var(--pv-line-strong);
+  opacity: 0;
+  transition:
+    opacity var(--pv-dur-fast) var(--pv-ease-hover),
+    background-color var(--pv-dur-fast) var(--pv-ease-hover);
+}
+
+.screen[data-active] .screen__grip,
+.screen__handle--edge:focus-visible .screen__grip {
+  opacity: 1;
+}
+
+.bench[data-resizing] .screen__grip,
+.screen__handle--edge:active .screen__grip {
+  background: var(--pv-accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .screen:hover .screen__grip {
+    opacity: 1;
+  }
+
+  .screen__handle--edge:hover .screen__grip {
+    background: var(--pv-accent);
+  }
+}
+
+.screen__handle--corner {
+  right: -10px;
+  bottom: -10px;
+  width: 20px;
+  height: 20px;
+  cursor: nwse-resize;
+}
+
+.screen__blocked {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--pv-space-5);
+  overflow: auto;
+  background: var(--pv-bg-mat);
+  container-type: inline-size;
+}
+
+@container (max-width: 260px) {
+  .screen__blocked .state-card__body {
+    display: none;
+  }
+
+  .screen__blocked .state-card__title {
+    font-size: var(--pv-ui-14);
+    line-height: var(--pv-ui-14-lh);
+  }
+}

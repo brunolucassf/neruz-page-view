@@ -1,0 +1,141 @@
+import { BrandSymbol, Button, Hint, IconButton, MirrorIcon } from '@neruz/ui';
+import { AppWindow, Minus, Plus, Scan } from 'lucide-react';
+import { type FormEvent, useEffect, useRef, useState } from 'react';
+import { Input, TextField, ToggleButton } from 'react-aria-components';
+import { formatInteger, t } from '../i18n';
+import { stepZoom } from '../screens/layout';
+import { MAX_ACTIVE_SCREENS } from '../screens/presets';
+import { findCurrentTabAddress, openPage } from '../shell/studioSession';
+import { useStudio } from '../shell/studioStore';
+import './studio-bar.css';
+
+const ICON_PROPS = {
+  size: 16,
+  strokeWidth: 1.75,
+  strokeLinejoin: 'miter',
+  strokeLinecap: 'square',
+} as const;
+
+export function StudioBar() {
+  const pageUrl = useStudio((state) => state.pageUrl);
+  return (
+    <header className="studio-bar">
+      <div className="studio-bar__brand">
+        <BrandSymbol size={20} />
+        <span className="pv-visually-hidden">Neruz Page View</span>
+      </div>
+      {pageUrl ? <AddressForm pageUrl={pageUrl} /> : <div className="studio-bar__spacer" />}
+      <div className="studio-bar__tools">
+        <MirrorToggle />
+        {pageUrl && <ActiveCounter />}
+        {pageUrl && <ZoomControls />}
+      </div>
+    </header>
+  );
+}
+
+function AddressForm({ pageUrl }: { pageUrl: string }) {
+  const [address, setAddress] = useState(pageUrl);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => setAddress(pageUrl), [pageUrl]);
+
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    void openPage(address);
+  };
+
+  const openCurrentTab = async () => {
+    const current = await findCurrentTabAddress().catch(() => null);
+    if (current) void openPage(current);
+    else inputRef.current?.focus();
+  };
+
+  return (
+    <form className="studio-bar__address" onSubmit={submit}>
+      <TextField
+        className="studio-bar__field"
+        aria-label={t('studio.bar.url.placeholder')}
+        value={address}
+        onChange={setAddress}
+      >
+        <Input
+          ref={inputRef}
+          className="pv-input studio-bar__input"
+          placeholder={t('studio.bar.url.placeholder')}
+          spellCheck={false}
+          autoComplete="off"
+        />
+      </TextField>
+      <Button type="submit" variant="secondary">
+        {t('studio.bar.url.go')}
+      </Button>
+      <IconButton label={t('studio.bar.useCurrentTab')} onPress={() => void openCurrentTab()}>
+        <AppWindow {...ICON_PROPS} aria-hidden="true" />
+      </IconButton>
+    </form>
+  );
+}
+
+function MirrorToggle() {
+  const isMirrorOn = useStudio((state) => state.isMirrorOn);
+  const setMirror = useStudio((state) => state.setMirror);
+  return (
+    <Hint text={t('studio.bar.mirror.tooltip')}>
+      <ToggleButton
+        className="pv-button pv-button--ghost studio-bar__mirror"
+        isSelected={isMirrorOn}
+        onChange={setMirror}
+        aria-label={isMirrorOn ? t('studio.bar.mirror.on') : t('studio.bar.mirror.off')}
+      >
+        <MirrorIcon size={16} />
+        <span>{t('studio.bar.mirror.label')}</span>
+        <span className="studio-bar__mirror-dot" aria-hidden="true" />
+      </ToggleButton>
+    </Hint>
+  );
+}
+
+function ActiveCounter() {
+  const activeCount = useStudio(
+    (state) => state.screens.filter((screen) => screen.status !== 'blocked').length,
+  );
+  return (
+    <Hint text={t('studio.bar.active.tooltip', { total: MAX_ACTIVE_SCREENS })}>
+      <Button variant="ghost" className="studio-bar__counter pv-tnum">
+        {t('studio.bar.active.count', { n: activeCount, total: MAX_ACTIVE_SCREENS })}
+      </Button>
+    </Hint>
+  );
+}
+
+function ZoomControls() {
+  const zoom = useStudio((state) => state.zoom);
+  const isFitMode = useStudio((state) => state.isFitMode);
+  const setZoom = useStudio((state) => state.setZoom);
+  const fitToBench = useStudio((state) => state.fitToBench);
+
+  return (
+    <fieldset className="studio-bar__zoom">
+      <legend className="pv-visually-hidden">Zoom</legend>
+      <IconButton label={t('studio.bar.zoom.out')} onPress={() => setZoom(stepZoom(zoom, -1))}>
+        <Minus {...ICON_PROPS} aria-hidden="true" />
+      </IconButton>
+      <output className="studio-bar__zoom-value pv-tnum" aria-live="polite">
+        {formatInteger(zoom * 100)}%
+      </output>
+      <IconButton label={t('studio.bar.zoom.in')} onPress={() => setZoom(stepZoom(zoom, 1))}>
+        <Plus {...ICON_PROPS} aria-hidden="true" />
+      </IconButton>
+      <Button
+        variant="ghost"
+        className="studio-bar__fit"
+        data-on={isFitMode || undefined}
+        onPress={fitToBench}
+      >
+        <Scan {...ICON_PROPS} aria-hidden="true" />
+        {t('studio.bar.zoom.fit')}
+      </Button>
+    </fieldset>
+  );
+}

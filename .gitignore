@@ -1,0 +1,49 @@
+# Motor da equipe (local, nunca no repositório)
+CLAUDE.md
+.claude/
+.equipe/
+_entrada/
+.graphifyignore
+graphify-out/
+EQUIPE-FONTE-DEV-V4/
+
+# Dependências e build
+node_modules/
+.output/
+.wxt/
+.astro/
+dist/
+*.zip
+*.crx
+*.pem
+
+# Ambiente e segredos
+.env
+.env.*
+!.env.example
+
+# Caches e logs
+.cache/
+.parcel-cache/
+.vite/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+coverage/
+*.tsbuildinfo
+
+# Sistema operacional e editores
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Evidências da POC (pesadas, ficam locais)
+poc/saidas/
+poc/extensao/test-key.json
+.output-test/

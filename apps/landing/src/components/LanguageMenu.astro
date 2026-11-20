@@ -1,0 +1,197 @@
+---
+import type { LandingCopy } from '../i18n';
+import { DICTIONARIES } from '../i18n';
+
+interface Props {
+  copy: LandingCopy;
+  opensUp?: boolean;
+}
+
+const { copy, opensUp = false } = Astro.props;
+const languages = Object.values(DICTIONARIES);
+const currentName = copy.languageNames[copy.locale];
+const currentText = copy.language.current.replace('{idioma}', currentName);
+---
+
+<details class:list={['lang-menu', { 'lang-menu--up': opensUp }]} data-lang-menu>
+  <summary class="lang-menu__toggle">
+    <span class="visually-hidden">{copy.languageLabel}.</span>
+    <svg class="lang-menu__globe" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z"></path>
+    </svg>
+    <span class="lang-menu__code" aria-hidden="true">{copy.language.short}</span>
+    <span class="visually-hidden">{currentText}</span>
+    <svg class="lang-menu__chevron" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
+      <path d="M2.5 4.5 6 8l3.5-3.5"></path>
+    </svg>
+  </summary>
+  <ul class="lang-menu__list">
+    {
+      languages.map((language) => (
+        <li>
+          <a
+            href={language.path}
+            hreflang={language.htmlLang}
+            lang={language.htmlLang}
+            aria-current={language.locale === copy.locale ? 'true' : undefined}
+            data-lang-link
+          >
+            <span>
+              {copy.languageNames[language.locale]}
+              {
+                language.locale === copy.locale && (
+                  <span class="visually-hidden">({copy.language.selected})</span>
+                )
+              }
+            </span>
+            <span class="lang-menu__item-code" aria-hidden="true">
+              {DICTIONARIES[language.locale].language.short}
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</details>
+
+<style>
+  .lang-menu {
+    position: relative;
+  }
+
+  .lang-menu__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pv-space-3);
+    min-height: 44px;
+    padding-inline: var(--pv-space-4);
+    border: 1px solid transparent;
+    color: var(--pv-text-2);
+    font-size: var(--pv-fs-small);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
+    transition:
+      color var(--pv-dur-fast) var(--pv-ease-hover),
+      border-color var(--pv-dur-fast) var(--pv-ease-hover),
+      transform var(--pv-dur-press) var(--pv-ease-out);
+  }
+
+  .lang-menu__toggle::-webkit-details-marker {
+    display: none;
+  }
+
+  .lang-menu__toggle:active {
+    transform: scale(0.97);
+  }
+
+  .lang-menu__globe,
+  .lang-menu__chevron {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+  }
+
+  .lang-menu__chevron {
+    transition: transform var(--pv-dur-base) var(--pv-ease-out);
+  }
+
+  .lang-menu[open] .lang-menu__toggle {
+    border-color: var(--pv-line-strong);
+    color: var(--pv-text);
+  }
+
+  .lang-menu[open] .lang-menu__chevron {
+    transform: rotate(180deg);
+  }
+
+  .lang-menu__list {
+    position: absolute;
+    top: calc(100% + var(--pv-space-2));
+    right: 0;
+    z-index: 60;
+    min-width: 200px;
+    margin: 0;
+    padding: var(--pv-space-2);
+    list-style: none;
+    background: var(--pv-bg-raised);
+    box-shadow: var(--pv-shadow-popover);
+    transform-origin: top right;
+    animation: lang-menu-in var(--pv-dur-base) var(--pv-ease-out);
+  }
+
+  .lang-menu--up .lang-menu__list {
+    top: auto;
+    bottom: calc(100% + var(--pv-space-2));
+    left: 0;
+    right: auto;
+    transform-origin: bottom left;
+  }
+
+  @keyframes lang-menu-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+  }
+
+  .lang-menu__list a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--pv-space-8);
+    min-height: 44px;
+    padding-inline: var(--pv-space-5);
+    color: var(--pv-text-2);
+    font-size: var(--pv-fs-small);
+    text-decoration: none;
+  }
+
+  .lang-menu__list a[aria-current] {
+    color: var(--pv-text);
+    box-shadow: inset 2px 0 0 var(--pv-accent);
+  }
+
+  .lang-menu__item-code {
+    color: var(--pv-text-3);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+  }
+
+  .lang-menu__list a:focus-visible {
+    outline-offset: -2px;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .lang-menu__toggle:hover {
+      color: var(--pv-text);
+    }
+
+    .lang-menu__list a:hover {
+      background: var(--pv-bg-hover);
+      color: var(--pv-text);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lang-menu__list {
+      animation: lang-menu-fade 120ms linear;
+    }
+
+    .lang-menu__toggle:active {
+      transform: none;
+    }
+  }
+
+  @keyframes lang-menu-fade {
+    from {
+      opacity: 0;
+    }
+  }
+</style>

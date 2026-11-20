@@ -1,0 +1,105 @@
+.pv-brand-symbol {
+  display: block;
+  color: var(--pv-accent);
+}
+
+.pv-cut-marks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  color: var(--pv-text-3);
+  transition: color var(--pv-dur-fast) var(--pv-ease-hover);
+}
+
+.pv-cut-mark {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  overflow: visible;
+}
+
+.pv-cut-mark path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linejoin: miter;
+  stroke-linecap: butt;
+}
+
+.pv-cut-mark--tl {
+  top: -6px;
+  left: -6px;
+}
+
+.pv-cut-mark--tr {
+  top: -6px;
+  right: -6px;
+  transform: rotate(90deg);
+}
+
+.pv-cut-mark--br {
+  right: -6px;
+  bottom: -6px;
+  transform: rotate(180deg);
+}
+
+.pv-cut-mark--bl {
+  bottom: -6px;
+  left: -6px;
+  transform: rotate(270deg);
+}
+
+.pv-loader {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pv-space-4);
+  color: var(--pv-text-2);
+  font-size: var(--pv-ui-12);
+  line-height: var(--pv-ui-12-lh);
+  font-weight: var(--pv-ui-12-fw);
+}
+
+.pv-loader svg {
+  flex: none;
+  overflow: visible;
+}
+
+.pv-loader path {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linejoin: miter;
+}
+
+.pv-loader__track {
+  stroke: var(--pv-line);
+}
+
+.pv-loader__segment {
+  stroke: var(--pv-accent);
+  stroke-dasharray: 25 75;
+  animation: pv-loader-run 1.2s linear infinite;
+}
+
+@keyframes pv-loader-run {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+@keyframes pv-loader-breathe {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pv-loader__segment {
+    animation: none;
+    stroke-dasharray: none;
+    opacity: 0;
+  }
+
+  .pv-loader__label {
+    animation: pv-loader-breathe 1.6s linear infinite;
+  }
+}

@@ -1,0 +1,122 @@
+---
+import type { LandingCopy } from '../i18n';
+
+interface Props {
+  copy: LandingCopy;
+}
+
+const { copy } = Astro.props;
+---
+
+<nav class="scroll-ruler" aria-label={copy.ruler.label} data-scroll-ruler>
+  <div class="scroll-ruler__track" data-ruler-track>
+    <span class="scroll-ruler__ticks" aria-hidden="true" data-ruler-ticks></span>
+    <span class="scroll-ruler__readout cota-text" aria-hidden="true" data-ruler-readout>0 px</span>
+    {
+      copy.ruler.scenes.map((scene, index) => (
+        <button
+          type="button"
+          class="scroll-ruler__flag cota-text"
+          aria-label={scene.label}
+          data-ruler-flag={scene.id}
+        >
+          {String(index + 1).padStart(2, '0')}
+        </button>
+      ))
+    }
+  </div>
+</nav>
+
+<style>
+  .scroll-ruler {
+    display: none;
+  }
+
+  @media (min-width: 1024px) and (pointer: fine) {
+    :global(.is-motion) .scroll-ruler {
+      position: fixed;
+      top: 96px;
+      bottom: 40px;
+      right: max(4px, calc((var(--pv-gutter) - 32px) / 2));
+      z-index: 30;
+      display: block;
+      width: 32px;
+      pointer-events: none;
+    }
+  }
+
+  .scroll-ruler__track {
+    position: absolute;
+    inset: 0;
+  }
+
+  .scroll-ruler__ticks {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 12px;
+    background-image:
+      linear-gradient(var(--pv-line-strong) 1px, transparent 1px),
+      linear-gradient(var(--pv-line) 1px, transparent 1px);
+    background-size:
+      12px var(--major-step, 80px),
+      6px var(--minor-step, 8px);
+    background-repeat: repeat-y;
+    background-position: right top;
+    opacity: 0.8;
+  }
+
+  .scroll-ruler__readout {
+    position: absolute;
+    top: 0;
+    right: 14px;
+    padding: 6px 2px;
+    border-top: 1px solid var(--pv-cyan);
+    color: var(--pv-text);
+    font-size: 10px;
+    white-space: nowrap;
+    writing-mode: vertical-rl;
+    transform: translateY(var(--readout-y, 0px));
+    will-change: transform;
+  }
+
+  .scroll-ruler__flag {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 24px;
+    margin-top: -12px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--pv-text-3);
+    font-size: 11px;
+    cursor: pointer;
+    pointer-events: auto;
+    transform: translateY(var(--flag-y, 0px));
+    transition: color var(--pv-dur-fast) var(--pv-ease-hover);
+  }
+
+  .scroll-ruler__flag::before {
+    content: "";
+    position: absolute;
+    inset: 4px 0 4px 0;
+    z-index: -1;
+    background: var(--pv-bg-raised);
+    clip-path: polygon(3px 0, 100% 0, 100% 100%, 3px 100%, 0 50%);
+  }
+
+  .scroll-ruler__flag.is-current {
+    color: var(--pv-accent);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .scroll-ruler__flag:hover {
+      color: var(--pv-text);
+    }
+  }
+</style>

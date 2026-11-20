@@ -1,0 +1,133 @@
+---
+import type { LandingCopy } from '../i18n';
+import { STORE_LINKS } from '../i18n';
+import StoreButton from './StoreButton.astro';
+
+interface Props {
+  copy: LandingCopy;
+}
+
+const { copy } = Astro.props;
+---
+
+<section class="hero" id="inicio" aria-labelledby="hero-title" data-hero>
+  <div class="shell hero__grid">
+    <p class="eyebrow hero__eyebrow">{copy.brandEyebrow}</p>
+    <h1 id="hero-title" class="hero__title">{copy.hero.title}</h1>
+    <div class="hero__side">
+      <p class="hero__lead">{copy.hero.subtitle}</p>
+      <div class="hero__actions" data-hero-cta>
+        <div class="hero__cta">
+          <StoreButton copy={copy} withMeta />
+          <p class="hero__support">{copy.cta.support}</p>
+        </div>
+        <a class="text-link hero__code" href={STORE_LINKS.github}>{copy.cta.viewCode}</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    z-index: 2;
+    padding-block: var(--pv-space-11) var(--pv-space-13);
+  }
+
+  .hero__grid {
+    display: grid;
+    gap: var(--pv-space-9);
+  }
+
+  .hero__eyebrow {
+    color: var(--pv-text-2);
+  }
+
+  .hero__title {
+    max-width: 15ch;
+    font-family: var(--pv-fs-display-ff);
+    font-size: min(var(--pv-fs-display), 5.375rem);
+    font-weight: var(--pv-fs-display-fw);
+    line-height: var(--pv-fs-display-lh);
+    letter-spacing: var(--pv-fs-display-ls);
+    text-wrap: balance;
+  }
+
+  .hero__side {
+    display: grid;
+    gap: var(--pv-space-9);
+    align-content: end;
+  }
+
+  .hero__lead {
+    max-width: 46ch;
+    color: var(--pv-text-2);
+    font-size: var(--pv-fs-lead);
+    line-height: var(--pv-fs-lead-lh);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    column-gap: var(--pv-space-9);
+    row-gap: var(--pv-space-6);
+  }
+
+  .hero__code {
+    min-height: 56px;
+  }
+
+  .hero__cta {
+    display: grid;
+    gap: var(--pv-space-5);
+  }
+
+  .hero__support {
+    display: flex;
+    align-items: center;
+    gap: var(--pv-space-4);
+    color: var(--pv-text);
+    font-size: var(--pv-fs-small);
+    font-weight: 500;
+  }
+
+  .hero__support::before {
+    content: "";
+    flex: none;
+    width: 6px;
+    height: 6px;
+    background: var(--pv-accent);
+    transform: rotate(45deg);
+  }
+
+  @media (min-width: 1024px) {
+    .hero {
+      padding-block: var(--pv-space-13) var(--pv-space-14);
+    }
+
+    .hero__grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--pv-space-12);
+      row-gap: var(--pv-space-9);
+      align-items: end;
+    }
+
+    .hero__eyebrow {
+      grid-column: 1 / -1;
+    }
+
+    .hero__title {
+      grid-column: 1 / span 7;
+    }
+
+    .hero__side {
+      grid-column: 8 / span 5;
+      gap: var(--pv-space-8);
+    }
+
+    .hero__code {
+      min-height: 64px;
+    }
+  }
+</style>

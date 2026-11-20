@@ -1,0 +1,6 @@
+language js
+
+or {
+  `new Function($_)`,
+  `Function($_)`
+} as $node where register_diagnostic(span=$node, message="Function construtor proibido: código dinâmico não é permitido")

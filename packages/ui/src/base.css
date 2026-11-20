@@ -1,0 +1,369 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--pv-bg-chrome);
+  color: var(--pv-text);
+  font-family: var(--pv-font-ui);
+  font-size: var(--pv-ui-13);
+  line-height: var(--pv-ui-13-lh);
+  font-weight: var(--pv-ui-13-fw);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--pv-focus);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgb(0 229 255 / 0.28);
+}
+
+.pv-tnum {
+  font-feature-settings: var(--pv-font-numeric);
+}
+
+.pv-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.pv-cut {
+  --cut: var(--pv-cut-md);
+  --c-tl: var(--cut);
+  --c-tr: var(--cut);
+  --c-br: var(--cut);
+  --c-bl: var(--cut);
+  --fill: var(--pv-bg-raised);
+  --edge: var(--fill);
+  position: relative;
+  isolation: isolate;
+  background: none;
+  border: 0;
+}
+
+.pv-cut--tooth {
+  --c-tl: 0px;
+  --c-br: 0px;
+  --c-bl: 0px;
+}
+
+.pv-cut--window {
+  --c-br: 0px;
+}
+
+.pv-cut::before,
+.pv-cut::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  transition: background-color var(--pv-dur-fast) var(--pv-ease-hover);
+}
+
+.pv-cut::before {
+  inset: 0;
+  background: var(--edge);
+  clip-path: polygon(
+    var(--c-tl) 0,
+    calc(100% - var(--c-tr)) 0,
+    100% var(--c-tr),
+    100% calc(100% - var(--c-br)),
+    calc(100% - var(--c-br)) 100%,
+    var(--c-bl) 100%,
+    0 calc(100% - var(--c-bl)),
+    0 var(--c-tl)
+  );
+}
+
+.pv-cut::after {
+  --i-tl: max(0px, calc(var(--c-tl) - 0.41px));
+  --i-tr: max(0px, calc(var(--c-tr) - 0.41px));
+  --i-br: max(0px, calc(var(--c-br) - 0.41px));
+  --i-bl: max(0px, calc(var(--c-bl) - 0.41px));
+  inset: 1px;
+  background: var(--fill);
+  clip-path: polygon(
+    var(--i-tl) 0,
+    calc(100% - var(--i-tr)) 0,
+    100% var(--i-tr),
+    100% calc(100% - var(--i-br)),
+    calc(100% - var(--i-br)) 100%,
+    var(--i-bl) 100%,
+    0 calc(100% - var(--i-bl)),
+    0 var(--i-tl)
+  );
+}
+
+.pv-cut:focus-visible,
+.pv-cut[data-focus-visible] {
+  outline: none;
+}
+
+.pv-cut:focus-visible::before,
+.pv-cut[data-focus-visible]::before,
+.pv-cut[data-focus-within-visible]::before {
+  --o-tl: calc(var(--c-tl) + min(var(--c-tl), 1px) * 1.66);
+  --o-tr: calc(var(--c-tr) + min(var(--c-tr), 1px) * 1.66);
+  --o-br: calc(var(--c-br) + min(var(--c-br), 1px) * 1.66);
+  --o-bl: calc(var(--c-bl) + min(var(--c-bl), 1px) * 1.66);
+  --r-tl: calc(var(--c-tl) + min(var(--c-tl), 1px) * 0.83);
+  --r-tr: calc(var(--c-tr) + min(var(--c-tr), 1px) * 0.83);
+  --r-br: calc(var(--c-br) + min(var(--c-br), 1px) * 0.83);
+  --r-bl: calc(var(--c-bl) + min(var(--c-bl), 1px) * 0.83);
+  inset: -4px;
+  background: var(--pv-focus);
+  clip-path: polygon(
+    evenodd,
+    var(--o-tl) 0,
+    calc(100% - var(--o-tr)) 0,
+    100% var(--o-tr),
+    100% calc(100% - var(--o-br)),
+    calc(100% - var(--o-br)) 100%,
+    var(--o-bl) 100%,
+    0 calc(100% - var(--o-bl)),
+    0 var(--o-tl),
+    var(--o-tl) 0,
+    calc(2px + var(--r-tl)) 2px,
+    2px calc(2px + var(--r-tl)),
+    2px calc(100% - 2px - var(--r-bl)),
+    calc(2px + var(--r-bl)) calc(100% - 2px),
+    calc(100% - 2px - var(--r-br)) calc(100% - 2px),
+    calc(100% - 2px) calc(100% - 2px - var(--r-br)),
+    calc(100% - 2px) calc(2px + var(--r-tr)),
+    calc(100% - 2px - var(--r-tr)) 2px,
+    calc(2px + var(--r-tl)) 2px
+  );
+}
+
+.pv-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pv-space-3);
+  height: var(--pv-target-dense);
+  padding: 0 var(--pv-space-5);
+  border: 0;
+  border-radius: var(--pv-radius-sm);
+  background: transparent;
+  color: var(--pv-text);
+  font-size: var(--pv-ui-12);
+  line-height: var(--pv-ui-12-lh);
+  font-weight: var(--pv-ui-12-fw);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform var(--pv-dur-press) var(--pv-ease-out),
+    background-color var(--pv-dur-fast) var(--pv-ease-hover),
+    color var(--pv-dur-fast) var(--pv-ease-hover),
+    border-color var(--pv-dur-fast) var(--pv-ease-hover),
+    opacity var(--pv-dur-fast) var(--pv-ease-hover);
+}
+
+.pv-button[data-pressed] {
+  transform: scale(0.97);
+}
+
+.pv-button[data-disabled] {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.pv-button svg {
+  flex: none;
+}
+
+.pv-button--secondary {
+  background: var(--pv-bg-raised);
+  box-shadow: inset 0 0 0 1px var(--pv-line-strong);
+}
+
+.pv-button--ghost {
+  color: var(--pv-text-2);
+}
+
+.pv-button--icon {
+  width: var(--pv-target-dense);
+  padding: 0;
+  color: var(--pv-text-2);
+}
+
+.pv-button--primary {
+  --cut: var(--pv-cut-md);
+  --fill: var(--pv-accent);
+  border-radius: 0;
+  color: var(--pv-on-accent);
+  font-size: var(--pv-ui-14);
+  line-height: var(--pv-ui-14-lh);
+  font-weight: var(--pv-ui-14-fw);
+}
+
+.pv-button--primary.pv-button--large {
+  height: var(--pv-target-min);
+  padding: 0 var(--pv-space-6);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .pv-button--secondary[data-hovered],
+  .pv-button--ghost[data-hovered],
+  .pv-button--icon[data-hovered] {
+    background: var(--pv-bg-hover);
+    color: var(--pv-text);
+  }
+
+  .pv-button--primary[data-hovered] {
+    --fill: var(--pv-accent-hover);
+  }
+}
+
+.pv-input {
+  height: var(--pv-target-dense);
+  min-width: 0;
+  padding: 0 var(--pv-space-5);
+  border: 0;
+  border-radius: var(--pv-radius-sm);
+  background: var(--pv-bg-raised);
+  box-shadow: inset 0 0 0 1px var(--pv-line-strong);
+  color: var(--pv-text);
+  font-size: var(--pv-ui-13);
+  transition: box-shadow var(--pv-dur-fast) var(--pv-ease-hover);
+}
+
+.pv-input::placeholder {
+  color: var(--pv-text-3);
+}
+
+.pv-input[data-focused] {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--pv-focus);
+}
+
+.pv-input[data-focus-visible],
+.pv-input:focus-visible {
+  outline: 2px solid var(--pv-focus);
+  outline-offset: 2px;
+}
+
+.pv-tooltip {
+  max-width: 260px;
+  padding: var(--pv-space-2) var(--pv-space-4);
+  border-radius: var(--pv-radius-sm);
+  background: var(--pv-bg-raised);
+  box-shadow: var(--pv-shadow-popover);
+  color: var(--pv-text);
+  font-size: var(--pv-ui-12);
+  line-height: var(--pv-ui-12-lh);
+  font-weight: var(--pv-ui-12-fw);
+  transform-origin: var(--trigger-anchor-point);
+}
+
+.pv-tooltip[data-entering] {
+  animation: pv-pop-in var(--pv-dur-base) var(--pv-ease-out);
+}
+
+.pv-tooltip[data-exiting] {
+  animation: pv-pop-out var(--pv-dur-exit) var(--pv-ease-out) forwards;
+}
+
+.pv-chip {
+  --cut: var(--pv-cut-xs);
+  --fill: var(--pv-bg-raised);
+  --edge: var(--pv-line);
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 var(--pv-space-4);
+  color: var(--pv-text-2);
+  font-size: var(--pv-ui-11);
+  line-height: var(--pv-ui-11-lh);
+  font-weight: var(--pv-ui-11-fw);
+}
+
+@keyframes pv-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+@keyframes pv-pop-out {
+  to {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+@keyframes pv-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes pv-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pv-button[data-pressed] {
+    transform: none;
+  }
+
+  .pv-tooltip[data-entering] {
+    animation-name: pv-fade-in;
+  }
+
+  .pv-tooltip[data-exiting] {
+    animation-name: pv-fade-out;
+  }
+}
+
+@media (forced-colors: active) {
+  .pv-cut {
+    border: 1px solid CanvasText;
+  }
+
+  .pv-cut:focus-visible,
+  .pv-cut[data-focus-visible] {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+}

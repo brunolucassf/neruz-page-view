@@ -1,0 +1,386 @@
+---
+import type { FornoCopy } from '../i18n/types';
+
+interface Props {
+  forno: FornoCopy;
+}
+
+const { forno } = Astro.props;
+const navItems = [forno.nav.home, forno.nav.menu, forno.nav.about, forno.nav.contact];
+const thumbShapes = ['loaf', 'croissant', 'cheese', 'cake'] as const;
+---
+
+<div class="forno" aria-hidden="true">
+  <div class="forno__header">
+    <span class="forno__brand" data-flip>{forno.brand}</span>
+    <span class="forno__nav" data-flip>
+      {navItems.map((item, index) => <span class:list={{ 'is-current': index === 0 }}>{item}</span>)}
+    </span>
+    <span class="forno__toggle" data-flip><i></i><i></i><i></i></span>
+  </div>
+  <div class="forno__hero">
+    <div class="forno__hero-text" data-flip>
+      <p class="forno__title">{forno.hero.title}</p>
+      <p class="forno__subtitle">{forno.hero.subtitle}</p>
+      <span class="forno__cta">{forno.hero.cta}</span>
+    </div>
+    <div class="forno__art" data-flip>
+      <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" focusable="false">
+        <rect width="320" height="200" fill="#EAD9C2"></rect>
+        <path d="M0 150H320V200H0Z" fill="#E1CCB0"></path>
+        <ellipse cx="160" cy="150" rx="120" ry="14" fill="#221A15" opacity=".12"></ellipse>
+        <path d="M48 140C48 88 96 58 160 58C224 58 272 88 272 140C272 148 266 152 258 152H62C54 152 48 148 48 140Z" fill="#C4532D"></path>
+        <path d="M100 96C116 84 132 80 148 82M138 92C154 80 170 76 186 78M176 90C192 78 208 76 222 80" stroke="#F3E9DA" stroke-width="6" stroke-linecap="round" fill="none" opacity=".85"></path>
+        <path d="M60 136C110 146 210 146 260 136" stroke="#9E3F20" stroke-width="4" fill="none" opacity=".5"></path>
+      </svg>
+    </div>
+  </div>
+  <div class="forno__menu">
+    <div class="forno__menu-head">
+      <p class="forno__section-title">{forno.menu.title}</p>
+      <span class="forno__more">{forno.menu.more}</span>
+    </div>
+    <ul class="forno__items">
+      {
+        forno.menu.items.map((item, index) => (
+          <li class="forno__item" data-flip>
+            <span class={`forno__thumb forno__thumb--${thumbShapes[index]}`} />
+            <span class="forno__item-text">
+              <span class="forno__item-name">{item.name}</span>
+              <span class="forno__item-desc">{item.desc}</span>
+            </span>
+            <span class="forno__price">{item.price}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+  <div class="forno__about" data-flip>
+    <p class="forno__section-title">{forno.about.title}</p>
+    <p class="forno__about-body">{forno.about.body}</p>
+  </div>
+  <div class="forno__footer">
+    <span class="forno__footer-brand">{forno.brand}</span>
+    <span>{forno.footerNote}</span>
+  </div>
+</div>
+
+<style>
+  .forno {
+    --forno-pad: 20px;
+    min-height: 100%;
+    background: var(--demo-cream);
+    color: var(--demo-ink);
+    font-family: var(--pv-font-ui);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .forno__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    height: 60px;
+    padding-inline: var(--forno-pad);
+    border-bottom: 1px solid rgb(34 26 21 / 0.1);
+  }
+
+  .forno__brand {
+    font-family: var(--pv-font-display);
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .forno__nav {
+    display: none;
+    gap: 28px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .forno__nav .is-current {
+    text-decoration: underline;
+    text-decoration-color: var(--demo-terracotta);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+  }
+
+  .forno__toggle {
+    display: grid;
+    gap: 4px;
+    width: 22px;
+  }
+
+  .forno__toggle i {
+    display: block;
+    height: 2px;
+    background: var(--demo-ink);
+  }
+
+  .forno__hero {
+    display: grid;
+    gap: 24px;
+    padding: 28px var(--forno-pad) 32px;
+  }
+
+  .forno__title {
+    font-family: var(--pv-font-display);
+    font-size: clamp(32px, 9cqi, 76px);
+    font-weight: 600;
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
+  .forno__subtitle {
+    max-width: 36ch;
+    margin-top: 14px;
+    color: rgb(34 26 21 / 0.78);
+    font-size: 15px;
+  }
+
+  .forno__cta {
+    display: inline-flex;
+    align-items: center;
+    height: 44px;
+    margin-top: 20px;
+    padding-inline: 20px;
+    border-radius: 999px;
+    background: var(--demo-terracotta);
+    color: #fff8ef;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .forno__art {
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    border-radius: 18px;
+  }
+
+  .forno__art svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .forno__menu {
+    padding: 8px var(--forno-pad) 28px;
+  }
+
+  .forno__menu-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .forno__section-title {
+    font-family: var(--pv-font-display);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .forno__more {
+    color: var(--demo-terracotta);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .forno__items {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .forno__item {
+    display: grid;
+    grid-template-columns: 52px 1fr auto;
+    align-items: center;
+    gap: 14px;
+    padding-block: 12px;
+    border-top: 1px solid rgb(34 26 21 / 0.1);
+  }
+
+  .forno__item:nth-child(4) {
+    display: none;
+  }
+
+  .forno__thumb {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: #ead9c2;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  .forno__thumb--loaf {
+    background-image: radial-gradient(ellipse 18px 11px at 50% 56%, var(--demo-terracotta) 98%, transparent);
+  }
+
+  .forno__thumb--croissant {
+    background-image: radial-gradient(circle at 50% 80%, #ead9c2 12px, transparent 12.5px),
+      radial-gradient(circle at 50% 62%, #d9893f 18px, transparent 18.5px);
+  }
+
+  .forno__thumb--cheese {
+    background-image: radial-gradient(circle at 36% 58%, #e3b45c 9px, transparent 9.5px),
+      radial-gradient(circle at 62% 44%, #e3b45c 10px, transparent 10.5px);
+  }
+
+  .forno__thumb--cake {
+    background-image: linear-gradient(#f3e9da, #f3e9da), linear-gradient(var(--demo-terracotta), var(--demo-terracotta));
+    background-size: 30px 4px, 30px 22px;
+    background-position: 50% 40%, 50% 62%;
+  }
+
+  .forno__item-text {
+    display: grid;
+    min-width: 0;
+  }
+
+  .forno__item-name {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .forno__item-desc {
+    color: rgb(34 26 21 / 0.7);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .forno__price {
+    font-size: 14px;
+    font-weight: 600;
+    font-feature-settings: "tnum" 1;
+  }
+
+  .forno__about {
+    display: grid;
+    gap: 10px;
+    margin-inline: var(--forno-pad);
+    padding: 24px 0 32px;
+    border-top: 1px solid rgb(34 26 21 / 0.1);
+  }
+
+  .forno__about-body {
+    max-width: 52ch;
+    color: rgb(34 26 21 / 0.8);
+  }
+
+  .forno__footer {
+    display: grid;
+    gap: 6px;
+    padding: 24px var(--forno-pad) 32px;
+    background: var(--demo-ink);
+    color: rgb(243 233 218 / 0.8);
+    font-size: 13px;
+  }
+
+  .forno__footer-brand {
+    color: var(--demo-cream);
+    font-family: var(--pv-font-display);
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  @container forno (min-width: 480px) {
+    .forno {
+      --forno-pad: 28px;
+    }
+
+    .forno__items {
+      grid-template-columns: 1fr 1fr;
+      column-gap: 24px;
+    }
+
+    .forno__item:nth-child(4) {
+      display: grid;
+    }
+  }
+
+  @container forno (min-width: 720px) {
+    .forno {
+      --forno-pad: 40px;
+    }
+
+    .forno__nav {
+      display: flex;
+    }
+
+    .forno__toggle {
+      display: none;
+    }
+
+    .forno__hero {
+      grid-template-columns: 1.1fr 1fr;
+      align-items: center;
+      gap: 40px;
+      padding-block: 48px 48px;
+    }
+
+    .forno__art {
+      aspect-ratio: 4 / 3;
+    }
+  }
+
+  @container forno (min-width: 1024px) {
+    .forno {
+      --forno-pad: 64px;
+    }
+
+    .forno__header {
+      height: 72px;
+    }
+
+    .forno__hero {
+      grid-template-columns: 1.25fr 1fr;
+      gap: 64px;
+      padding-block: 64px 64px;
+    }
+
+    .forno__title {
+      font-size: clamp(52px, 6.2cqi, 96px);
+    }
+
+    .forno__subtitle {
+      font-size: 17px;
+    }
+
+    .forno__items {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .forno__item {
+      grid-template-columns: 1fr auto;
+      grid-template-rows: auto auto;
+      align-items: start;
+      padding: 16px;
+      border: 0;
+      border-radius: 18px;
+      background: #efe2cf;
+    }
+
+    .forno__thumb {
+      grid-column: 1 / -1;
+      width: 100%;
+      height: 96px;
+      margin-bottom: 4px;
+    }
+
+    .forno__about {
+      grid-template-columns: 1fr 2fr;
+      gap: 40px;
+      padding-block: 40px 48px;
+    }
+  }
+</style>

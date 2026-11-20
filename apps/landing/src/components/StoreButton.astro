@@ -1,0 +1,207 @@
+---
+import type { LandingCopy } from '../i18n';
+import { BROWSER_NAMES, BROWSER_ORDER, STORE_LINKS } from '../i18n';
+
+interface Props {
+  copy: LandingCopy;
+  compact?: boolean;
+  withMeta?: boolean;
+}
+
+const { copy, compact = false, withMeta = false } = Astro.props;
+const defaultBrowser = 'chrome';
+const buttonClasses = ['btn', compact ? 'btn--compact' : 'btn--lg'];
+const storeData = JSON.stringify({
+  addTo: copy.cta.addTo,
+  notes: copy.cta.browserNotes,
+  links: STORE_LINKS,
+});
+---
+
+<div class:list={['store-cta', { 'store-cta--compact': compact }]} data-store-cta data-store={storeData}>
+  <div class="store-cta__desktop" data-store-desktop>
+    <a
+      class:list={buttonClasses}
+      href={STORE_LINKS[defaultBrowser]}
+      data-store-primary
+      data-wire
+    >
+      <span data-store-label>{copy.cta.addTo[defaultBrowser]}</span>
+      {
+        !compact && (
+          <svg class="btn__arrow" viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
+            <path d="M4 10h11M11 5.5 15.5 10 11 14.5" />
+          </svg>
+        )
+      }
+    </a>
+    <details class="store-cta__picker" data-store-picker hidden>
+      <summary class:list={buttonClasses} data-wire>
+        {copy.cta.chooseBrowser}
+      </summary>
+      <ul>
+        {
+          BROWSER_ORDER.map((browser) => (
+            <li>
+              <a href={STORE_LINKS[browser]}>{copy.cta.addTo[browser]}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </details>
+    {
+      withMeta && (
+        <div class="store-cta__meta">
+          <p class="store-cta__note" data-store-note hidden />
+          <p class="store-cta__also">
+            <span>{copy.cta.alsoFor}</span>
+            {BROWSER_ORDER.map((browser) => (
+              <a href={STORE_LINKS[browser]} data-also-browser={browser}>
+                {BROWSER_NAMES[browser]}
+              </a>
+            ))}
+          </p>
+        </div>
+      )
+    }
+  </div>
+  {
+    withMeta && (
+      <div class="store-cta__mobile" data-store-mobile hidden>
+        <p class="store-cta__mobile-label">{copy.cta.mobileInstall}</p>
+        <button
+          type="button"
+          class="btn btn--lg"
+          data-copy-link
+          data-label-copy={copy.cta.copyLink}
+          data-label-share={copy.cta.share}
+          data-wire
+        >
+          {copy.cta.copyLink}
+        </button>
+        <p class="store-cta__status" role="status" aria-live="polite" data-copy-status data-label-done={copy.cta.linkCopied} />
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .store-cta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pv-space-5);
+  }
+
+  .store-cta__desktop {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--pv-space-5);
+  }
+
+  .store-cta__picker {
+    position: relative;
+  }
+
+  .store-cta__picker summary {
+    list-style: none;
+  }
+
+  .store-cta__picker summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .store-cta__picker ul {
+    position: absolute;
+    top: calc(100% + var(--pv-space-2));
+    left: 0;
+    z-index: 30;
+    min-width: 240px;
+    margin: 0;
+    padding: var(--pv-space-2);
+    list-style: none;
+    background: var(--pv-bg-raised);
+    box-shadow: var(--pv-shadow-popover);
+  }
+
+  .store-cta__picker a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: var(--pv-space-5);
+    color: var(--pv-text);
+    text-decoration: none;
+  }
+
+  .store-cta__picker a:focus-visible,
+  .store-cta__picker a:hover {
+    background: var(--pv-bg-hover);
+  }
+
+  .store-cta__meta {
+    display: grid;
+    gap: var(--pv-space-2);
+    color: var(--pv-text-2);
+    font-size: var(--pv-fs-small);
+    line-height: var(--pv-fs-small-lh);
+  }
+
+  .store-cta__also {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--pv-space-3);
+  }
+
+  .store-cta__also a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    color: var(--pv-text-2);
+    text-underline-offset: 4px;
+    text-decoration-color: var(--pv-line-strong);
+  }
+
+  .store-cta__also a::before {
+    content: "·";
+    margin-right: var(--pv-space-3);
+    color: var(--pv-text-3);
+  }
+
+  .store-cta__also a[hidden] {
+    display: none;
+  }
+
+  .store-cta__also span + a::before,
+  .store-cta__also span + a[hidden] + a::before {
+    content: none;
+  }
+
+  .store-cta__mobile {
+    display: grid;
+    justify-items: start;
+    gap: var(--pv-space-4);
+  }
+
+  .store-cta__mobile[hidden],
+  .store-cta__desktop[hidden] {
+    display: none;
+  }
+
+  .store-cta__mobile-label {
+    color: var(--pv-text-2);
+    font-size: var(--pv-fs-small);
+  }
+
+  .store-cta__status {
+    min-height: 1.45em;
+    color: var(--pv-success);
+    font-size: var(--pv-fs-small);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .store-cta__also a:hover {
+      color: var(--pv-text);
+    }
+  }
+</style>

@@ -1,0 +1,11 @@
+language js
+
+or {
+  `$_.innerHTML = $_`,
+  `$_.innerHTML += $_`,
+  `$_.outerHTML = $_`,
+  `$_.outerHTML += $_`,
+  `$_.insertAdjacentHTML($_, $_)`,
+  `document.write($_)`,
+  `document.writeln($_)`
+} as $node where register_diagnostic(span=$node, message="HTML dinâmico proibido: use textContent, createElement ou a API DOM")

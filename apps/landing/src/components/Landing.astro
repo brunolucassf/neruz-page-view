@@ -1,0 +1,85 @@
+---
+import type { LandingCopy } from '../i18n';
+import Base from '../layouts/Base.astro';
+import Hero from './Hero.astro';
+import Journey from './Journey.astro';
+import MobileCta from './MobileCta.astro';
+import ScrollRuler from './ScrollRuler.astro';
+import SiteFooter from './SiteFooter.astro';
+import SiteHeader from './SiteHeader.astro';
+
+interface Props {
+  copy: LandingCopy;
+}
+
+const { copy } = Astro.props;
+---
+
+<Base copy={copy}>
+  <SiteHeader copy={copy} />
+  <main id="conteudo" tabindex="-1">
+    <Hero copy={copy} />
+    <Journey copy={copy} />
+  </main>
+  <SiteFooter copy={copy} />
+  <ScrollRuler copy={copy} />
+  <MobileCta copy={copy} />
+  <div class="cross-cursor" aria-hidden="true" data-cross-cursor>
+    <span class="cross-cursor__mark"></span>
+    <span class="cross-cursor__label cota-text" data-cross-label>x 0</span>
+  </div>
+</Base>
+
+<script>
+  import '../scripts/main';
+</script>
+
+<style>
+  main:focus {
+    outline: none;
+  }
+
+  .cross-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 50;
+    display: none;
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  .cross-cursor__mark {
+    position: absolute;
+    left: -6px;
+    top: -6px;
+    width: 12px;
+    height: 12px;
+    background:
+      linear-gradient(var(--pv-text), var(--pv-text)) center / 1px 100% no-repeat,
+      linear-gradient(var(--pv-text), var(--pv-text)) center / 100% 1px no-repeat;
+  }
+
+  .cross-cursor__label {
+    position: absolute;
+    left: 12px;
+    top: 10px;
+    padding: 2px 5px;
+    background: var(--pv-bg-mat);
+    color: var(--pv-text-2);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+    :global(.is-motion) .cross-cursor {
+      display: block;
+      opacity: 0;
+      transition: opacity var(--pv-dur-fast) var(--pv-ease-hover);
+    }
+
+    :global(.is-motion) .cross-cursor.is-active {
+      opacity: 1;
+    }
+  }
+</style>

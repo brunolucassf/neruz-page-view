@@ -1,0 +1,104 @@
+html,
+body {
+  overflow: hidden;
+}
+
+body {
+  min-width: 360px;
+}
+
+#app {
+  height: 100%;
+}
+
+.studio {
+  display: grid;
+  grid-template-rows: var(--pv-bar-h) minmax(0, 1fr);
+  height: 100%;
+}
+
+.studio__body {
+  display: grid;
+  grid-template-rows: minmax(60vh, 1fr) auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+.studio__body > .bench {
+  min-height: 60vh;
+}
+
+@media (max-width: 899px) {
+  .capture-panel__footer {
+    position: sticky;
+    bottom: 0;
+    background: var(--pv-bg-chrome);
+  }
+}
+
+@media (min-width: 900px) {
+  .studio__body {
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) var(--pv-panel-w);
+    overflow: hidden;
+  }
+
+  .studio__body > .bench {
+    min-height: 0;
+  }
+}
+
+.capture-stage-status {
+  position: fixed;
+  top: var(--pv-space-8);
+  z-index: 30;
+  padding: var(--pv-space-4) var(--pv-space-5);
+  background: var(--pv-bg-raised);
+  box-shadow: 0 0 0 1px var(--pv-line);
+  white-space: nowrap;
+}
+
+:root[data-capture-stage],
+:root[data-capture-stage] body {
+  height: auto;
+  overflow: auto;
+}
+
+:root[data-capture-stage] #app,
+:root[data-capture-stage] .studio,
+:root[data-capture-stage] .studio__body,
+:root[data-capture-stage] .bench,
+:root[data-capture-stage] .bench__scroller,
+:root[data-capture-stage] .bench__content {
+  position: static;
+  display: block;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+:root[data-capture-stage] .studio {
+  visibility: hidden;
+}
+
+:root[data-capture-stage] .bench__content::before {
+  display: none;
+}
+
+:root[data-capture-stage] .screen[data-capture-target] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: visible;
+}
+
+:root[data-capture-stage] .screen[data-capture-target] .screen__header,
+:root[data-capture-stage] .screen[data-capture-target] .screen__marks,
+:root[data-capture-stage] .screen[data-capture-target] .screen__handle,
+:root[data-capture-stage] .screen[data-capture-target] .screen__curtain {
+  display: none;
+}
+
+:root[data-capture-stage] .capture-stage-status {
+  visibility: visible;
+}

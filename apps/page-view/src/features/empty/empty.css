@@ -1,0 +1,126 @@
+.empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pv-space-5);
+  padding: var(--pv-space-9) var(--pv-space-6);
+  text-align: center;
+  overflow: auto;
+}
+
+.empty__art {
+  width: 224px;
+  height: 140px;
+  margin-bottom: var(--pv-space-6);
+  overflow: visible;
+}
+
+.empty__art path {
+  fill: none;
+  stroke: var(--pv-line);
+  stroke-width: 1.5;
+  stroke-linejoin: miter;
+  stroke-linecap: square;
+}
+
+.empty__art .empty__lines {
+  stroke: var(--pv-line-soft);
+}
+
+.empty__viewport {
+  transition:
+    transform var(--pv-dur-panel) var(--pv-ease-out),
+    stroke var(--pv-dur-panel) var(--pv-ease-out);
+}
+
+.empty[data-field-focused] .empty__viewport {
+  transform: translateX(-4px);
+}
+
+.empty[data-field-focused] path.empty__viewport:not(.empty__lines) {
+  stroke: var(--pv-accent);
+}
+
+.empty__title {
+  font-family: var(--pv-ui-20-ff);
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.empty__body {
+  max-width: 44ch;
+  color: var(--pv-text-2);
+}
+
+.empty__form {
+  display: flex;
+  gap: var(--pv-space-4);
+  width: 100%;
+  max-width: 480px;
+  margin-top: var(--pv-space-5);
+}
+
+.empty__field {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.empty__input {
+  flex: 1;
+  width: 100%;
+  height: var(--pv-target-min);
+  font-size: var(--pv-ui-14);
+}
+
+.empty__extras {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pv-space-4);
+  max-width: 480px;
+}
+
+.empty__examples-label {
+  color: var(--pv-text-3);
+  font-size: var(--pv-ui-12);
+}
+
+.empty__examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pv-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.empty__chip.pv-button {
+  height: 28px;
+  padding: 0 var(--pv-space-4);
+  border-radius: 0;
+  color: var(--pv-text-2);
+  font-size: var(--pv-ui-12);
+  font-feature-settings: "zero" 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .empty__chip.pv-button[data-hovered] {
+    --fill: var(--pv-bg-hover);
+    background: none;
+    color: var(--pv-text);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .empty[data-field-focused] .empty__viewport {
+    transform: none;
+  }
+}
