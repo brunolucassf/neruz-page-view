@@ -2,6 +2,7 @@ import { isExtensionPageSender, STUDIO_PORT_NAME } from '@neruz/core';
 import { defineBackground } from 'wxt/utils/define-background';
 import { forgetStudioOrigin, handleActionClick } from './action-click';
 import { getExtensionIdentity, isRoutableType, routeMessage } from './message-router';
+import { handleRecordingTabClosed, reconcileRecording } from './recording';
 import {
   disableStudioTab,
   isStudioTab,
@@ -43,6 +44,7 @@ export default defineBackground(() => {
 
   chrome.tabs.onRemoved.addListener((tabId) => {
     void forgetStudioOrigin(tabId).catch(() => undefined);
+    void handleRecordingTabClosed(tabId).catch(() => undefined);
     void isStudioTab(tabId)
       .then((isStudio) => (isStudio ? disableStudioTab(tabId) : undefined))
       .catch(() => undefined);
@@ -53,4 +55,5 @@ export default defineBackground(() => {
   chrome.runtime.onStartup.addListener(() => void reconcileWithLiveTabs().catch(() => undefined));
 
   void reconcileWithLiveTabs().catch(() => undefined);
+  void reconcileRecording().catch(() => undefined);
 });

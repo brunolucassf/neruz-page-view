@@ -1,16 +1,21 @@
-import { type CaptureProgress, type CaptureResult, captureScreen } from '@neruz/capture';
+import { type CaptureProgress, captureScreen } from '@neruz/capture';
 import { NpvException, type ScreenId } from '@neruz/core';
 import { create } from 'zustand';
+import type { CapturedShot, ImageFormat } from '../export/exportService';
+import { copyOutput, exportOutput, redoWithFrame, showOutput } from '../export/outputActions';
+import { useResult } from '../export/resultStore';
 import { type MessageKey, t } from '../i18n';
-import { useStudio } from '../shell/studioStore';
+import { type Screen, useStudio } from '../shell/studioStore';
 import { showToast } from '../toasts/toastStore';
-import { copyImage, downloadParts, openPart } from './captureOutput';
+import { useFramed } from './framedStore';
+import { createPreviewSource } from './framing/framedOutput';
 
 export type CaptureModeChoice = 'fast' | 'experience' | 'moments';
 export type CaptureTarget = 'active' | 'all';
-export type ImageFormat = 'png' | 'jpeg' | 'webp';
+export type { ImageFormat };
 
 type CaptureState = {
+  quality: number;
   mode: CaptureModeChoice;
   target: CaptureTarget;
   format: ImageFormat;
@@ -21,12 +26,14 @@ type CaptureState = {
   setMode: (mode: CaptureModeChoice) => void;
   setTarget: (target: CaptureTarget) => void;
   setFormat: (format: ImageFormat) => void;
+  setQuality: (quality: number) => void;
 };
 
 export const useCapture = create<CaptureState>()((set) => ({
   mode: 'experience',
   target: 'active',
   format: 'png',
+  quality: 0.92,
   isRunning: false,
   stepKey: 'queue.step.capturing',
   ratio: 0,
@@ -34,13 +41,8 @@ export const useCapture = create<CaptureState>()((set) => ({
   setMode: (mode) => set({ mode }),
   setTarget: (target) => set({ target }),
   setFormat: (format) => set({ format }),
+  setQuality: (quality) => set({ quality }),
 }));
-
-const MIME_BY_FORMAT: Record<ImageFormat, 'image/png' | 'image/jpeg' | 'image/webp'> = {
-  png: 'image/png',
-  jpeg: 'image/jpeg',
-  webp: 'image/webp',
-};
 
 const PREPARING_SHARE = 0.1;
 const ENCODING_SHARE = 0.1;
@@ -59,7 +61,7 @@ function toStepKey(progress: CaptureProgress, isExperience: boolean): MessageKey
   return 'queue.step.capturing';
 }
 
-const nextPaint = () =>
+export const nextPaint = () =>
   new Promise<void>((resolve) =>
     requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
   );
@@ -75,40 +77,43 @@ const captureHooks = (screenId: ScreenId) => ({
   },
 });
 
-function listTargetScreens(target: CaptureTarget): ScreenId[] {
+function listTargetScreens(target: CaptureTarget): Screen[] {
   const { screens, activeScreenId } = useStudio.getState();
   const ready = screens.filter((screen) => screen.status === 'ready');
-  if (target === 'all') return ready.map((screen) => screen.id);
-  return ready.some((screen) => screen.id === activeScreenId) ? [activeScreenId] : [];
+  if (target === 'all') return ready;
+  return ready.filter((screen) => screen.id === activeScreenId);
 }
 
-function announceSuccess(results: CaptureResult[], format: ImageFormat) {
+const readHost = () => {
   const pageUrl = useStudio.getState().pageUrl;
-  const host = pageUrl ? new URL(pageUrl).hostname : 'pagina';
-  const firstPart = results[0]?.parts[0];
+  return pageUrl ? new URL(pageUrl).hostname : 'pagina';
+};
+
+function announceSuccess() {
+  const isFramedOn = useFramed.getState().isEnabled;
   showToast({
     tone: 'success',
     title: t('state.success.shot'),
     actions: [
-      {
-        label: t('state.success.download'),
-        onPress: () => downloadParts(results, host, format),
-      },
-      ...(firstPart && format === 'png'
-        ? [{ label: t('state.success.copy'), onPress: () => void copyImage(firstPart) }]
-        : []),
-      ...(firstPart
-        ? [{ label: t('state.success.show'), onPress: () => openPart(firstPart) }]
-        : []),
+      { label: t('state.success.download'), onPress: () => void exportOutput() },
+      { label: t('state.success.copy'), onPress: () => void copyOutput() },
+      { label: t('state.success.show'), onPress: () => void showOutput() },
+      ...(isFramedOn ? [] : [{ label: t('state.success.redoFramed'), onPress: redoWithFrame }]),
     ],
   });
+}
+
+async function storeCapturedShots(shots: CapturedShot[]) {
+  const firstPart = shots.find((shot) => shot.result.parts[0])?.result.parts[0];
+  const previewSource = firstPart ? await createPreviewSource(firstPart) : null;
+  useResult.getState().setCaptured(shots, readHost(), previewSource);
 }
 
 export async function runCapture(): Promise<void> {
   const state = useCapture.getState();
   if (state.isRunning) return;
-  const screenIds = listTargetScreens(state.target);
-  if (screenIds.length === 0) return;
+  const screens = listTargetScreens(state.target);
+  if (screens.length === 0) return;
   const mode = state.mode;
   const controller = new AbortController();
   useCapture.setState({
@@ -118,24 +123,35 @@ export async function runCapture(): Promise<void> {
     stepKey: mode === 'experience' ? 'queue.step.waiting' : 'queue.step.capturing',
   });
 
-  const results: CaptureResult[] = [];
+  const shots: CapturedShot[] = [];
   try {
-    for (const [index, screenId] of screenIds.entries()) {
+    for (const [index, screen] of screens.entries()) {
       const result = await captureScreen(
-        screenId,
+        screen.id,
         mode,
         (progress) =>
           useCapture.setState({
             stepKey: toStepKey(progress, mode === 'experience'),
-            ratio: (index + toOverallRatio(progress)) / screenIds.length,
+            ratio: (index + toOverallRatio(progress)) / screens.length,
           }),
         controller.signal,
-        { hooks: captureHooks(screenId), imageType: MIME_BY_FORMAT[state.format] },
+        { hooks: captureHooks(screen.id), imageType: 'image/png' },
       );
-      results.push(result);
+      shots.push({
+        screenName: screen.name,
+        kind: screen.kind,
+        isLandscape: screen.width > screen.height,
+        width: screen.width,
+        height: screen.height,
+        isDark: screen.isDark,
+        isFramed: false,
+        hasAlpha: false,
+        result,
+      });
     }
     useCapture.setState({ ratio: 1 });
-    announceSuccess(results, state.format);
+    await storeCapturedShots(shots);
+    announceSuccess();
   } catch (cause) {
     const isAborted =
       controller.signal.aborted ||

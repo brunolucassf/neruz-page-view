@@ -5,7 +5,8 @@ import { Input, TextField, ToggleButton } from 'react-aria-components';
 import { formatInteger, t } from '../i18n';
 import { useLibrary } from '../library/libraryStore';
 import { stepZoom } from '../screens/layout';
-import { MAX_ACTIVE_SCREENS } from '../screens/presets';
+import { SettingsButton } from '../settings/SettingsDrawer';
+import { useMaxActiveScreens } from '../settings/settingsStore';
 import { findCurrentTabAddress, openPage } from '../shell/studioSession';
 import { useStudio } from '../shell/studioStore';
 import './studio-bar.css';
@@ -36,6 +37,7 @@ export function StudioBar() {
         >
           <Keyboard {...ICON_PROPS} aria-hidden="true" />
         </IconButton>
+        <SettingsButton />
       </div>
     </header>
   );
@@ -125,13 +127,14 @@ function MirrorToggle() {
 }
 
 function ActiveCounter() {
+  const maxActiveScreens = useMaxActiveScreens();
   const activeCount = useStudio(
     (state) => state.screens.filter((screen) => !screen.isFrozen).length,
   );
   return (
-    <Hint text={t('studio.bar.active.tooltip', { total: MAX_ACTIVE_SCREENS })}>
+    <Hint text={t('studio.bar.active.tooltip', { total: maxActiveScreens })}>
       <Button variant="ghost" className="studio-bar__counter pv-tnum">
-        {t('studio.bar.active.count', { n: activeCount, total: MAX_ACTIVE_SCREENS })}
+        {t('studio.bar.active.count', { n: activeCount, total: maxActiveScreens })}
       </Button>
     </Hint>
   );

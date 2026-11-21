@@ -3,7 +3,7 @@ import { Dialog, Heading, Modal, ModalOverlay } from 'react-aria-components';
 import { t } from '../i18n';
 import { useLibrary } from '../library/libraryStore';
 
-const SHORTCUTS = [
+export const SHORTCUTS = [
   { label: 'shortcuts.capture', keys: ['C'] },
   { label: 'shortcuts.mirror', keys: ['M'] },
   { label: 'shortcuts.zoom', keys: ['+', '-'] },

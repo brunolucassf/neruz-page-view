@@ -5,11 +5,11 @@ import { t } from '../i18n';
 import { type BenchSize, computeFitZoom, MAX_ZOOM, MIN_ZOOM } from '../screens/layout';
 import {
   clampScreenSize,
-  MAX_ACTIVE_SCREENS,
   pickFreeScreenId,
   presetFromDevice,
   type ScreenPreset,
 } from '../screens/presets';
+import { getMaxActiveScreens } from '../settings/settingsStore';
 
 export type AccessState = 'unknown' | 'missing' | 'requesting' | 'denied' | 'granted';
 export type ScreenStatus = 'waiting' | 'loading' | 'ready' | 'blocked';
@@ -99,7 +99,9 @@ function createScreensFromDevices(deviceIds: readonly string[]): Screen[] {
     const device = findDevice(deviceId);
     const id = pickFreeScreenId(screens.map((screen) => screen.id));
     if (!device || !id) continue;
-    screens.push(createScreen(presetFromDevice(id, device), screens.length >= MAX_ACTIVE_SCREENS));
+    screens.push(
+      createScreen(presetFromDevice(id, device), screens.length >= getMaxActiveScreens()),
+    );
   }
   return screens;
 }
@@ -220,7 +222,10 @@ export const useStudio = create<StudioState & StudioActions>()((set, get) => ({
     if (!id) return null;
     const created = withLoadStarted(
       state,
-      createScreen(presetFromDevice(id, device), countActive(state.screens) >= MAX_ACTIVE_SCREENS),
+      createScreen(
+        presetFromDevice(id, device),
+        countActive(state.screens) >= getMaxActiveScreens(),
+      ),
     );
     const screens = [...state.screens, created];
     set({
@@ -242,7 +247,7 @@ export const useStudio = create<StudioState & StudioActions>()((set, get) => ({
     if (!source || !id) return;
     const copy = withLoadStarted(
       state,
-      createScreen({ ...source, id }, countActive(state.screens) >= MAX_ACTIVE_SCREENS),
+      createScreen({ ...source, id }, countActive(state.screens) >= getMaxActiveScreens()),
     );
     const screens = [...state.screens];
     screens.splice(index + 1, 0, { ...copy, isDark: source.isDark });
@@ -324,7 +329,7 @@ export const useStudio = create<StudioState & StudioActions>()((set, get) => ({
     const target = state.screens.find((screen) => screen.id === screenId);
     if (!target?.isFrozen) return;
     const toPause =
-      countActive(state.screens) >= MAX_ACTIVE_SCREENS
+      countActive(state.screens) >= getMaxActiveScreens()
         ? state.screens.find((screen) => !screen.isFrozen && screen.id !== state.activeScreenId)
         : undefined;
     set({

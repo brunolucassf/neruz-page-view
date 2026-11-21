@@ -1,6 +1,9 @@
 import { sleep, withTimeout } from '../async/timeout';
 import {
   bgFramesList,
+  bgRecArm,
+  bgRecCancel,
+  bgRecRelease,
   bgScriptsSync,
   bgStudioDisable,
   bgStudioEnable,
@@ -57,6 +60,9 @@ export type StudioClient = {
   disable(): Promise<void>;
   syncScripts(): Promise<DataOf<typeof bgScriptsSync>>;
   listFrames(): Promise<FrameInfo[]>;
+  armRecording(payload: PayloadOf<typeof bgRecArm>): Promise<DataOf<typeof bgRecArm>>;
+  cancelRecording(): Promise<void>;
+  releaseRecording(blobUrl: string): Promise<void>;
   requestOriginPermission(url: string): Promise<void>;
   openScreen(input: OpenScreenInput): Promise<FrameInfo>;
   waitForFrame(
@@ -332,6 +338,13 @@ export const createStudioClient = (): StudioClient => {
     },
     syncScripts: () => requestBackground(bgScriptsSync, {}),
     listFrames: refreshFrames,
+    armRecording: (payload) => requestBackground(bgRecArm, payload),
+    async cancelRecording() {
+      await requestBackground(bgRecCancel, {});
+    },
+    async releaseRecording(blobUrl) {
+      await requestBackground(bgRecRelease, { blobUrl });
+    },
     requestOriginPermission,
     openScreen,
     waitForFrame,

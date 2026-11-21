@@ -10,7 +10,8 @@ import { ChevronDown, PanelLeftOpen, Plus, Search, Star, Trash2, X } from 'lucid
 import { type FormEvent, type KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { Input, SearchField } from 'react-aria-components';
 import { formatSize, type MessageKey, t } from '../i18n';
-import { MAX_ACTIVE_SCREENS, MAX_SCREENS } from '../screens/presets';
+import { MAX_SCREENS } from '../screens/presets';
+import { useMaxActiveScreens } from '../settings/settingsStore';
 import { selectCanSaveKit, useStudio } from '../shell/studioStore';
 import { showToast } from '../toasts/toastStore';
 import { LIBRARY_SECTIONS, type LibrarySection, useLibrary } from './libraryStore';
@@ -144,11 +145,12 @@ function SearchResults({ query }: { query: string }) {
 }
 
 function KitActions() {
+  const maxActiveScreens = useMaxActiveScreens();
   const swapScreenId = useLibrary((state) => state.swapScreenId);
   const canSaveKit = useStudio(selectCanSaveKit);
   const [isNaming, setIsNaming] = useState(false);
   const [kitName, setKitName] = useState('');
-  const paused = Math.max(0, ESSENTIAL_IDS.length - MAX_ACTIVE_SCREENS);
+  const paused = Math.max(0, ESSENTIAL_IDS.length - maxActiveScreens);
   if (swapScreenId) return null;
 
   const submit = (event: FormEvent) => {
@@ -165,7 +167,7 @@ function KitActions() {
       </Button>
       {paused > 0 && (
         <p className="library__note">
-          {t('studio.library.kit.essentials.paused', { paused, max: MAX_ACTIVE_SCREENS })}
+          {t('studio.library.kit.essentials.paused', { paused, max: maxActiveScreens })}
         </p>
       )}
       {canSaveKit && !isNaming && (

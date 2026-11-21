@@ -3,6 +3,7 @@ import { defineContentScript } from 'wxt/utils/define-content-script';
 import { createCommandRunner, isStudioCommand } from './commands';
 import { sendFrameEvent, sendFrameRequest } from './frame-events';
 import { startScrollMirroring } from './mirroring';
+import { showThinScrollbar } from './page-overrides';
 import { waitStable } from './stability';
 
 const readClaimedIdentity = () => {
@@ -36,6 +37,7 @@ const startFrameAgent = async () => {
   }).catch(() => null);
   if (!hello?.accepted) return;
 
+  showThinScrollbar();
   const mirroring = startScrollMirroring();
   const runCommand = createCommandRunner({
     identity: { runtimeId: chrome.runtime.id, baseUrl: chrome.runtime.getURL('/') },

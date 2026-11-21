@@ -13,10 +13,10 @@ import { Moon, ShieldAlert } from 'lucide-react';
 import { type CSSProperties, useEffect, useRef } from 'react';
 import { ToggleButton } from 'react-aria-components';
 import { formatSize, t } from '../i18n';
+import { useMaxActiveScreens } from '../settings/settingsStore';
 import { loadScreen } from '../shell/studioSession';
 import { type Screen, useStudio } from '../shell/studioStore';
 import type { ScreenBox } from './layout';
-import { MAX_ACTIVE_SCREENS } from './presets';
 import { ResizeHandles } from './ResizeHandles';
 import { ScreenMenu } from './ScreenMenu';
 import './screen.css';
@@ -46,6 +46,7 @@ export function ScreenView({ screen, index, box, zoom }: ScreenViewProps) {
   const rotateScreen = useStudio((state) => state.rotateScreen);
   const toggleScreenDark = useStudio((state) => state.toggleScreenDark);
   const reloadScreen = useStudio((state) => state.reloadScreen);
+  const maxActiveScreens = useMaxActiveScreens();
 
   const label = screen.name;
   const accessibleName = t('studio.screen.a11yName', {
@@ -158,7 +159,7 @@ export function ScreenView({ screen, index, box, zoom }: ScreenViewProps) {
           )}
         </div>
         {screen.isFrozen && (
-          <FrozenCard total={MAX_ACTIVE_SCREENS} onActivate={() => unfreezeScreen(screen.id)} />
+          <FrozenCard total={maxActiveScreens} onActivate={() => unfreezeScreen(screen.id)} />
         )}
         {!screen.isFrozen && screen.status !== 'blocked' && (
           <ScreenCurtain status={screen.status} label={label} />

@@ -1,6 +1,7 @@
 import {
   type FrameInfo,
   FrameInfoSchema,
+  RecConfigSchema,
   type StudioLaunch,
   StudioLaunchSchema,
 } from '@neruz/core';
@@ -82,3 +83,35 @@ export const takeStudioLaunch = async (studioTabId: number): Promise<StudioLaunc
   );
   return found.launch;
 };
+
+const RecordingStateSchema = v.object({
+  phase: v.picklist(['idle', 'armed', 'recording', 'finalizing']),
+  tabId: v.nullable(tabId),
+  armedUntil: v.number(),
+  config: v.nullable(RecConfigSchema),
+});
+
+export type RecordingState = v.InferOutput<typeof RecordingStateSchema>;
+
+export const IDLE_RECORDING_STATE: RecordingState = {
+  phase: 'idle',
+  tabId: null,
+  armedUntil: 0,
+  config: null,
+};
+
+const RECORDING_KEY = 'recording';
+const RECORDING_BLOBS_KEY = 'recordingBlobUrls';
+const MAX_TRACKED_BLOB_URLS = 5;
+
+export const readRecordingState = () =>
+  readSession(RECORDING_KEY, RecordingStateSchema, IDLE_RECORDING_STATE);
+
+export const writeRecordingState = (state: RecordingState) => writeSession(RECORDING_KEY, state);
+
+const BlobUrlsSchema = v.array(v.pipe(v.string(), v.maxLength(512)));
+
+export const readRecordingBlobUrls = () => readSession(RECORDING_BLOBS_KEY, BlobUrlsSchema, []);
+
+export const writeRecordingBlobUrls = (blobUrls: string[]) =>
+  writeSession(RECORDING_BLOBS_KEY, blobUrls.slice(-MAX_TRACKED_BLOB_URLS));

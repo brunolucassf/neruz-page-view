@@ -2,6 +2,9 @@ import {
   type AnyMessageDefinition,
   backgroundRequests,
   bgFramesList,
+  bgRecArm,
+  bgRecCancel,
+  bgRecRelease,
   bgScriptsSync,
   bgStudioDisable,
   bgStudioEnable,
@@ -23,6 +26,7 @@ import {
   parseEnvelope,
   type RateLimiter,
   readEnvelopeHead,
+  recProgress,
   registerHello,
   releaseFrame,
   resolveSenderOrigin,
@@ -30,6 +34,12 @@ import {
   toNpvError,
 } from '@neruz/core';
 import { consumeStudioLaunch } from './action-click';
+import {
+  armRecording,
+  cancelRecording,
+  forwardRecordingProgress,
+  releaseRecordingBlob,
+} from './recording';
 import { readFramesOfTab, writeFramesOfTab } from './session-state';
 import {
   disableStudioTab,
@@ -52,7 +62,7 @@ export const getExtensionIdentity = (): ExtensionIdentity => ({
 });
 
 export const isRoutableType = (type: string) =>
-  type.startsWith(FRAME_EVENT_PREFIX) || type.startsWith(BG_PREFIX);
+  type.startsWith(FRAME_EVENT_PREFIX) || type.startsWith(BG_PREFIX) || type === recProgress.type;
 
 const isScrollWithinRate = (tabId: number, frameId: number) => {
   const key = `${tabId}:${frameId}`;
@@ -153,7 +163,19 @@ const resolveStudioTabId = (sender: SenderLike): number => {
   return tabId;
 };
 
-const dispatchBackgroundRequest = async (type: string, sender: SenderLike): Promise<unknown> => {
+const requireStudioTabId = async (sender: SenderLike): Promise<number> => {
+  const tabId = resolveStudioTabId(sender);
+  if (!(await isStudioTab(tabId))) {
+    throw new NpvException('NPV-NOT-STUDIO-TAB', 'tab has no active Studio');
+  }
+  return tabId;
+};
+
+const dispatchBackgroundRequest = async (
+  type: string,
+  payload: unknown,
+  sender: SenderLike,
+): Promise<unknown> => {
   switch (type) {
     case bgStudioEnable.type:
       return enableStudioTab(resolveStudioTabId(sender));
@@ -166,10 +188,16 @@ const dispatchBackgroundRequest = async (type: string, sender: SenderLike): Prom
       return { frames: await readFramesOfTab(resolveStudioTabId(sender)) };
     case bgStudioLaunch.type:
       return consumeStudioLaunch(resolveStudioTabId(sender));
+    case bgRecArm.type:
+      return armRecording(await requireStudioTabId(sender), payload as PayloadOf<typeof bgRecArm>);
+    case bgRecCancel.type:
+      await cancelRecording(resolveStudioTabId(sender));
+      return {};
+    case bgRecRelease.type:
+      await releaseRecordingBlob((payload as PayloadOf<typeof bgRecRelease>).blobUrl);
+      return {};
     default:
-      throw new NpvException('NPV-REC-UNSUPPORTED', 'recording is not available in this build', {
-        reason: 'not-in-this-cut',
-      });
+      throw new NpvException('NPV-INVALID-MESSAGE', 'unknown message type');
   }
 };
 
@@ -187,7 +215,7 @@ const handleBackgroundMessage = async (raw: unknown, type: string, sender: Sende
   const parsed = parseEnvelope(definition, raw);
   if (!parsed.ok) return errorReply(seq, parsed.error);
   try {
-    const data = await dispatchBackgroundRequest(type, sender);
+    const data = await dispatchBackgroundRequest(type, parsed.envelope.payload, sender);
     return okReply(parsed.envelope.seq, data);
   } catch (cause) {
     return errorReply(parsed.envelope.seq, toNpvError(cause));
@@ -198,6 +226,10 @@ export const routeMessage = async (raw: unknown, sender: SenderLike): Promise<un
   const head = readEnvelopeHead(raw);
   if (!head) return errorReply(0, createNpvError('NPV-INVALID-MESSAGE', 'malformed envelope'));
   try {
+    if (head.type === recProgress.type) {
+      await forwardRecordingProgress(raw, sender, getExtensionIdentity());
+      return undefined;
+    }
     if (head.type.startsWith(FRAME_EVENT_PREFIX))
       return await handleFrameMessage(raw, head.type, sender);
     return await handleBackgroundMessage(raw, head.type, sender);

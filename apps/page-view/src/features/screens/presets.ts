@@ -16,7 +16,6 @@ export type ScreenPreset = {
 
 export const MIN_SCREEN_SIZE = 200;
 export const MAX_SCREEN_SIZE = 7680;
-export const MAX_ACTIVE_SCREENS = 8;
 export const MAX_SCREENS = 16;
 export const SNAP_DISTANCE_PX = 4;
 

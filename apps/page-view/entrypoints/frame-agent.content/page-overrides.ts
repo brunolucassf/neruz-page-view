@@ -3,6 +3,7 @@ const FIXED_ATTRIBUTE = 'data-npv-fixed';
 const OVERRIDE_STYLE_ATTRIBUTE = 'data-npv-overrides';
 
 const FIXED_CSS = `html.${FIXED_CLASS} [${FIXED_ATTRIBUTE}]{visibility:hidden!important}`;
+const SCROLLBAR_THIN_CSS = 'html{scrollbar-width:thin;scrollbar-color:#304256 transparent}';
 const SCROLLBAR_CSS =
   'html{scrollbar-width:none!important}html::-webkit-scrollbar{display:none!important}';
 
@@ -40,7 +41,14 @@ export const restoreFixedElements = (): number => {
   return marked.length;
 };
 
+export const showThinScrollbar = () => ensureStyle('scrollbar-thin', SCROLLBAR_THIN_CSS);
+
 export const setScrollbarHidden = (hidden: boolean) => {
-  if (hidden) ensureStyle('scrollbar', SCROLLBAR_CSS);
-  else removeStyle('scrollbar');
+  if (hidden) {
+    removeStyle('scrollbar-thin');
+    ensureStyle('scrollbar', SCROLLBAR_CSS);
+    return;
+  }
+  removeStyle('scrollbar');
+  showThinScrollbar();
 };

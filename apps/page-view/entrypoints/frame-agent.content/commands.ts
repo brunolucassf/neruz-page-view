@@ -10,6 +10,10 @@ import {
   parseEnvelope,
   readEnvelopeHead,
   studioApplyScroll,
+  studioAutoscrollPause,
+  studioAutoscrollResume,
+  studioAutoscrollStart,
+  studioAutoscrollStop,
   studioHideFixed,
   studioHideScrollbar,
   studioMessages,
@@ -23,6 +27,7 @@ import {
   withTimeout,
 } from '@neruz/core';
 import { resolveAnchorScrollTop } from './anchor-dom';
+import { pauseAutoscroll, resumeAutoscroll, startAutoscroll, stopAutoscroll } from './autoscroll';
 import { hideFixedElements, restoreFixedElements, setScrollbarHidden } from './page-overrides';
 import { waitStable, warmup } from './stability';
 import { maxScrollTop, nextPaint, scrollInstantly } from './timing';
@@ -73,6 +78,13 @@ const buildHandlers = ({ onScrollApplied }: CommandContext): CommandHandler[] =>
     run: (payload: PayloadOf<typeof studioWaitStable>) => waitStable(payload.maxMs),
   },
   { definition: studioWarmup, run: (payload: PayloadOf<typeof studioWarmup>) => warmup(payload) },
+  {
+    definition: studioAutoscrollStart,
+    run: (payload: PayloadOf<typeof studioAutoscrollStart>) => startAutoscroll(payload),
+  },
+  { definition: studioAutoscrollPause, run: pauseAutoscroll },
+  { definition: studioAutoscrollResume, run: resumeAutoscroll },
+  { definition: studioAutoscrollStop, run: stopAutoscroll },
   { definition: studioHideFixed, run: () => ({ hiddenCount: hideFixedElements() }) },
   { definition: studioRestoreFixed, run: () => ({ restoredCount: restoreFixedElements() }) },
   {

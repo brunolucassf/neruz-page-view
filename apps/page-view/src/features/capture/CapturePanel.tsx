@@ -1,5 +1,6 @@
 import { CutMarks, RotateIcon, Button as UiButton } from '@neruz/ui';
 import { ChevronDown } from 'lucide-react';
+import { lazy, Suspense } from 'react';
 import {
   Button,
   Disclosure,
@@ -10,9 +11,16 @@ import {
   NumberField,
   Radio,
   RadioGroup,
+  Slider,
+  SliderOutput,
+  SliderThumb,
+  SliderTrack,
 } from 'react-aria-components';
+import { ResultSection } from '../export/ResultSection';
 import { type MessageKey, t } from '../i18n';
+import { isRecordingBusy, type PanelTab, useRecording } from '../recording/recordingState';
 import { KIND_LABEL, MAX_SCREEN_SIZE, MIN_SCREEN_SIZE } from '../screens/presets';
+import { MAX_IMAGE_QUALITY, MIN_IMAGE_QUALITY } from '../settings/persistence';
 import { selectActiveScreen, useStudio } from '../shell/studioStore';
 import { CaptureButton } from './CaptureButton';
 import {
@@ -23,6 +31,13 @@ import {
 } from './captureStore';
 import { FramedSwitch } from './FramedSwitch';
 import './capture-panel.css';
+
+const VideoPanel = lazy(() =>
+  import('../recording/VideoPanel').then((module) => ({ default: module.VideoPanel })),
+);
+const RecordButton = lazy(() =>
+  import('../recording/VideoPanel').then((module) => ({ default: module.RecordButton })),
+);
 
 type ModeOption = {
   value: CaptureModeChoice;
@@ -64,20 +79,38 @@ const FORMAT_OPTIONS: { value: ImageFormat; label: string }[] = [
 ];
 
 export function CapturePanel() {
+  const tab = useRecording((state) => state.tab);
+  const isVideo = tab === 'video';
   return (
     <aside className="capture-panel" aria-labelledby="capture-title">
       <div className="capture-panel__scroll">
         <h2 id="capture-title" className="capture-panel__title">
           {t('studio.capture.title')}
         </h2>
-        <ActiveScreenSize />
-        <ModePicker />
-        <TargetPicker />
-        <FramedSwitch />
-        <AdvancedOptions />
+        <TabSwitch />
+        {isVideo ? (
+          <Suspense fallback={null}>
+            <VideoPanel />
+          </Suspense>
+        ) : (
+          <>
+            <ActiveScreenSize />
+            <ModePicker />
+            <TargetPicker />
+            <FramedSwitch />
+            <AdvancedOptions />
+            <ResultSection />
+          </>
+        )}
       </div>
       <div className="capture-panel__footer">
-        <CaptureButton />
+        {isVideo ? (
+          <Suspense fallback={null}>
+            <RecordButton />
+          </Suspense>
+        ) : (
+          <CaptureButton />
+        )}
         <a
           className="capture-panel__credit"
           href="https://fontedev.com"
@@ -88,6 +121,35 @@ export function CapturePanel() {
         </a>
       </div>
     </aside>
+  );
+}
+
+const TAB_OPTIONS: { value: PanelTab; label: MessageKey }[] = [
+  { value: 'image', label: 'studio.capture.tab.image' },
+  { value: 'video', label: 'studio.capture.tab.video' },
+];
+
+function TabSwitch() {
+  const tab = useRecording((state) => state.tab);
+  const isImageRunning = useCapture((state) => state.isRunning);
+  const isVideoRunning = useRecording((state) => isRecordingBusy(state.stage));
+  return (
+    <RadioGroup
+      className="capture-panel__group"
+      value={tab}
+      orientation="horizontal"
+      aria-label={t('studio.capture.tab.label')}
+      isDisabled={isImageRunning || isVideoRunning}
+      onChange={(value) => useRecording.setState({ tab: value as PanelTab })}
+    >
+      <div className="segmented">
+        {TAB_OPTIONS.map((option) => (
+          <Radio key={option.value} value={option.value} className="segmented__option">
+            {t(option.label)}
+          </Radio>
+        ))}
+      </div>
+    </RadioGroup>
   );
 }
 
@@ -237,7 +299,33 @@ function AdvancedOptions() {
             ))}
           </div>
         </RadioGroup>
+        {format !== 'png' && <QualitySlider />}
       </DisclosurePanel>
     </Disclosure>
+  );
+}
+
+function QualitySlider() {
+  const quality = useCapture((state) => state.quality);
+  const setQuality = useCapture((state) => state.setQuality);
+  return (
+    <Slider
+      className="range"
+      minValue={MIN_IMAGE_QUALITY}
+      maxValue={MAX_IMAGE_QUALITY}
+      step={0.01}
+      value={quality}
+      onChange={setQuality}
+      formatOptions={{ style: 'percent', maximumFractionDigits: 0 }}
+    >
+      <div className="range__head">
+        <Label className="capture-panel__label">{t('studio.capture.advanced.quality')}</Label>
+        <SliderOutput className="pv-tnum capture-panel__accent" />
+      </div>
+      <SliderTrack className="range__track">
+        <div className="range__rail" />
+        <SliderThumb className="range__thumb" />
+      </SliderTrack>
+    </Slider>
   );
 }

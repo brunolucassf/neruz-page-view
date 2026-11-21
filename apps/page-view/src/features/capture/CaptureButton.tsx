@@ -56,9 +56,19 @@ export function CaptureButton() {
 function CaptureProgress() {
   const ratio = useCapture((state) => state.ratio);
   const stepKey = useCapture((state) => state.stepKey);
+  return <ProgressBlock ratio={ratio} stepLabel={t(stepKey)} onCancel={cancelCapture} />;
+}
+
+type ProgressBlockProps = {
+  ratio: number;
+  stepLabel: string;
+  onCancel: () => void;
+  progressText?: string;
+};
+
+export function ProgressBlock({ ratio, stepLabel, onCancel, progressText }: ProgressBlockProps) {
   const percent = Math.round(ratio * 100);
-  const stepLabel = t(stepKey);
-  const progressText = t('queue.progress', { percent });
+  const valueText = progressText ?? t('queue.progress', { percent });
 
   return (
     <div className="capture-progress">
@@ -66,11 +76,11 @@ function CaptureProgress() {
         className="capture-progress__bar pv-cut"
         value={percent}
         aria-label={stepLabel}
-        valueLabel={progressText}
+        valueLabel={valueText}
       >
         <span className="capture-progress__text">
           <span className="capture-progress__step">{stepLabel}</span>
-          <span className="pv-tnum">{progressText}</span>
+          <span className="pv-tnum">{valueText}</span>
         </span>
         <span
           className="capture-progress__clip"
@@ -80,12 +90,12 @@ function CaptureProgress() {
           <span className="capture-progress__fill">
             <span className="capture-progress__text">
               <span className="capture-progress__step">{stepLabel}</span>
-              <span className="pv-tnum">{progressText}</span>
+              <span className="pv-tnum">{valueText}</span>
             </span>
           </span>
         </span>
       </ProgressBar>
-      <Button variant="secondary" className="capture-progress__cancel" onPress={cancelCapture}>
+      <Button variant="secondary" className="capture-progress__cancel" onPress={onCancel}>
         {t('queue.cancel')}
       </Button>
     </div>

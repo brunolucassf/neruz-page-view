@@ -8,6 +8,7 @@ import {
   uiActionClicked,
   uiOpenUrl,
 } from '@neruz/core';
+import { handleRecordingClick } from './recording';
 import {
   readStudioOrigins,
   storeStudioLaunch,
@@ -99,12 +100,13 @@ const handleClick = async (tab: chrome.tabs.Tab, permission: Promise<boolean> | 
   const isPermissionGranted = permission ? await permission : classification.kind === 'web';
   const action = decideClickAction(classification, isKnownStudio, isPermissionGranted);
   if (action.type === 'notify-studio') {
-    if (tabId !== undefined) {
-      forwardToStudio(
-        tabId,
-        createEnvelope(uiActionClicked, { recording: 'idle' }, nextEventSeq()),
-      );
-    }
+    if (tabId === undefined) return;
+    const outcome = await handleRecordingClick(tabId);
+    if (outcome.isConsumed) return;
+    forwardToStudio(
+      tabId,
+      createEnvelope(uiActionClicked, { recording: outcome.recording }, nextEventSeq()),
+    );
     return;
   }
   if (tabId === undefined) return;

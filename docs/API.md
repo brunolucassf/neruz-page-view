@@ -1,8 +1,9 @@
 # API interna: Neruz Page View
 
-**CONGELADO 2026-11-20 v1.3** (protocolo `v: 1`). Qualquer mudança depois desta data exige ADR em [DECISOES.md](DECISOES.md) e aviso ao Maestro. Base: [ARQUITETURA.md](ARQUITETURA.md) §3, §4, §7 e o relatório da POC (P1 a P4 no Chrome, 2026-11-20).
+**CONGELADO 2026-11-21 v1.4** (protocolo `v: 1`). Qualquer mudança depois desta data exige ADR em [DECISOES.md](DECISOES.md) e aviso ao Maestro. Base: [ARQUITETURA.md](ARQUITETURA.md) §3, §4, §7 e o relatório da POC (P1 a P4 no Chrome, 2026-11-20).
 
 Changelog:
+- **v1.4 (ADR-018):** só armazenamento. `local:studio.framedCapture` sobe para versão 2: `background` ganha `'custom'`, novos `backgroundColor` (cor livre, `#RRGGBB`) e `scope` (`'fold' | 'full'`, "quanto da página"), com migração pura v1 → v2 (§7.1). Limites e validação de `local:settings`, `local:captureDefaults` e `local:devices.custom` registrados como estão no código (pacote 020), sem mudança de formato. Cada chave tem uma única declaração `defineItem` no app (`apps/page-view/src/features/storage/items.ts`); schemas, padrões e migrações em `packages/core/storage` (§7.1, §9). Export aceita `framedCapture` v1 ou v2 e grava sempre v2 (§7.3). Mensagens, `bg.*`, `rec.*` e `v` intactos.
 - **v1.3 (ADR-017):** só armazenamento. Novas chaves `local:studio.onboarding` (`StudioOnboarding`) e `local:studio.framedCapture` (`FramedCapture`, preferência do "Print com moldura"), ambas versão 1 (§7.1); campo opcional `framedCapture` no export (§7.3); regra de onde vivem os `defineItem` de UI (§7.1). `local:devices.favorites` e `local:kits` conferidos contra o código: sem divergência. Contrato de vídeo (`bg.rec.*`, `rec.*`, `RecConfig`, `RecResult`) conferido contra `packages/core/messaging/recording.ts` antes da integração: **sem mudança**. `v` continua 1.
 - **v1.2 (ADR-016):** sem popup; clique no ícone e atalho `_execute_action` abrem/focam o Estúdio (§6.5). Novos: `bg.studio.launch`, eventos `ui.openUrl` e `ui.actionClicked`, tipo `StudioLaunch`, campo `tryStartNow` em `bg.rec.arm`, chaves `session:studioOrigins` e `session:studioLaunch`. Removidos: `bg.popup.openStudio`, `bg.rec.trigger`, comando `record`; `bg.tab.capture` arquivado ("Print com moldura" é opção do painel de captura do Estúdio). `v` continua 1: extensão é empacotada inteira, não há versão publicada com popup.
 - **v1.1:** revisão de segurança do contrato, sem mudança incompatível.
@@ -308,15 +309,33 @@ Acesso só por `storage.defineItem` do WXT com `version` e `migrations`; todo va
 
 | Chave | Tipo | Versão | Padrão | Migração |
 |---|---|---|---|---|
-| `local:settings` | `Settings` | 1 | ver tipo | v1 inicial |
-| `local:devices.custom` | `CustomDevice[]` (teto 100) | 1 | `[]` | v1 inicial |
+| `local:settings` | `Settings` | 1 | `DEFAULT_SETTINGS` (ver tipo) | v1 inicial; limites registrados na v1.4 sem mudança de formato |
+| `local:devices.custom` | `CustomDevice[]` (teto 100) | 1 | `[]` | v1 inicial; item fora do schema invalida a lista inteira (volta a `[]` e loga) |
 | `local:devices.favorites` | `string[]` de `presetId` (teto 100) | 1 | `[]` | v1 inicial; IDs inexistentes são removidos na leitura |
 | `local:kits` | `Kit[]` (teto 50) | 1 | `[]` | v1 inicial |
-| `local:captureDefaults` | `CaptureDefaults` | 1 | ver tipo | v1 inicial |
+| `local:captureDefaults` | `CaptureDefaults` | 1 | `DEFAULT_CAPTURE_DEFAULTS` (ver tipo) | v1 inicial; limites registrados na v1.4 sem mudança de formato |
 | `local:studio.onboarding` | `StudioOnboarding` | 1 | `{ hasSeenWelcome: false, hasSeenAddHint: false, isEssentialsOpen: true }` | v1 inicial (v1.3, ADR-017) |
-| `local:studio.framedCapture` | `FramedCapture` | 1 | `{ isEnabled: true, frameDeviceId: null, background: 'ice' }` | v1 inicial (v1.3, ADR-017); valor de `frameDeviceId` fora de `FrameKind` é lido como `null` |
+| `local:studio.framedCapture` | `FramedCapture` | **2** | `{ isEnabled: true, frameDeviceId: null, background: 'ice', backgroundColor: '#C8D4E0', scope: 'fold' }` | v1 inicial (v1.3, ADR-017). v1 → v2 (v1.4, ADR-018): `migrateFramedCaptureV1ToV2` mantém os três campos e acrescenta `backgroundColor: '#C8D4E0'`, `scope: 'fold'`. `frameDeviceId` fora de `FrameKind` é lido como `null` |
 
-Onde vivem os itens: chaves de domínio (`settings`, `devices.*`, `kits`, `captureDefaults`) e todas as migrações ficam em `packages/core/storage`. Chaves `local:studio.*` são estado de UI do Estúdio, sem uso fora dele: podem ser declaradas no app (`apps/page-view/src/features/**/persistence.ts`), com o mesmo tipo, versão, padrão e schema desta tabela; salto de versão delas também tem função pura em `packages/core/storage/migrations.ts`. Hoje `devices.favorites` e `kits` estão declarados em `apps/page-view/src/features/library/persistence.ts`: aceito até o primeiro salto de versão ou até o export/import (§7.3) ser implementado, o que vier antes; aí migram para `packages/core/storage` sem mudar chave nem formato.
+Onde vivem os itens (v1.4, ADR-018):
+- **Schemas Valibot, tipos, padrões (`DEFAULT_*`), limites (`MIN_*`/`MAX_*`) e migrações** de todas as chaves `local:*` ficam em `packages/core/storage` (`schemas.ts`, `migrations.ts`), código puro, sem dependência de WXT, com teste Vitest.
+- **Cada chave tem exatamente uma declaração `storage.defineItem`**, em `apps/page-view/src/features/storage/items.ts`, com `version` e `migrations` desta tabela. Nenhum outro arquivo chama `defineItem` para chave `local:*`; `library/persistence.ts`, `settings/persistence.ts` e os stores importam os itens e as funções `load*`/`save*` de lá.
+- A leitura passa por um único `readChecked` que, ao falhar, volta ao padrão e loga `NPV-STORAGE-INVALID` com a chave (nunca o valor).
+- A gravação valida com o mesmo schema antes de `setValue`; valor inválido não é gravado.
+
+Limites de `local:settings` e `local:captureDefaults` (iguais ao código do pacote 020; constantes exportadas de `packages/core/storage/schemas.ts`):
+
+| Campo | Regra |
+|---|---|
+| `Settings.maxScreens` | inteiro, `MIN_MAX_SCREENS` 1 .. `MAX_MAX_SCREENS` 16 |
+| `Settings.freezeOffscreenAfterMs` | número ≥ 0 (0 = nunca congelar) |
+| `CaptureDefaults.imageQuality` | `MIN_IMAGE_QUALITY` 0.5 .. `MAX_IMAGE_QUALITY` 1 |
+| `CaptureDefaults.videoDurationMs` | 3000 .. 600000 |
+| `CaptureDefaults.mockup.background.colors` | `#RRGGBB`, 1 .. 4 itens (v1.4 fecha o formato; valor gravado fora dele é inválido e volta ao padrão) |
+| `CustomDevice.name` | 1 .. 60 caracteres, `trim` aplicado antes de validar |
+| `CustomDevice.width`, `height` | 200 .. 7680 px CSS, inteiros |
+| `CustomDevice.dpr` | 1 .. 4 |
+| `CustomDevice.id` | UUID (`v.uuid()`) |
 
 ```ts
 export type Settings = {
@@ -363,15 +382,26 @@ export type StudioOnboarding = {
 
 export type FrameKind = 'phone' | 'foldable' | 'tablet' | 'laptop' | 'desktop';   // DeviceCategory sem 'tv'
 export type FrameBackground = 'ice' | 'night' | 'petrol' | 'transparent';
+export type FramedScope = 'fold' | 'full';      // 'fold' = só a primeira dobra; 'full' = página inteira dentro da moldura
 
-export type FramedCapture = {
+export type FramedCapture = {                    // versão 2 (v1.4)
   isEnabled: boolean;                            // "Print com moldura" ligado no painel de captura
   frameDeviceId: FrameKind | null;               // nome mantido por compatibilidade: guarda a moldura escolhida; null = moldura do tipo da tela ativa
+  background: FrameBackground | 'custom';        // 'custom' = usa backgroundColor
+  backgroundColor: string;                       // /^#[0-9A-F]{6}$/ (gravado em maiúsculas), padrão '#C8D4E0'; guardado mesmo com background predefinido (última cor livre)
+  scope: FramedScope;                            // padrão 'fold'
+};
+
+export type FramedCaptureV1 = {                  // só leitura: migração e import de arquivo v1.3
+  isEnabled: boolean;
+  frameDeviceId: FrameKind | null;
   background: FrameBackground;
 };
 ```
 
 `FramedCapture` é a fonte da verdade do "Print com moldura" (ADR-016 item 5). `CaptureDefaults.mockup` fica para o editor de mockup e para o vídeo; os dois não se sincronizam.
+
+Mapeamento para o compositor: `background === 'custom'` → `{ kind: 'color', color: backgroundColor }`; senão `{ kind: 'preset', id: background }`. Escolher predefinido não apaga `backgroundColor`. O seletor de cor grava a cada confirmação (não a cada movimento do controle; arraste contínuo usa debounce de 300 ms).
 
 Regra de migração: cada salto de `version` tem função pura `(old) => new` em `packages/core/storage/migrations.ts`, com teste Vitest. Nunca apaga dado do usuário sem migrar.
 
@@ -401,6 +431,8 @@ export type SettingsExport = {
 
 `framedCapture` é opcional (v1.3): arquivo sem ele mantém o valor atual. `local:studio.onboarding` nunca entra no export.
 
+v1.4: `SettingsExport.version` continua `1`. No import, `framedCapture` é validado como `FramedCapture` (v2) **ou** `FramedCaptureV1`; v1 passa por `migrateFramedCaptureV1ToV2` antes de gravar. O export grava sempre v2. Arquivo da v1.4 aberto por build v1.3 é rejeitado inteiro (`NPV-STORAGE-INVALID`); aceito, não há build v1.3 publicada.
+
 Arquivo máximo 1 MB; validado inteiro com Valibot antes de gravar; erro: `NPV-STORAGE-INVALID`, nada é gravado parcialmente.
 
 ## 8. Tetos de tempo e de taxa
@@ -426,9 +458,11 @@ packages/core/
 ├─ messaging/studio.ts       schemas e tipos studio.*
 ├─ messaging/background.ts   schemas e tipos bg.*, ui.*, StudioLaunch
 ├─ messaging/recording.ts    RecConfig, RecResult, rec.*
-├─ storage/items.ts          defineItem de §7
-├─ storage/migrations.ts
+├─ storage/schemas.ts        schemas Valibot, tipos, DEFAULT_* e limites de §7 (sem WXT)
+├─ storage/migrations.ts     funções puras (old) => new, com teste
 └─ types.ts                  Size, Rect, ScrollAnchor, ElementLocator, Section, OverflowReport, FrameInfo
 ```
 
 Cada tipo TS é derivado do schema Valibot (`v.InferOutput`), nunca escrito à parte.
+
+As declarações `storage.defineItem` (dependem de WXT) ficam fora de `packages/core`, num único arquivo do app: `apps/page-view/src/features/storage/items.ts` (v1.4, ADR-018).

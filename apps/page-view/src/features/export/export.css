@@ -1,0 +1,89 @@
+.result {
+  display: grid;
+  gap: var(--pv-space-3);
+  padding: var(--pv-space-4) 0;
+  border-top: 1px solid var(--pv-line-soft);
+  animation: result-in var(--pv-dur-base) var(--pv-ease-out);
+}
+
+.result__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--pv-space-3);
+}
+
+.result__count {
+  color: var(--pv-text-3);
+  font-size: var(--pv-ui-11);
+  line-height: var(--pv-ui-11-lh);
+}
+
+.result__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--pv-space-3);
+}
+
+.result__export {
+  flex: 1;
+  justify-content: center;
+}
+
+@keyframes result-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.range {
+  display: grid;
+  gap: var(--pv-space-3);
+  margin-top: var(--pv-space-4);
+}
+
+.range__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.range__track {
+  position: relative;
+  height: 20px;
+}
+
+.range__rail {
+  position: absolute;
+  top: 9px;
+  right: 0;
+  left: 0;
+  height: 2px;
+  background: var(--pv-line-strong);
+}
+
+.range__thumb {
+  top: 10px;
+  width: 14px;
+  height: 14px;
+  background: var(--pv-accent);
+  clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px);
+}
+
+.range__thumb[data-focus-visible] {
+  clip-path: none;
+  outline: 2px solid var(--pv-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .result {
+    animation: none;
+  }
+}

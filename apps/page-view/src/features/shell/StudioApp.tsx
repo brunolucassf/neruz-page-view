@@ -4,8 +4,11 @@ import { StudioBar } from '../bar/StudioBar';
 import { Bench } from '../bench/Bench';
 import { CapturePanel } from '../capture/CapturePanel';
 import { useCapture } from '../capture/captureStore';
-import { t } from '../i18n';
+import { t, useLocale } from '../i18n';
 import { Library } from '../library/Library';
+import { RecordingStageStatus } from '../recording/RecordingStageStatus';
+import { isRecordingBusy, useRecording } from '../recording/recordingState';
+import { SettingsDrawer } from '../settings/SettingsDrawer';
 import { ToastRegion } from '../toasts/ToastRegion';
 import { ShortcutsDialog, WelcomeDialog } from './Dialogs';
 import { useStudio } from './studioStore';
@@ -15,6 +18,8 @@ import './studio.css';
 export function StudioApp() {
   const captureStageScreenId = useStudio((state) => state.captureStageScreenId);
   const liveMessage = useStudio((state) => state.liveMessage);
+  const isRecording = useRecording((state) => isRecordingBusy(state.stage));
+  useLocale((state) => state.locale);
   useShortcuts();
 
   useEffect(() => {
@@ -34,10 +39,11 @@ export function StudioApp() {
       <ToastRegion />
       <WelcomeDialog />
       <ShortcutsDialog />
+      <SettingsDrawer />
       <div className="live-region" aria-live="polite" role="status">
         {liveMessage}
       </div>
-      {captureStageScreenId && <CaptureStageStatus />}
+      {captureStageScreenId && (isRecording ? <RecordingStageStatus /> : <CaptureStageStatus />)}
     </div>
   );
 }

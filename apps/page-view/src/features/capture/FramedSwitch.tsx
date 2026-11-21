@@ -1,5 +1,10 @@
 import { Button } from '@neruz/ui';
+import { useEffect, useState } from 'react';
 import {
+  Button as AriaButton,
+  Dialog,
+  DialogTrigger,
+  Label,
   Menu,
   MenuItem,
   MenuTrigger,
@@ -12,8 +17,10 @@ import { type MessageKey, t } from '../i18n';
 import { FRAME_BACKGROUNDS, type FrameBackground } from '../library/persistence';
 import { KIND_LABEL } from '../screens/presets';
 import { selectActiveScreen, useStudio } from '../shell/studioStore';
-import { useFramed } from './framedStore';
+import { composeLargePreview, usePreview } from './framedPreview';
+import { DEFAULT_CUSTOM_COLOR, useFramed } from './framedStore';
 import { BACKGROUND_FILL, FRAME_KINDS, type FrameKind, getFrameAsset, toFrameKind } from './frames';
+import type { FramedScope } from './framing/layout';
 import './framed.css';
 
 const BACKGROUND_LABEL: Record<FrameBackground, MessageKey> = {
@@ -56,6 +63,7 @@ export function FramedSwitch() {
             <>
               <FramePicker />
               <BackgroundPicker />
+              <ScopePicker />
             </>
           )}
         </div>
@@ -67,16 +75,20 @@ export function FramedSwitch() {
 function FrameThumbnail() {
   const kind = useFrameKind();
   const background = useFramed((state) => state.background);
+  const isCustomColor = useFramed((state) => state.isCustomColor);
+  const customColor = useFramed((state) => state.customColor);
   const isDark = useStudio((state) => selectActiveScreen(state)?.isDark ?? false);
+  const previewUrl = usePreview((state) => state.url);
   const asset = getFrameAsset(kind, isDark);
   const isLandscape = asset.width > asset.height;
+  const fill = isCustomColor ? customColor : BACKGROUND_FILL[background];
+
+  if (previewUrl) return <PreviewThumbnail previewUrl={previewUrl} fill={fill} />;
+
   return (
-    <span
-      className="framed__thumb-box pv-cut pv-cut--tooth"
-      style={{ background: BACKGROUND_FILL[background] }}
-    >
+    <span className="framed__thumb-box pv-cut pv-cut--tooth" style={{ background: fill }}>
       <img
-        key={`${kind}-${background}-${isDark}`}
+        key={`${kind}-${background}-${isCustomColor}-${isDark}`}
         className="framed__thumb-img"
         src={asset.url}
         alt={t('studio.capture.framed.previewAlt')}
@@ -84,6 +96,52 @@ function FrameThumbnail() {
         height={isLandscape ? Math.round((44 * asset.height) / asset.width) : 44}
       />
     </span>
+  );
+}
+
+function PreviewThumbnail({ previewUrl, fill }: { previewUrl: string; fill: string }) {
+  const [largeUrl, setLargeUrl] = useState<string | null>(null);
+
+  useEffect(
+    () => () => {
+      if (largeUrl) URL.revokeObjectURL(largeUrl);
+    },
+    [largeUrl],
+  );
+
+  const loadLarge = async (isOpen: boolean) => {
+    if (!isOpen) return;
+    const blob = await composeLargePreview();
+    if (blob) setLargeUrl(URL.createObjectURL(blob));
+  };
+
+  return (
+    <DialogTrigger onOpenChange={(isOpen) => void loadLarge(isOpen)}>
+      <AriaButton
+        className="framed__thumb-box framed__thumb-box--button pv-cut pv-cut--tooth"
+        style={{ background: fill }}
+        aria-label={t('studio.capture.framed.previewOpen')}
+      >
+        <img
+          key={previewUrl}
+          className="framed__thumb-img framed__thumb-img--preview"
+          src={previewUrl}
+          alt={t('studio.capture.framed.previewAlt')}
+        />
+      </AriaButton>
+      <Popover className="framed__preview-popover pv-cut" placement="bottom end" offset={6}>
+        <Dialog
+          className="framed__preview-dialog"
+          aria-label={t('studio.capture.framed.previewAlt')}
+        >
+          <img
+            className="framed__preview-large"
+            src={largeUrl ?? previewUrl}
+            alt={t('studio.capture.framed.previewAlt')}
+          />
+        </Dialog>
+      </Popover>
+    </DialogTrigger>
   );
 }
 
@@ -118,25 +176,73 @@ function FramePicker() {
 
 function BackgroundPicker() {
   const background = useFramed((state) => state.background);
+  const isCustomColor = useFramed((state) => state.isCustomColor);
+  const customColor = useFramed((state) => state.customColor);
   const patch = useFramed((state) => state.patch);
+  const chooseCustomColor = useFramed((state) => state.chooseCustomColor);
+  return (
+    <div className="framed__control framed__backgrounds">
+      <RadioGroup
+        className="framed__swatches"
+        aria-label={t('studio.capture.background.label')}
+        orientation="horizontal"
+        value={isCustomColor ? '' : background}
+        onChange={(value) => patch({ background: value as FrameBackground })}
+      >
+        {FRAME_BACKGROUNDS.map((item) => (
+          <Radio
+            key={item}
+            value={item}
+            aria-label={t(BACKGROUND_LABEL[item])}
+            className="framed__swatch"
+            data-kind={item}
+            style={{ '--swatch': BACKGROUND_FILL[item] } as React.CSSProperties}
+          />
+        ))}
+      </RadioGroup>
+      <label
+        className="framed__swatch framed__swatch--color"
+        data-selected={isCustomColor || undefined}
+        style={{ '--swatch': customColor } as React.CSSProperties}
+      >
+        <input
+          className="framed__color-input"
+          type="color"
+          value={customColor || DEFAULT_CUSTOM_COLOR}
+          aria-label={t('studio.capture.background.custom')}
+          onChange={(event) => chooseCustomColor(event.target.value)}
+        />
+      </label>
+    </div>
+  );
+}
+
+const SCOPE_OPTIONS: { value: FramedScope; label: MessageKey }[] = [
+  { value: 'fold', label: 'studio.capture.framed.scope.fold' },
+  { value: 'full', label: 'studio.capture.framed.scope.full' },
+];
+
+function ScopePicker() {
+  const scope = useFramed((state) => state.scope);
+  const setScope = useFramed((state) => state.setScope);
   return (
     <RadioGroup
-      className="framed__control framed__backgrounds"
-      aria-label={t('studio.capture.background.label')}
+      className="framed__scope"
+      value={scope}
       orientation="horizontal"
-      value={background}
-      onChange={(value) => patch({ background: value as FrameBackground })}
+      onChange={(value) => setScope(value as FramedScope)}
     >
-      {FRAME_BACKGROUNDS.map((item) => (
-        <Radio
-          key={item}
-          value={item}
-          aria-label={t(BACKGROUND_LABEL[item])}
-          className="framed__swatch"
-          data-kind={item}
-          style={{ '--swatch': BACKGROUND_FILL[item] } as React.CSSProperties}
-        />
-      ))}
+      <Label className="framed__control-name">{t('studio.capture.framed.scope.label')}</Label>
+      <div className="segmented">
+        {SCOPE_OPTIONS.map((option) => (
+          <Radio key={option.value} value={option.value} className="segmented__option">
+            {t(option.label)}
+          </Radio>
+        ))}
+      </div>
+      {scope === 'full' && (
+        <p className="framed__hint">{t('studio.capture.framed.scope.fullHint')}</p>
+      )}
     </RadioGroup>
   );
 }
