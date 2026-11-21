@@ -155,6 +155,14 @@ export const es: LandingCopy = {
       title: 'Sobre nosotros',
       body: 'Forno 27 empezó con una receta familiar y un horno demasiado pequeño. Hoy el horno es más grande; la receta sigue igual.',
     },
+    contact: {
+      line: 'Panadería de demostración: sin dirección ni teléfono.',
+      cards: [
+        'Pan caliente, hornadas pequeñas, cada día.',
+        'Panes, hojaldres y bizcochos que salen durante el día.',
+        'Una receta familiar, ahora en un horno más grande.',
+      ],
+    },
     footerNote: 'Forno 27 es una panadería ficticia, creada para esta demostración.',
     url: 'forno27.example',
     regionLabel: 'Sitio de demostración ficticio: panadería Forno 27',

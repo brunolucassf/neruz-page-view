@@ -13,6 +13,11 @@
   overscroll-behavior: contain;
   scrollbar-color: var(--pv-line) transparent;
   scrollbar-width: thin;
+  cursor: grab;
+}
+
+.bench__scroller[data-panning] {
+  cursor: grabbing;
 }
 
 .bench__content {

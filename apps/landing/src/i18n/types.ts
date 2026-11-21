@@ -14,6 +14,7 @@ export interface FornoCopy {
     items: { name: string; desc: string; price: string }[];
   };
   about: { title: string; body: string };
+  contact: { line: string; cards: string[] };
   footerNote: string;
   url: string;
   regionLabel: string;

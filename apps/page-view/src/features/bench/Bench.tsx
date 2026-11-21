@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { type PointerEvent, useEffect, useMemo, useRef } from 'react';
 import { EmptyState } from '../empty/EmptyState';
 import { formatInteger } from '../i18n';
 import { useLibrary } from '../library/libraryStore';
@@ -10,6 +10,50 @@ import { GhostSlot } from './GhostSlot';
 import { PermissionCard } from './PermissionCard';
 import { Ruler } from './Ruler';
 import './bench.css';
+
+function usePanOnBackground(scrollerRef: React.RefObject<HTMLDivElement | null>) {
+  const pan = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    left: number;
+    top: number;
+  } | null>(null);
+
+  const isBackground = (event: PointerEvent<HTMLDivElement>) =>
+    event.target === event.currentTarget ||
+    (event.target instanceof HTMLElement && event.target.classList.contains('bench__content'));
+
+  return {
+    onPointerDown: (event: PointerEvent<HTMLDivElement>) => {
+      const scroller = scrollerRef.current;
+      if (!scroller || event.button !== 0 || !isBackground(event)) return;
+      pan.current = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        left: scroller.scrollLeft,
+        top: scroller.scrollTop,
+      };
+      scroller.setPointerCapture(event.pointerId);
+      scroller.dataset.panning = '';
+    },
+    onPointerMove: (event: PointerEvent<HTMLDivElement>) => {
+      const scroller = scrollerRef.current;
+      const current = pan.current;
+      if (!scroller || !current || current.pointerId !== event.pointerId) return;
+      scroller.scrollLeft = current.left - (event.clientX - current.startX);
+      scroller.scrollTop = current.top - (event.clientY - current.startY);
+    },
+    onPointerEnd: (event: PointerEvent<HTMLDivElement>) => {
+      const scroller = scrollerRef.current;
+      if (!scroller || pan.current?.pointerId !== event.pointerId) return;
+      pan.current = null;
+      delete scroller.dataset.panning;
+      scroller.releasePointerCapture(event.pointerId);
+    },
+  };
+}
 
 const PERMISSION_STATES = new Set(['missing', 'requesting', 'denied']);
 
@@ -24,6 +68,7 @@ export function Bench() {
   const resize = useStudio((state) => state.resize);
   const activeScreenId = useStudio((state) => state.activeScreenId);
 
+  const panHandlers = usePanOnBackground(scrollerRef);
   const layout = useMemo(() => layoutScreens(screens, zoom, bench), [screens, zoom, bench]);
 
   useEffect(() => {
@@ -63,7 +108,14 @@ export function Bench() {
       data-empty={!pageUrl || undefined}
     >
       {pageUrl && <BenchBar />}
-      <div ref={scrollerRef} className="bench__scroller">
+      <div
+        ref={scrollerRef}
+        className="bench__scroller"
+        onPointerDown={panHandlers.onPointerDown}
+        onPointerMove={panHandlers.onPointerMove}
+        onPointerUp={panHandlers.onPointerEnd}
+        onPointerCancel={panHandlers.onPointerEnd}
+      >
         <div
           ref={contentRef}
           className="bench__content"

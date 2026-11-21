@@ -59,6 +59,20 @@ const thumbShapes = ['loaf', 'croissant', 'cheese', 'cake'] as const;
     <p class="forno__section-title">{forno.about.title}</p>
     <p class="forno__about-body">{forno.about.body}</p>
   </div>
+  <div class="forno__contact">
+    <p class="forno__section-title">{forno.nav.contact}</p>
+    <p class="forno__contact-line">{forno.contact.line}</p>
+    <ul class="forno__cards">
+      {
+        forno.contact.cards.map((card, index) => (
+          <li class="forno__card">
+            <span class="forno__card-title">{navItems[index]}</span>
+            <span>{card}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
   <div class="forno__footer">
     <span class="forno__footer-brand">{forno.brand}</span>
     <span>{forno.footerNote}</span>
@@ -276,6 +290,39 @@ const thumbShapes = ['loaf', 'croissant', 'cheese', 'cake'] as const;
     color: rgb(34 26 21 / 0.8);
   }
 
+  .forno__contact {
+    display: grid;
+    gap: 14px;
+    padding: 36px var(--forno-pad) 44px;
+    border-top: 1px solid rgb(34 26 21 / 0.1);
+  }
+
+  .forno__contact-line {
+    max-width: 40ch;
+    color: rgb(34 26 21 / 0.75);
+  }
+
+  .forno__cards {
+    display: grid;
+    gap: 12px;
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .forno__card {
+    display: grid;
+    gap: 6px;
+    padding: 28px 20px;
+    background: var(--demo-card, #efe2cf);
+    font-size: 14px;
+  }
+
+  .forno__card-title {
+    font-family: var(--pv-font-display);
+    font-weight: 600;
+  }
+
   .forno__footer {
     display: grid;
     gap: 6px;
@@ -308,6 +355,18 @@ const thumbShapes = ['loaf', 'croissant', 'cheese', 'cake'] as const;
   }
 
   @container forno (min-width: 720px) {
+    .forno__contact {
+      padding-block: 64px 72px;
+    }
+
+    .forno__cards {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .forno__card {
+      padding: 88px 24px;
+    }
+
     .forno {
       --forno-pad: 40px;
     }

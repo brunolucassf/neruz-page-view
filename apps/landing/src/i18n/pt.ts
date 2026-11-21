@@ -155,6 +155,14 @@ export const pt: LandingCopy = {
       title: 'Sobre a casa',
       body: 'O Forno 27 começou com uma receita de família e um forno pequeno demais. Hoje o forno é maior, a receita é a mesma.',
     },
+    contact: {
+      line: 'Padaria de demonstração: sem endereço nem telefone.',
+      cards: [
+        'Pão quente, fornadas pequenas, todo dia.',
+        'Pães, folhados e bolos que saem ao longo do dia.',
+        'Uma receita de família, agora num forno maior.',
+      ],
+    },
     footerNote: 'Forno 27 é uma padaria fictícia, criada para esta demonstração.',
     url: 'forno27.example',
     regionLabel: 'Site de demonstração fictício: padaria Forno 27',

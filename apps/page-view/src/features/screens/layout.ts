@@ -1,9 +1,10 @@
 import { SNAP_WIDTHS } from './presets';
 
 export const RULER_HEIGHT = 24;
-export const BENCH_PADDING = 48;
+export const BENCH_PADDING = 32;
+export const BENCH_TOP_MARGIN = 28;
 export const SCREEN_HEADER_HEIGHT = 28;
-export const SCREEN_GAP = 32;
+export const SCREEN_GAP = 28;
 
 export const MIN_ZOOM = 0.1;
 export const MAX_ZOOM = 1.5;
@@ -11,7 +12,7 @@ const ZOOM_STEPS = [0.1, 0.15, 0.2, 0.25, 0.33, 0.5, 0.67, 0.75, 0.8, 0.9, 1, 1.
 
 const GHOST_SIZE = { width: 160, height: 220 };
 export const MIN_FIT_ZOOM = 0.4;
-const MAX_HEIGHT_FIT_ZOOM = 0.5;
+const FIT_HEIGHT_RATIO = 0.92;
 const GHOST_EMPTY = { width: 480, height: 320 };
 
 export type ScreenSize = { width: number; height: number };
@@ -48,10 +49,7 @@ export function layoutScreens(
     scaled.reduce((total, size) => total + size.width + SCREEN_GAP, 0) + slotSize.width;
   const startX = Math.max(BENCH_PADDING, Math.round((bench.width - rowWidth) / 2));
   const tallest = Math.max(slotSize.height, ...scaled.map((size) => size.height));
-  const centeredTop = Math.round(
-    (bench.height - RULER_HEIGHT - SCREEN_HEADER_HEIGHT - tallest) / 2,
-  );
-  const viewportTop = RULER_HEIGHT + Math.max(BENCH_PADDING, centeredTop) + SCREEN_HEADER_HEIGHT;
+  const viewportTop = RULER_HEIGHT + BENCH_TOP_MARGIN + SCREEN_HEADER_HEIGHT;
   let cursorX = startX;
   const boxes = scaled.map((size) => {
     const box = { x: cursorX, viewportTop, scaledWidth: size.width, scaledHeight: size.height };
@@ -68,17 +66,11 @@ export function layoutScreens(
 }
 
 export function computeFitZoom(screens: readonly ScreenSize[], bench: BenchSize): number {
-  if (screens.length === 0 || bench.width === 0) return 1;
-  const totalWidth = screens.reduce((total, screen) => total + screen.width, 0);
+  if (screens.length === 0 || bench.height === 0) return 1;
   const tallest = Math.max(...screens.map((screen) => screen.height));
-  const availableWidth =
-    bench.width - BENCH_PADDING * 2 - SCREEN_GAP * Math.max(0, screens.length - 1);
-  const availableHeight = bench.height - RULER_HEIGHT - BENCH_PADDING * 2 - SCREEN_HEADER_HEIGHT;
-  const heightFit = Math.min(availableHeight / tallest, 1);
-  const zoom = Math.min(availableWidth / totalWidth, heightFit);
-  const legibleZoom =
-    zoom >= MIN_FIT_ZOOM ? zoom : Math.max(MIN_FIT_ZOOM, Math.min(heightFit, MAX_HEIGHT_FIT_ZOOM));
-  return Math.floor(legibleZoom * 100) / 100;
+  const availableHeight = bench.height - RULER_HEIGHT - BENCH_TOP_MARGIN - SCREEN_HEADER_HEIGHT;
+  const heightFit = Math.min((availableHeight * FIT_HEIGHT_RATIO) / tallest, 1);
+  return Math.floor(Math.max(MIN_FIT_ZOOM, heightFit) * 100) / 100;
 }
 
 export function stepZoom(zoom: number, direction: 1 | -1): number {

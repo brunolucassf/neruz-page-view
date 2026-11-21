@@ -145,6 +145,14 @@ export const en: LandingCopy = {
       title: 'About us',
       body: 'Forno 27 started with a family recipe and an oven that was too small. The oven got bigger; the recipe stayed the same.',
     },
+    contact: {
+      line: 'A demo bakery: no address, no phone.',
+      cards: [
+        'Warm bread, small batches, every day.',
+        'Breads, pastries and cakes, baked through the day.',
+        'A family recipe, now in a bigger oven.',
+      ],
+    },
     footerNote: 'Forno 27 is a fictional bakery, made for this demo.',
     url: 'forno27.example',
     regionLabel: 'Fictional demo site: Forno 27 bakery',

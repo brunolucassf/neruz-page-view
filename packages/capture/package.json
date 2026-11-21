@@ -13,6 +13,8 @@
     "@types/chrome": "0.3.7"
   },
   "dependencies": {
-    "@neruz/core": "workspace:*"
+    "@neruz/core": "workspace:*",
+    "gifenc": "1.0.3",
+    "mediabunny": "1.65.2"
   }
 }

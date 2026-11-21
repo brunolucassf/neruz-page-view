@@ -1,8 +1,9 @@
 # API interna: Neruz Page View
 
-**CONGELADO 2026-11-20 v1.2** (protocolo `v: 1`). Qualquer mudança depois desta data exige ADR em [DECISOES.md](DECISOES.md) e aviso ao Maestro. Base: [ARQUITETURA.md](ARQUITETURA.md) §3, §4, §7 e o relatório da POC (P1 a P4 no Chrome, 2026-11-20).
+**CONGELADO 2026-11-20 v1.3** (protocolo `v: 1`). Qualquer mudança depois desta data exige ADR em [DECISOES.md](DECISOES.md) e aviso ao Maestro. Base: [ARQUITETURA.md](ARQUITETURA.md) §3, §4, §7 e o relatório da POC (P1 a P4 no Chrome, 2026-11-20).
 
 Changelog:
+- **v1.3 (ADR-017):** só armazenamento. Novas chaves `local:studio.onboarding` (`StudioOnboarding`) e `local:studio.framedCapture` (`FramedCapture`, preferência do "Print com moldura"), ambas versão 1 (§7.1); campo opcional `framedCapture` no export (§7.3); regra de onde vivem os `defineItem` de UI (§7.1). `local:devices.favorites` e `local:kits` conferidos contra o código: sem divergência. Contrato de vídeo (`bg.rec.*`, `rec.*`, `RecConfig`, `RecResult`) conferido contra `packages/core/messaging/recording.ts` antes da integração: **sem mudança**. `v` continua 1.
 - **v1.2 (ADR-016):** sem popup; clique no ícone e atalho `_execute_action` abrem/focam o Estúdio (§6.5). Novos: `bg.studio.launch`, eventos `ui.openUrl` e `ui.actionClicked`, tipo `StudioLaunch`, campo `tryStartNow` em `bg.rec.arm`, chaves `session:studioOrigins` e `session:studioLaunch`. Removidos: `bg.popup.openStudio`, `bg.rec.trigger`, comando `record`; `bg.tab.capture` arquivado ("Print com moldura" é opção do painel de captura do Estúdio). `v` continua 1: extensão é empacotada inteira, não há versão publicada com popup.
 - **v1.1:** revisão de segurança do contrato, sem mudança incompatível.
 - **v1:** contrato inicial (ADR-014).
@@ -312,6 +313,10 @@ Acesso só por `storage.defineItem` do WXT com `version` e `migrations`; todo va
 | `local:devices.favorites` | `string[]` de `presetId` (teto 100) | 1 | `[]` | v1 inicial; IDs inexistentes são removidos na leitura |
 | `local:kits` | `Kit[]` (teto 50) | 1 | `[]` | v1 inicial |
 | `local:captureDefaults` | `CaptureDefaults` | 1 | ver tipo | v1 inicial |
+| `local:studio.onboarding` | `StudioOnboarding` | 1 | `{ hasSeenWelcome: false, hasSeenAddHint: false, isEssentialsOpen: true }` | v1 inicial (v1.3, ADR-017) |
+| `local:studio.framedCapture` | `FramedCapture` | 1 | `{ isEnabled: true, frameDeviceId: null, background: 'ice' }` | v1 inicial (v1.3, ADR-017); valor de `frameDeviceId` fora de `FrameKind` é lido como `null` |
+
+Onde vivem os itens: chaves de domínio (`settings`, `devices.*`, `kits`, `captureDefaults`) e todas as migrações ficam em `packages/core/storage`. Chaves `local:studio.*` são estado de UI do Estúdio, sem uso fora dele: podem ser declaradas no app (`apps/page-view/src/features/**/persistence.ts`), com o mesmo tipo, versão, padrão e schema desta tabela; salto de versão delas também tem função pura em `packages/core/storage/migrations.ts`. Hoje `devices.favorites` e `kits` estão declarados em `apps/page-view/src/features/library/persistence.ts`: aceito até o primeiro salto de versão ou até o export/import (§7.3) ser implementado, o que vier antes; aí migram para `packages/core/storage` sem mudar chave nem formato.
 
 ```ts
 export type Settings = {
@@ -349,7 +354,24 @@ export type CaptureDefaults = {
   videoDurationMs: number;                       // 3000..600000, padrão 15000
   mockup: { enabled: boolean; background: { kind: 'solid' | 'gradient'; colors: string[] } };
 };
+
+export type StudioOnboarding = {
+  hasSeenWelcome: boolean;                       // boas-vindas da biblioteca já fechada
+  hasSeenAddHint: boolean;                       // dica "adicionar tela" já vista
+  isEssentialsOpen: boolean;                     // seção "Essenciais" da biblioteca aberta
+};
+
+export type FrameKind = 'phone' | 'foldable' | 'tablet' | 'laptop' | 'desktop';   // DeviceCategory sem 'tv'
+export type FrameBackground = 'ice' | 'night' | 'petrol' | 'transparent';
+
+export type FramedCapture = {
+  isEnabled: boolean;                            // "Print com moldura" ligado no painel de captura
+  frameDeviceId: FrameKind | null;               // nome mantido por compatibilidade: guarda a moldura escolhida; null = moldura do tipo da tela ativa
+  background: FrameBackground;
+};
 ```
+
+`FramedCapture` é a fonte da verdade do "Print com moldura" (ADR-016 item 5). `CaptureDefaults.mockup` fica para o editor de mockup e para o vídeo; os dois não se sincronizam.
 
 Regra de migração: cada salto de `version` tem função pura `(old) => new` em `packages/core/storage/migrations.ts`, com teste Vitest. Nunca apaga dado do usuário sem migrar.
 
@@ -373,9 +395,11 @@ export type SettingsExport = {
   schema: 'neruz.pageview.settings';
   version: 1;
   exportedAt: string;        // ISO 8601
-  data: { settings: Settings; devicesCustom: CustomDevice[]; devicesFavorites: string[]; kits: Kit[]; captureDefaults: CaptureDefaults };
+  data: { settings: Settings; devicesCustom: CustomDevice[]; devicesFavorites: string[]; kits: Kit[]; captureDefaults: CaptureDefaults; framedCapture?: FramedCapture };
 };
 ```
+
+`framedCapture` é opcional (v1.3): arquivo sem ele mantém o valor atual. `local:studio.onboarding` nunca entra no export.
 
 Arquivo máximo 1 MB; validado inteiro com Valibot antes de gravar; erro: `NPV-STORAGE-INVALID`, nada é gravado parcialmente.
 
