@@ -1,6 +1,6 @@
 # Arquitetura: Neruz Page View (Neruz Extensions)
 
-Data-base: 2026-11-20. Perfil ADVANCED. Sem servidor, sem banco, sem rede própria. Decisões e alternativas em [DECISOES.md](DECISOES.md). Regras de segurança obrigatórias em `.equipe/briefs/seguranca.md` (este documento as respeita; a única exceção proposta está na ADR-011).
+Data-base: 2026-11-21 (§4.2, §4.3, §4.4 e §7 atualizadas para a API v1.6). Perfil ADVANCED. Sem servidor, sem banco, sem rede própria. Decisões e alternativas em [DECISOES.md](DECISOES.md). Regras de segurança obrigatórias em `.equipe/briefs/seguranca.md` (este documento as respeita; a única exceção proposta está na ADR-011).
 
 ## 1. Resumo
 
@@ -59,7 +59,7 @@ Validação da infraestrutura de Bruno: a extensão não usa servidor. A landing
 | **Content script `frame-agent`** (isolado, registrado dinamicamente) | Em cada frame de origem autorizada: espelhamento, aquecimento, detecção de seções, rolagem para captura, ocultar fixos, aviso de rolagem lateral, emulação de reduzir movimento via CSSOM | Inerte fora do Estúdio: em `window.top === window` sai na hora; em subframe pergunta ao background (`frame.hello`), que responde com base em `sender.tab.id` pertencer ao conjunto de abas do Estúdio |
 | **Script `frame-env`** (world MAIN, opcional, ADR-011) | Sobrescrever `matchMedia('(prefers-reduced-motion)')`, `navigator.userAgent/userAgentData/maxTouchPoints` | Lê configuração só de `window.name` (definido pelo atributo `name` do iframe). Não escuta eventos, não envia mensagens, não acessa API de extensão. Desligado por padrão até aprovação do security-engineer |
 | **Offscreen document** (só Chromium, `reasons: ['USER_MEDIA']`) | Toda gravação Chromium (Estúdio e aba comum) com o stream de `tabCapture.getMediaStreamId`: recorte, composição, encode e mux | Provado no P4. Início por gesto: clique em "Gravar" no Estúdio se o navegador aceitar, senão clique no ícone/atalho com o Estúdio armado em primeiro plano (ADR-015, ADR-016); resultado volta ao Estúdio por `blobUrl` |
-| **Workers** (dentro do Estúdio) | `stitch.worker`, `video.worker` (VideoEncoder + Mediabunny), `gif.worker`, `zip.worker`, `pdf` sob demanda | Transferência com `ImageBitmap`/`VideoFrame` transferíveis; nada de base64 |
+| **Workers** (dentro do Estúdio) | `compose.worker` (Print com moldura), `export.worker` (ZIP de uma tela), `batchZip.worker` (ZIP do lote, em streaming), `gif.worker` (GIF); PDF com jsPDF sob demanda | Transferência com `ImageBitmap`/`VideoFrame` transferíveis; nada de base64. Vídeo não tem worker próprio: roda no offscreen (Chromium) ou no Estúdio (Firefox) |
 
 ### 3.1 Abrir sites em iframe
 
@@ -112,7 +112,7 @@ Primitiva única: `tabs.captureVisibleTab` do Estúdio (limite de 2 chamadas por
 | Área | Seleção retangular sobre a tile; recorte do quadro |
 | Todas as telas | Fila sequencial por tela; resultado vai para mockups/ZIP |
 
-**Print com moldura** (nome aprovado por Bruno, P16; antes "print bonito"): opção do painel de captura do Estúdio, aplicada ao print da tela aberta (não existe mais print de aba comum fora do Estúdio, ADR-016). Mockup: composição em `OffscreenCanvas` com molduras SVG próprias (sem arte oficial de fabricante), fundo editável (cor, gradiente, imagem do usuário). Exportação PNG, JPEG, WebP via `convertToBlob`.
+**Print com moldura** (nome aprovado por Bruno, P16; antes "print bonito"): opção do painel de captura do Estúdio, aplicada ao print da tela aberta (não existe print de aba comum fora do Estúdio, ADR-016). Compositor: um worker dedicado (`compose.worker`) monta a imagem em `OffscreenCanvas`, a partir de molduras SVG próprias (sem arte oficial de fabricante) rasterizadas antes da composição. Fundo: um dos três predefinidos ou cor livre (`#RRGGBB`, guardada mesmo sem uso). Escopo: primeira dobra ou página inteira dentro da moldura. Saída PNG, JPEG ou WebP via `convertToBlob`. Preferência persistida em `local:studio.framedCapture` (versão 2, ADR-018). O lote de várias páginas usa a mesma moldura quando ela está ligada (§4.4).
 
 Tamanho máximo de canvas (~16k px de altura no Chromium; limites de área): páginas mais longas são divididas em partes numeradas, nunca truncadas em silêncio.
 
@@ -123,19 +123,33 @@ Tamanho máximo de canvas (~16k px de altura no Chromium; limites de área): pá
 3. Pipeline: `MediaStreamTrackProcessor` (Chromium, no offscreen) ou `requestVideoFrameCallback` em `<video>` (Firefox) produz `VideoFrame`; recorte por escala+centralização (o quadro do tabCapture traz a aba escalada e centralizada) e encaixe em 1080×1920 ou 1920×1080 com composição de fundo/mockup em `OffscreenCanvas`; leitura com teto e repetição do último quadro até a duração pedida; `VideoEncoder` (H.264 `avc1` para MP4, VP9 para WebM) e Mediabunny faz o mux. Cursor opcional desenhado por cima a partir das posições do `frame-agent`.
 4. Fallback: se `VideoEncoder` não suportar H.264 no navegador/SO, oferece WebM e explica; `MediaRecorder` fica como plano C.
 5. GIF: re-decodifica o vídeo final, reduz para até 720 px de largura e 15 fps, `gifenc` no worker, limite de 30 s com aviso.
+6. Roteiro de rolagem e velocidade ao vivo (v1.6, ADR-021): o Estúdio pede ao `frame-agent` um plano de rolagem por seção (`studio.autoscroll.start`, com paradas e pausas por seção). A velocidade da configuração (lenta, normal, rápida) define o tempo do plano. Durante a gravação, a mini barra troca a velocidade por fator absoluto (0,5×, 1×, 1,5×, 2×) com `studio.autoscroll.speed`: o agente refaz só a parte futura da linha do tempo, sem salto de posição, e pausas de leitura não são escaladas. Se a velocidade pedida não couber no tempo restante, o agente aplica o menor fator viável e a UI avisa. Fator aplicado e tempo restante voltam ao Estúdio.
+7. Watchdog do roteiro (API §5): o Estúdio arma um prazo de `durationMs + soma das pausas + 5 s`; cada velocidade aceita recalcula o prazo para `agora + tempo restante + 5 s`. Pausa manual tem teto de 10 min; depois disso o Estúdio envia `stop` e finaliza a gravação. O teto duro continua sendo `RecConfig.durationMs`: ao atingi-lo, o offscreen encerra o vídeo mesmo com a rolagem incompleta. Prazo em funções puras com relógio injetado (`features/recording/recordingWatchdog.ts`), verificado a cada 1 s em `recordingControls.ts`; estouro chama a parada normal e salva o que foi gravado.
+8. Mini barra de gravação: alça para mover, estado e tempo, pausar e retomar a rolagem, marcar uma pausa no ponto atual (1,5 s), velocidade (0,5×, 1×, 1,5×, 2×) e parar. A velocidade só muda com a gravação em curso.
 
 Rejeitado: ffmpeg.wasm (núcleo ~30 MB, lento sem multithread e o multithread exige isolamento cross-origin, COOP/COEP, que quebra os iframes). Detalhe na ADR-006.
 
 ### 4.3 PDF, relatório e ZIP
 
-- PDF: jsPDF carregado sob demanda; imagem longa fatiada em páginas A4/carta, ou página única "contínua".
-- Relatório: HTML autocontido (imagens embutidas) e PDF. Só fatos: URL, data, telas, dimensões, tempo até estável, rolagem lateral detectada (elementos que passam da largura), páginas que bloquearam iframe. Rodapé fixo: "Capturas geradas automaticamente para apoiar sua revisão. Vale a conferência do profissional responsável pelo projeto." (traduzido nativamente).
-- ZIP (fflate em streaming): `neruz-page-view_<host>_<AAAA-MM-DD_HHmm>/<pagina>/<tela>/{print,momentos,mockup,video}/...` + `relatorio.html`.
-- Armazenamento temporário: OPFS do Estúdio; apagado após exportar e ao fechar o Estúdio (requisito de privacidade).
+- PDF (tela única): jsPDF carregado sob demanda, uma página por imagem, com o tamanho da página proporcional à imagem e teto de 14.400 pt no lado maior. Não há PDF de relatório: o relatório é só HTML e JSON, e só existe no lote (ADR-019).
+- Relatório do lote (API §10.8): `relatorio.html` autocontido e `relatorio.json` (schema `neruz.pageview.batch-report`, versão 1). Só fatos medidos: status de cada página e tela, URL pedida e final, título, status HTTP, tempo até estável, altura da página, rolagem lateral e os seletores que passam da largura, partes do print e a ocorrência de cada falha. Sem nota, pontuação ou adjetivo de qualidade. O HTML não tem script, tem CSP em `<meta>`, escapa todo texto vindo da página e usa miniaturas `data:` de até 320 px. O rodapé é fixo: "Capturas geradas automaticamente para apoiar sua revisão. Vale a conferência do profissional responsável pelo projeto." (traduzido nos três idiomas).
+- ZIP: a exportação de uma tela usa `fflate` (`zipSync`) num worker. O lote usa um worker próprio (`batchZip.worker`) em streaming: `Zip` com `ZipPassThrough` (sem compressão, as imagens já são comprimidas), lendo do OPFS e escrevendo `export.zip` com `createSyncAccessHandle`. Cada parte tem até 2 GB e 65.000 entradas, dividida por página (página nunca é partida), e leva o relatório completo. A árvore é `neruz-page-view_<host>_<AAAA-MM-DD_HHmm>/` com `relatorio.html`, `relatorio.json` e uma pasta por página (`001-<slug>/`) com uma pasta por tela (`01-<slug>/`), contendo `print.<ext>` (ou `print-parte-NN.<ext>`), `momentos/` no modo Momentos e `moldura.<ext>` com o print com moldura. Nenhum dado da página vira nome de arquivo (`sanitizeZipPath`).
+- Download: o arquivo do OPFS vira `URL.createObjectURL` e um `<a download>`, sem a permissão `downloads`. Lote com várias partes pede um clique por parte.
+- Armazenamento temporário: OPFS em `npv-tmp/<sessionId>/`, com Web Lock por Estúdio aberto. Apagado 2 minutos após o último download, ao clicar em "Novo lote" ou "Concluir", ao cancelar, no `pagehide` (melhor esforço) e na próxima abertura, só para pastas sem lock vivo. Sem OPFS, arquivos em memória com teto de 512 MB. Nada do lote vai para `storage.local` ou `storage.session`; só as preferências (`local:studio.batch`). Quota insuficiente vira `NPV-STORAGE-FULL` e pausa o lote com a opção de exportar o que já foi feito (ADR-020).
 
 ### 4.4 Várias páginas
 
-Lista colada, `sitemap.xml` (fetch do Estúdio com permissão de host da origem, só mesma origem, até 5 MB, sitemaps aninhados até 2 níveis) ou links internos lidos do DOM pelo `frame-agent`. Limite padrão de 25 páginas, máximo 100, timeout por página. Fila serial reutilizando o mesmo conjunto de telas.
+Contrato em API.md §10 (v1.5, ADR-019 e ADR-020). Tudo roda no Estúdio, sem mensagem nova no background; o estado do lote fica só na memória do Estúdio, e fechá-lo encerra o lote.
+
+- **Fontes:** lista colada (até 200 mil caracteres, com normalização e descarte por motivo); sitemap (`robots.txt` ou `/sitemap.xml`, lido pelo Estúdio com permissão da origem, mesma origem, 5 MB por arquivo, aninhamento até 2 níveis, 50 arquivos, 60 s); links internos da página aberta (um nível só, coletados pelo `frame-agent` e revalidados pelo Estúdio).
+- **Tetos:** 25 páginas por padrão, 100 no máximo (preferência em `local:studio.batch`), 400 capturas (páginas × telas), 10 origens por lote. Acima de um teto, o lote não começa e a UI diz qual.
+- **Permissões:** o clique em "Começar" pede a permissão de todas as origens do lote como primeira instrução. Origem negada vira falha das páginas dela, sem bloquear as demais.
+- **Execução:** fila serial, uma página por vez. Dentro da página, as telas carregam juntas (troca do `src` de cada iframe) e capturam uma por vez, com teto de 180 s por tela. A ordem por tela é espera de estabilidade, modo de print do painel, medição de rolagem lateral, print com moldura (se ligado), miniatura e gravação no OPFS. Espelhamento e congelamento de telas ficam suspensos durante o lote, e a URL de cada tela é restaurada ao fim.
+- **Só print:** o lote não gera vídeo, GIF nem PDF. Cada página entra no ZIP como pasta própria (§4.3).
+- **Login:** URL final diferente da pedida e campo de senha visível marcam a página como `login-redirect` e ela não é capturada. Redirecionamento sem senha e HTTP 400 ou acima são capturados e anotados como fato.
+- **Falhas por página:** `iframe-blocked` (sem `frame.hello` em 8 s), `load-timeout` (sem `frame.ready` em 30 s), `permission-missing`, `capture-timeout`, `capture-failed` (após uma nova tentativa de 1 s), `storage-full`, `agent-missing`. O relatório mostra cada uma como fato.
+- **Controles:** pausar, retomar, pular página, cancelar. Aba do Estúdio oculta pausa o lote sozinha, porque `captureVisibleTab` só captura a aba visível; ao voltar a ficar visível, retoma. Com lote rodando, o fechamento da aba pede confirmação.
+- **Estimativa:** antes da primeira página, telas × páginas × base por modo (8 s rápido, 25 s experiência, 20 s momentos) mais 5 s de carga por página; depois, média das últimas 5 páginas concluídas. A UI mostra minutos arredondados.
 
 ## 5. Permissões (manifest)
 
@@ -160,22 +174,26 @@ Sem dados pessoais. `storage.local` via `storage.defineItem` do WXT, versionado 
 
 - `settings` (idioma, tema da UI, limite de telas, atalhos, modos padrão de captura)
 - `devices.custom[]`, `devices.favorites[]`, `kits[]` `{id, name, deviceIds[], orientation}`
+- Telas personalizadas (`devices.custom`, até 100) entram na biblioteca e podem ser favoritadas, como as do catálogo. Favorito é `presetId` do catálogo ou `id` de tela personalizada existente; excluir a tela remove o favorito na mesma ação, e a leitura não regrava a lista (ADR-022).
 - `captureDefaults` (formato, qualidade, mockup, fundo)
+- `studio.framedCapture` (versão 2: moldura, fundo, cor livre e escopo do "Print com moldura") e `studio.batch` (limite de páginas e última fonte do lote; estado de UI, fora do export)
 - Catálogo de aparelhos (Essenciais 12 + biblioteca ~45) **empacotado** em `packages/devices` como JSON tipado, nunca baixado.
 - `storage.session`: `studioTabs[]`, regras DNR ativas, estado de gravação.
 
 Export/import: JSON `{schema: 'neruz.pageview.settings', version, data}` validado com Valibot, máx. 1 MB. Schemas, versões, padrões e migrações de cada chave: [API.md](API.md) §7.
 
-## 7. Contrato interno (resumo; a especificação congelada está em [API.md](API.md), v1.2 de 2026-11-20, ADR-014 e ADR-016)
+## 7. Contrato interno (resumo; a especificação congelada está em [API.md](API.md), v1.6 de 2026-11-21, ADR-014, ADR-016, ADR-019 a ADR-022)
 
 Mensagens tipadas em `packages/core/messaging` como união discriminada no envelope `{v, type, frameId, seq, payload}` validada com Valibot no receptor; respostas `Reply` com erro tipado `NPV-*` e teto de tempo em todo pedido. Famílias:
 
-- `frame.*` (frame-agent → background → Estúdio pela Port `npv-studio`): `hello`, `ready`, `stable`, `sections`, `scroll`, `click`, `navigate`, `input`, `overflow`, `autoscroll.ended`, `error`.
-- `studio.*` (Estúdio → frame): `ping`, `metrics`, `measure`, `applyScroll`, `applyClick`, `applyInput`, `navigate`, `scrollTo`, `waitStable`, `warmup`, `hideFixed`, `restoreFixed`, `hideScrollbar`, `autoscroll.start|pause|resume|stop`, `emulate`.
+- `frame.*` (frame-agent → background → Estúdio pela Port `npv-studio`): `hello`, `ready`, `bye`, `stable`, `sections`, `scroll`, `click`, `navigate`, `input`, `overflow`, `autoscroll.ended`, `error`.
+- `studio.*` (Estúdio → frame): `ping`, `metrics`, `measure`, `applyScroll`, `applyClick`, `applyInput`, `navigate`, `scrollTo`, `waitStable`, `warmup`, `hideFixed`, `restoreFixed`, `hideScrollbar`, `autoscroll.start|pause|resume|stop|speed` (`speed` na v1.6: fator absoluto e recálculo da parte futura, §5.1 da API), `emulate`, `collectLinks` e `pageFacts` (v1.5, lote).
 - `bg.*` (Estúdio → background): `studio.enable|disable|launch`, `scripts.sync`, `frames.list`, `rec.arm|cancel|release`.
 - `ui.*` (background → Estúdio pela Port, eventos): `openUrl`, `actionClicked`. Ícone e atalho entram por `action.onClicked`, sem mensagem.
 - `rec.*` (background ↔ offscreen, eventos ao Estúdio): `start`, `stop`, `progress`, `started`, `done`, `failed`.
 - Background rejeita `sender.id` diferente, `sender.tab.id` fora de `studioTabs` e `frame.hello` de `frameId 0`; mutações de DNR e registro de scripts numa fila serial única.
+- Versão `v: 1` em todo envelope. Mudanças aditivas (campo opcional, comando novo) não sobem `v`; a v1.5 e a v1.6 foram aditivas. Nenhum formato gravado mudou na v1.6.
+- Tetos de tempo por pedido em API.md §8 (padrão 10 s; `studio.autoscroll.speed` 3 s; `rec.start` = `durationMs + 30 s`; sitemap 15 s por arquivo e 60 s na leitura inteira).
 
 ## 8. i18n
 

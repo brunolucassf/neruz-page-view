@@ -14,6 +14,7 @@ import { nextPaint } from '../capture/captureStore';
 import { type MessageKey, t } from '../i18n';
 import { type Screen, useStudio } from '../shell/studioStore';
 import { showToast } from '../toasts/toastStore';
+import { startScrollWatchdog, stopScrollWatchdog } from './recordingControls';
 import { pickTabZoom, planRecording, resolveOutputSize } from './recordingPlan';
 import {
   isRecordingBusy,
@@ -231,6 +232,7 @@ export async function runRecording(): Promise<void> {
         if (progress.phase === 'recording') {
           if (!useRecording.getState().recordingStartedAt) {
             useRecording.setState({ recordingStartedAt: Date.now() - progress.elapsedMs });
+            startScrollWatchdog(plan.scrollMs + pausesMs);
           }
           document.title = t('studio.video.tabIndicator');
         }
@@ -263,6 +265,7 @@ export async function runRecording(): Promise<void> {
       const { releaseRecording } = await import('@neruz/capture/video');
       await releaseRecording(client, recorded).catch(() => undefined);
     }
+    stopScrollWatchdog();
     document.title = originalTitle;
     await runRestores(restores);
     useRecording.setState({

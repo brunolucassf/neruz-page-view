@@ -118,10 +118,11 @@ export const loadCustomDevices = () => readChecked(CustomDevicesSchema, customDe
 export const saveCustomDevices = (devices: CustomDevice[]) =>
   writeChecked(CustomDevicesSchema, customDevicesItem, devices);
 
-export const loadFavorites = async (customDeviceIds: readonly string[] = []) =>
-  (await readChecked(FavoritesSchema, favoritesItem, [])).filter(
-    (id) => findDevice(id) || customDeviceIds.includes(id),
-  );
+export const keepKnownFavorites = (ids: readonly string[], customDeviceIds: readonly string[]) =>
+  ids.filter((id) => findDevice(id) || customDeviceIds.includes(id));
+
+export const loadFavorites = async (customDeviceIds: readonly string[]) =>
+  keepKnownFavorites(await readChecked(FavoritesSchema, favoritesItem, []), customDeviceIds);
 export const saveFavorites = (ids: string[]) =>
   writeChecked(FavoritesSchema, favoritesItem, ids.slice(0, MAX_FAVORITES));
 
@@ -145,15 +146,14 @@ export const saveBatchPreferences = (value: BatchPreferences) =>
   writeChecked(BatchPreferencesSchema, batchPreferencesItem, value);
 
 export async function buildSettingsExport(): Promise<SettingsExport> {
-  const [settings, captureDefaults, devicesCustom, devicesFavorites, kits, framedCapture] =
-    await Promise.all([
-      loadSettings(),
-      loadCaptureDefaults(),
-      loadCustomDevices(),
-      loadFavorites(),
-      loadKits(),
-      loadFramedCapture(),
-    ]);
+  const [settings, captureDefaults, devicesCustom, kits, framedCapture] = await Promise.all([
+    loadSettings(),
+    loadCaptureDefaults(),
+    loadCustomDevices(),
+    loadKits(),
+    loadFramedCapture(),
+  ]);
+  const devicesFavorites = await loadFavorites(devicesCustom.map((device) => device.id));
   return {
     schema: 'neruz.pageview.settings',
     version: 1,
@@ -172,7 +172,12 @@ export async function applySettingsExport(payload: SettingsExport): Promise<void
     saveSettings(data.settings),
     saveCaptureDefaults(data.captureDefaults),
     saveCustomDevices(data.devicesCustom),
-    saveFavorites(data.devicesFavorites),
+    saveFavorites(
+      keepKnownFavorites(
+        data.devicesFavorites,
+        data.devicesCustom.map((device) => device.id),
+      ),
+    ),
     saveKits(data.kits),
     ...(data.framedCapture ? [saveFramedCapture(toFramedCaptureV2(data.framedCapture))] : []),
   ]);
