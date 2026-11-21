@@ -1,4 +1,4 @@
-import type { FrameBackground } from '../../library/persistence';
+import type { FrameBackground } from '@neruz/core';
 import {
   BACKGROUND_SOURCE,
   canRotateFrame,

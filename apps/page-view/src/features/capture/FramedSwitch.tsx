@@ -1,3 +1,4 @@
+import { FRAME_BACKGROUNDS, type FrameBackground } from '@neruz/core';
 import { Button } from '@neruz/ui';
 import { useEffect, useState } from 'react';
 import {
@@ -14,11 +15,10 @@ import {
   Switch,
 } from 'react-aria-components';
 import { type MessageKey, t } from '../i18n';
-import { FRAME_BACKGROUNDS, type FrameBackground } from '../library/persistence';
 import { KIND_LABEL } from '../screens/presets';
 import { selectActiveScreen, useStudio } from '../shell/studioStore';
 import { composeLargePreview, usePreview } from './framedPreview';
-import { DEFAULT_CUSTOM_COLOR, useFramed } from './framedStore';
+import { useFramed } from './framedStore';
 import { BACKGROUND_FILL, FRAME_KINDS, type FrameKind, getFrameAsset, toFrameKind } from './frames';
 import type { FramedScope } from './framing/layout';
 import './framed.css';
@@ -75,13 +75,13 @@ export function FramedSwitch() {
 function FrameThumbnail() {
   const kind = useFrameKind();
   const background = useFramed((state) => state.background);
-  const isCustomColor = useFramed((state) => state.isCustomColor);
-  const customColor = useFramed((state) => state.customColor);
+  const backgroundColor = useFramed((state) => state.backgroundColor);
+  const isCustomColor = background === 'custom';
   const isDark = useStudio((state) => selectActiveScreen(state)?.isDark ?? false);
   const previewUrl = usePreview((state) => state.url);
   const asset = getFrameAsset(kind, isDark);
   const isLandscape = asset.width > asset.height;
-  const fill = isCustomColor ? customColor : BACKGROUND_FILL[background];
+  const fill = isCustomColor ? backgroundColor : BACKGROUND_FILL[background];
 
   if (previewUrl) return <PreviewThumbnail previewUrl={previewUrl} fill={fill} />;
 
@@ -160,7 +160,7 @@ function FramePicker() {
             className="pv-menu"
             selectionMode="single"
             selectedKeys={[kind]}
-            onAction={(key) => patch({ frameDeviceId: String(key) })}
+            onAction={(key) => patch({ frameDeviceId: key as FrameKind })}
           >
             {FRAME_KINDS.map((item) => (
               <MenuItem key={item} id={item} className="pv-menu__item">
@@ -176,8 +176,8 @@ function FramePicker() {
 
 function BackgroundPicker() {
   const background = useFramed((state) => state.background);
-  const isCustomColor = useFramed((state) => state.isCustomColor);
-  const customColor = useFramed((state) => state.customColor);
+  const backgroundColor = useFramed((state) => state.backgroundColor);
+  const isCustomColor = background === 'custom';
   const patch = useFramed((state) => state.patch);
   const chooseCustomColor = useFramed((state) => state.chooseCustomColor);
   return (
@@ -203,12 +203,12 @@ function BackgroundPicker() {
       <label
         className="framed__swatch framed__swatch--color"
         data-selected={isCustomColor || undefined}
-        style={{ '--swatch': customColor } as React.CSSProperties}
+        style={{ '--swatch': backgroundColor } as React.CSSProperties}
       >
         <input
           className="framed__color-input"
           type="color"
-          value={customColor || DEFAULT_CUSTOM_COLOR}
+          value={backgroundColor}
           aria-label={t('studio.capture.background.custom')}
           onChange={(event) => chooseCustomColor(event.target.value)}
         />

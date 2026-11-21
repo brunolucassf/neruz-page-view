@@ -19,7 +19,7 @@ function buildCacheKey(): string {
     framed.isEnabled,
     framed.frameDeviceId,
     framed.background,
-    framed.isCustomColor ? framed.customColor : '-',
+    framed.background === 'custom' ? framed.backgroundColor : '-',
     framed.scope,
   ].join('|');
 }

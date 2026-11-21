@@ -1,3 +1,4 @@
+import { MAX_IMAGE_QUALITY, MIN_IMAGE_QUALITY } from '@neruz/core';
 import { CutMarks, RotateIcon, Button as UiButton } from '@neruz/ui';
 import { ChevronDown } from 'lucide-react';
 import { lazy, Suspense } from 'react';
@@ -20,7 +21,6 @@ import { ResultSection } from '../export/ResultSection';
 import { type MessageKey, t } from '../i18n';
 import { isRecordingBusy, type PanelTab, useRecording } from '../recording/recordingState';
 import { KIND_LABEL, MAX_SCREEN_SIZE, MIN_SCREEN_SIZE } from '../screens/presets';
-import { MAX_IMAGE_QUALITY, MIN_IMAGE_QUALITY } from '../settings/persistence';
 import { selectActiveScreen, useStudio } from '../shell/studioStore';
 import { CaptureButton } from './CaptureButton';
 import {

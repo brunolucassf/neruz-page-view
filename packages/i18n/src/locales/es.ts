@@ -201,11 +201,11 @@ export const es: Record<MessageKey, string> = {
   'settings.theme.dark': 'Oscuro',
   'settings.theme.light': 'Claro',
   'settings.maxScreens.label': 'Pantallas activas a la vez',
-  'settings.maxScreens.hint': 'De 1 a 16. Menos pantallas mantienen tu computadora más liviana.',
+  'settings.maxScreens.hint': 'De 1 a 16. Con menos pantallas, tu computadora trabaja más liviana.',
   'settings.shortcuts.title': 'Atajos',
   'shortcuts.remap': 'Cambiar atajos',
-  'settings.capture.title': 'Valores de captura',
-  'settings.capture.quality': 'Calidad (JPEG y WebP)',
+  'settings.capture.title': 'Opciones de captura',
+  'settings.capture.quality': 'Calidad (JPG y WebP)',
   'settings.data.title': 'Tus datos',
   'settings.data.hint':
     'Todo se queda en este navegador. El archivo exportado incluye tus preferencias, favoritos y kits.',
@@ -216,11 +216,11 @@ export const es: Record<MessageKey, string> = {
   'settings.data.import.error':
     'Este archivo no parece de ajustes de Neruz Page View. No se cambió nada.',
   'settings.data.import.tooBig': 'Archivo demasiado grande (máx. 1 MB).',
-  'studio.capture.framed.scope.label': 'Cuánto de la página',
-  'studio.capture.framed.scope.fold': 'Solo la primera pantalla',
+  'studio.capture.framed.scope.label': 'Qué parte de la página',
+  'studio.capture.framed.scope.fold': 'Solo la parte de arriba',
   'studio.capture.framed.scope.full': 'Página completa',
   'studio.capture.framed.scope.fullHint':
-    'El marco se alarga para que quepa la página. Las pantallas giradas usan solo la primera pantalla.',
+    'El marco se alarga para que quepa toda la página. Las pantallas giradas muestran solo la parte de arriba.',
   'studio.capture.framed.previewOpen': 'Ver vista previa más grande',
   'studio.capture.background.custom': 'Otro color',
   'studio.capture.advanced.quality': 'Calidad',
@@ -248,7 +248,7 @@ export const es: Record<MessageKey, string> = {
   'studio.video.preset.label': 'Formato del video',
   'studio.video.preset.vertical': 'Vertical 1080x1920 (Reels, Stories)',
   'studio.video.preset.horizontal': 'Horizontal 1920x1080',
-  'studio.video.preset.screen': 'Pantalla completa, tamaño de la pantalla',
+  'studio.video.preset.screen': 'Igual que la pantalla grabada',
   'studio.video.screen.label': 'Pantalla a grabar',
   'studio.video.speed.label': 'Velocidad de desplazamiento',
   'studio.video.speed.slow': 'Lenta',
@@ -268,7 +268,7 @@ export const es: Record<MessageKey, string> = {
   'studio.video.result.meta': '{format} · {w}x{h} · {seconds} s · {size} MB',
   'studio.video.result.title': 'Último video',
   'studio.video.gif.cta': 'Generar GIF',
-  'studio.video.gif.note': 'El GIF usa hasta 15 s y 720 px de ancho.',
+  'studio.video.gif.note': 'El GIF dura hasta 15 s, con 720 px de ancho.',
   'studio.video.gif.working': 'Generando el GIF',
   'studio.video.gif.trimmed': 'GIF listo, recortado a los primeros 15 s.',
   'studio.video.error.gesture':
@@ -276,7 +276,8 @@ export const es: Record<MessageKey, string> = {
   'studio.video.error.busy': 'Ya hay una grabación en curso.',
   'studio.video.error.permission':
     'Sin el permiso para capturar esta pestaña no se puede grabar. Inténtalo de nuevo y acepta la solicitud del navegador.',
-  'studio.video.error.encoder': 'Este navegador no puede generar video en este formato.',
+  'studio.video.error.encoder':
+    'Este navegador no puede crear el video. Actualizar el navegador puede solucionarlo.',
   'studio.video.error.noPage': 'Abre una página y espera a que la pantalla cargue para grabar.',
   'queue.step.encoding': 'Generando el video',
   'state.success.video': 'Video listo.',

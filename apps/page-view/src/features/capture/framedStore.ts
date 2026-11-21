@@ -1,50 +1,63 @@
+import { DEFAULT_FRAMED_CAPTURE, type FramedCapture, type FramedScope } from '@neruz/core';
 import { create } from 'zustand';
-import {
-  DEFAULT_FRAMED_CAPTURE,
-  type FramedCapturePrefs,
-  loadFramedCapture,
-  saveFramedCapture,
-} from '../library/persistence';
+import { loadFramedCapture, saveFramedCapture } from '../storage/items';
 import type { FramedBackground } from './framing/composeFramed';
-import type { FramedScope } from './framing/layout';
 
-export const DEFAULT_CUSTOM_COLOR = '#C8D4E0';
+const COLOR_SAVE_DEBOUNCE_MS = 300;
 
-type FramedState = FramedCapturePrefs & {
-  isCustomColor: boolean;
-  customColor: string;
-  scope: FramedScope;
+type FramedPatch = Partial<Pick<FramedCapture, 'isEnabled' | 'frameDeviceId' | 'background'>>;
+
+type FramedState = FramedCapture & {
   hydrate: () => Promise<void>;
-  patch: (patch: Partial<FramedCapturePrefs>) => void;
+  patch: (patch: FramedPatch) => void;
   chooseCustomColor: (color: string) => void;
   setScope: (scope: FramedScope) => void;
 };
 
-export const useFramed = create<FramedState>()((set, get) => ({
-  ...DEFAULT_FRAMED_CAPTURE,
-  isCustomColor: false,
-  customColor: DEFAULT_CUSTOM_COLOR,
-  scope: 'fold',
+let colorSaveTimer: ReturnType<typeof setTimeout> | undefined;
 
-  hydrate: async () => set(await loadFramedCapture()),
+function cancelPendingColorSave(): void {
+  clearTimeout(colorSaveTimer);
+  colorSaveTimer = undefined;
+}
 
-  patch: (patch) => {
-    set(patch.background ? { ...patch, isCustomColor: false } : patch);
-    const { isEnabled, frameDeviceId, background } = get();
-    void saveFramedCapture({ isEnabled, frameDeviceId, background });
-  },
+export const useFramed = create<FramedState>()((set, get) => {
+  const persist = () => {
+    cancelPendingColorSave();
+    const { isEnabled, frameDeviceId, background, backgroundColor, scope } = get();
+    void saveFramedCapture({ isEnabled, frameDeviceId, background, backgroundColor, scope });
+  };
 
-  chooseCustomColor: (color) => set({ customColor: color, isCustomColor: true }),
+  return {
+    ...DEFAULT_FRAMED_CAPTURE,
 
-  setScope: (scope) => set({ scope }),
-}));
+    hydrate: async () => {
+      cancelPendingColorSave();
+      set(await loadFramedCapture());
+    },
 
-export function selectFramedBackground(state: {
-  isCustomColor: boolean;
-  customColor: string;
-  background: FramedCapturePrefs['background'];
-}): FramedBackground {
-  return state.isCustomColor
-    ? { kind: 'color', color: state.customColor }
+    patch: (patch) => {
+      set(patch);
+      persist();
+    },
+
+    chooseCustomColor: (color) => {
+      set({ background: 'custom', backgroundColor: color.toUpperCase() });
+      cancelPendingColorSave();
+      colorSaveTimer = setTimeout(persist, COLOR_SAVE_DEBOUNCE_MS);
+    },
+
+    setScope: (scope) => {
+      set({ scope });
+      persist();
+    },
+  };
+});
+
+export function selectFramedBackground(
+  state: Pick<FramedCapture, 'background' | 'backgroundColor'>,
+): FramedBackground {
+  return state.background === 'custom'
+    ? { kind: 'color', color: state.backgroundColor }
     : { kind: 'preset', id: state.background };
 }

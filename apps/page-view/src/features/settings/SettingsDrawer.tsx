@@ -1,3 +1,10 @@
+import {
+  MAX_IMAGE_QUALITY,
+  MAX_MAX_SCREENS,
+  MIN_IMAGE_QUALITY,
+  MIN_MAX_SCREENS,
+  type ThemePreference,
+} from '@neruz/core';
 import { LOCALE_NATIVE_NAMES, LOCALE_PREFERENCES, type LocalePreference } from '@neruz/i18n';
 import { Button, IconButton } from '@neruz/ui';
 import { Download, Settings as SettingsIcon, Upload, X } from 'lucide-react';
@@ -20,13 +27,6 @@ import { type MessageKey, t } from '../i18n';
 import { SHORTCUTS } from '../shell/Dialogs';
 import { showToast } from '../toasts/toastStore';
 import { exportSettingsFile, importSettingsFile } from './dataTransfer';
-import {
-  MAX_IMAGE_QUALITY,
-  MAX_MAX_SCREENS,
-  MIN_IMAGE_QUALITY,
-  MIN_MAX_SCREENS,
-  type ThemePreference,
-} from './persistence';
 import { useSettings } from './settingsStore';
 import './settings.css';
 

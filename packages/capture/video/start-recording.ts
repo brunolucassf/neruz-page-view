@@ -4,6 +4,7 @@ import {
   type RecResult,
   type StudioClient,
   type StudioEvent,
+  studioScrollTo,
 } from '@neruz/core';
 import { type AutoscrollRequest, createAutoscrollDriver } from './autoscroll-driver';
 import {
@@ -30,6 +31,14 @@ const ensureTabCapturePermission = async () => {
   }
 };
 
+const resetScrollToTop = async (
+  client: StudioClient,
+  autoscroll: AutoscrollRequest | undefined,
+) => {
+  if (!autoscroll) return;
+  await client.command(studioScrollTo, autoscroll.screenId, { top: 0 }).catch(() => undefined);
+};
+
 const recordWithTabCapture = async (
   { config, client, autoscroll }: StartRecordingOptions,
   onProgress: (progress: RecordingProgress) => void,
@@ -39,6 +48,7 @@ const recordWithTabCapture = async (
   return new Promise<RecResult>((resolve, reject) => {
     let isSettled = false;
     let hasStarted = false;
+    let hasStartedDriver = false;
     const driver = createAutoscrollDriver(client, autoscroll, () => void requestStop());
     const requestStop = () => client.cancelRecording().catch(() => undefined);
     const finish = (outcome: () => void) => {
@@ -54,16 +64,21 @@ const recordWithTabCapture = async (
       void requestStop();
       if (!hasStarted) fail(new NpvException('NPV-ABORTED', 'recording aborted'));
     };
+    const startDriver = () => {
+      if (hasStartedDriver) return;
+      hasStartedDriver = true;
+      driver.start().catch((cause) => {
+        void requestStop();
+        fail(cause);
+      });
+    };
     const handleEvent = (event: StudioEvent) => {
       driver.handleEvent(event);
-      if (event.type === 'rec.progress') onProgress(event.payload);
-      else if (event.type === 'rec.started') {
-        hasStarted = true;
-        driver.start().catch((cause) => {
-          void requestStop();
-          fail(cause);
-        });
-      } else if (event.type === 'rec.done') finish(() => resolve(event.payload));
+      if (event.type === 'rec.progress') {
+        onProgress(event.payload);
+        if (event.payload.phase === 'recording') startDriver();
+      } else if (event.type === 'rec.started') hasStarted = true;
+      else if (event.type === 'rec.done') finish(() => resolve(event.payload));
       else if (event.type === 'rec.failed') {
         const { code, message, details } = event.payload.error;
         fail(new NpvException(code, message, details));
@@ -71,8 +86,8 @@ const recordWithTabCapture = async (
     };
     const stopListening = client.onEvent(handleEvent);
     signal?.addEventListener('abort', handleAbort, { once: true });
-    client
-      .armRecording({ ...config, tryStartNow: true })
+    resetScrollToTop(client, autoscroll)
+      .then(() => client.armRecording({ ...config, tryStartNow: true }))
       .then(({ started }) => {
         if (!started && !isSettled) {
           onProgress({

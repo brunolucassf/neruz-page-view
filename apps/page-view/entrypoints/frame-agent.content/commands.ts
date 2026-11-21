@@ -16,6 +16,7 @@ import {
   studioAutoscrollStop,
   studioHideFixed,
   studioHideScrollbar,
+  studioMeasure,
   studioMessages,
   studioMetrics,
   studioPing,
@@ -28,6 +29,7 @@ import {
 } from '@neruz/core';
 import { resolveAnchorScrollTop } from './anchor-dom';
 import { pauseAutoscroll, resumeAutoscroll, startAutoscroll, stopAutoscroll } from './autoscroll';
+import { measurePage } from './measure';
 import { hideFixedElements, restoreFixedElements, setScrollbarHidden } from './page-overrides';
 import { waitStable, warmup } from './stability';
 import { maxScrollTop, nextPaint, scrollInstantly } from './timing';
@@ -56,6 +58,7 @@ const readMetrics = () => ({
 const buildHandlers = ({ onScrollApplied }: CommandContext): CommandHandler[] => [
   { definition: studioPing, run: () => ({}) },
   { definition: studioMetrics, run: readMetrics },
+  { definition: studioMeasure, run: measurePage },
   {
     definition: studioApplyScroll,
     run: (payload: PayloadOf<typeof studioApplyScroll>) => {

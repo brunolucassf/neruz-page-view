@@ -15,4 +15,6 @@ export * from './scroll/anchor';
 export * from './scroll/autoscroll-timeline';
 export * from './security/frame-registry';
 export * from './security/sender';
+export * from './storage/migrations';
+export * from './storage/schemas';
 export * from './types';

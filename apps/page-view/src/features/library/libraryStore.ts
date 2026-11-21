@@ -1,20 +1,18 @@
 import type { ScreenId } from '@neruz/core';
+import { DEFAULT_ONBOARDING, type Kit, type StudioOnboarding } from '@neruz/core';
 import { DEVICE_CATEGORIES, type Device, type DeviceCategory } from '@neruz/devices';
 import { create } from 'zustand';
 import { t } from '../i18n';
 import { selectCanSaveKit, useStudio } from '../shell/studioStore';
-import { showToast } from '../toasts/toastStore';
 import {
-  DEFAULT_ONBOARDING,
-  type Kit,
   loadFavorites,
   loadKits,
   loadOnboarding,
-  type Onboarding,
   saveFavorites,
   saveKits,
   saveOnboarding,
-} from './persistence';
+} from '../storage/items';
+import { showToast } from '../toasts/toastStore';
 
 export type LibrarySection = 'essentials' | 'favorites' | 'kits' | DeviceCategory;
 
@@ -32,7 +30,7 @@ type LibraryState = {
   openSections: Partial<Record<LibrarySection, boolean>>;
   favorites: string[];
   kits: Kit[];
-  onboarding: Onboarding;
+  onboarding: StudioOnboarding;
   isWelcomeOpen: boolean;
   isHintVisible: boolean;
   isHydrated: boolean;
@@ -54,7 +52,7 @@ type LibraryActions = {
   setShortcutsOpen: (isOpen: boolean) => void;
 };
 
-const patchOnboarding = (patch: Partial<Onboarding>) => {
+const patchOnboarding = (patch: Partial<StudioOnboarding>) => {
   const next = { ...useLibrary.getState().onboarding, ...patch };
   useLibrary.setState({ onboarding: next });
   void saveOnboarding(next);

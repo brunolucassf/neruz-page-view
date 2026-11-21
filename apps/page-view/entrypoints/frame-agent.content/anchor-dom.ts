@@ -13,7 +13,7 @@ const ANCHOR_CANDIDATES = 'main > *, body > section, section, article, footer';
 const MAX_CANDIDATES = 300;
 const MAX_SELECTOR_DEPTH = 5;
 
-const buildSelector = (element: Element): string => {
+export const buildSelector = (element: Element): string => {
   if (element.id) return `#${CSS.escape(element.id)}`;
   const parts: string[] = [];
   let current: Element | null = element;

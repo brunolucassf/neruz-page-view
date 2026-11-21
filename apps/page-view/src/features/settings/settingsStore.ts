@@ -1,14 +1,16 @@
-import { create } from 'zustand';
 import {
   type CaptureDefaults,
   DEFAULT_CAPTURE_DEFAULTS,
   DEFAULT_SETTINGS,
+  type Settings,
+} from '@neruz/core';
+import { create } from 'zustand';
+import {
   loadCaptureDefaults,
   loadSettings,
-  type Settings,
   saveCaptureDefaults,
   saveSettings,
-} from './persistence';
+} from '../storage/items';
 
 type SettingsState = {
   settings: Settings;

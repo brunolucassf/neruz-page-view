@@ -1,6 +1,6 @@
+import type { ThemePreference } from '@neruz/core';
 import { useCapture } from '../capture/captureStore';
 import { useLocale } from '../i18n';
-import type { ThemePreference } from './persistence';
 import { useSettings } from './settingsStore';
 
 const DARK_QUERY = '(prefers-color-scheme: dark)';

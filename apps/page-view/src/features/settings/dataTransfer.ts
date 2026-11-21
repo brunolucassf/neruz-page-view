@@ -1,8 +1,9 @@
+import { SettingsExportSchema } from '@neruz/core';
 import * as v from 'valibot';
 import { downloadBlob } from '../capture/captureOutput';
 import { useFramed } from '../capture/framedStore';
 import { useLibrary } from '../library/libraryStore';
-import { applySettingsExport, buildSettingsExport, SettingsExportSchema } from './persistence';
+import { applySettingsExport, buildSettingsExport } from '../storage/items';
 import { hydrateSettings } from './settingsEffects';
 
 export const MAX_IMPORT_BYTES = 1024 * 1024;

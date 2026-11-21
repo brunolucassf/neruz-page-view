@@ -45,7 +45,7 @@ async function frameResult(shot: CapturedShot): Promise<CaptureResult> {
 
 export async function applyFrame(shot: CapturedShot): Promise<CapturedShot> {
   const state = useFramed.getState();
-  const isTransparent = !state.isCustomColor && state.background === 'transparent';
+  const isTransparent = state.background === 'transparent';
   return { ...shot, isFramed: true, hasAlpha: isTransparent, result: await frameResult(shot) };
 }
 

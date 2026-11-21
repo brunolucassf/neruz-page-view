@@ -1,3 +1,4 @@
+import type { FrameBackground } from '@neruz/core';
 import type { DeviceCategory } from '@neruz/devices';
 import backgroundIceSource from '@neruz/ui/frames/bg-ice.svg?raw';
 import backgroundNightSource from '@neruz/ui/frames/bg-night.svg?raw';
@@ -23,7 +24,6 @@ import frameTabletDark from '@neruz/ui/frames/frame-tablet-dark.svg?url';
 import frameTabletLightSource from '@neruz/ui/frames/frame-tablet-light.svg?raw';
 import frameTabletLight from '@neruz/ui/frames/frame-tablet-light.svg?url';
 import frameManifest from '@neruz/ui/frames/frames.json';
-import type { FrameBackground } from '../library/persistence';
 import type { ScreenKind } from '../screens/presets';
 
 export type FrameKind = Exclude<DeviceCategory, 'tv'>;
