@@ -96,15 +96,25 @@ function setupCopyButtons(): void {
 function setupMobileBar(): void {
   const bar = document.querySelector<HTMLElement>('[data-mobile-cta]');
   const heroCta = document.querySelector<HTMLElement>('[data-hero-cta]');
+  const finalCta = document.querySelector<HTMLElement>('[data-final-cta]');
   if (!bar || !heroCta) return;
   bar.hidden = false;
   bar.inert = true;
-  const observer = new IntersectionObserver(([entry]) => {
-    const shouldShow = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+  const state = { isPastHero: false, isFinalVisible: false };
+  const update = () => {
+    const shouldShow = state.isPastHero && !state.isFinalVisible;
     bar.classList.toggle('is-visible', shouldShow);
     bar.inert = !shouldShow;
-  });
-  observer.observe(heroCta);
+  };
+  new IntersectionObserver(([entry]) => {
+    state.isPastHero = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+    update();
+  }).observe(heroCta);
+  if (!finalCta) return;
+  new IntersectionObserver(([entry]) => {
+    state.isFinalVisible = entry.isIntersecting;
+    update();
+  }).observe(finalCta);
 }
 
 export function initStoreCta(): void {

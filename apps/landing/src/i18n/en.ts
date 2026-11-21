@@ -88,6 +88,120 @@ export const en: LandingCopy = {
     recording: 'Recording {time}',
     sections: ['Home', 'Menu', 'About', 'Footer'],
   },
+  sceneFolder: {
+    stepLabel: 'Multiple pages',
+    title: 'The whole site, in one folder.',
+    subtitle:
+      'Paste a list of URLs, use the sitemap or let the extension follow internal links. Pages are captured one by one, and at the end you download a tidy ZIP with a report of what was done.',
+    note: 'You see the page limit before starting, follow the progress and can cancel anytime. The report sticks to facts: what was captured, what was skipped and why.',
+    urlListLabel: 'Page list',
+    exampleTag: 'example',
+    counter: 'Page {n} of {total}',
+    folderName: 'forno27.zip',
+    reportTitle: 'Report',
+    reportLines: [
+      '4 pages captured',
+      '0 pages skipped',
+      'Screen: Phone · 390 px',
+      'Horizontal scroll: none',
+    ],
+    pages: [
+      { title: 'Forno 27', line: 'Warm bread, small batches, every day.', url: 'forno27.example' },
+      {
+        title: 'Menu',
+        line: 'Breads, pastries and cakes, baked through the day.',
+        url: 'forno27.example/menu',
+      },
+      {
+        title: 'About',
+        line: 'A family recipe, now in a bigger oven.',
+        url: 'forno27.example/about',
+      },
+      {
+        title: 'Contact',
+        line: 'A demo bakery: no address, no phone.',
+        url: 'forno27.example/contact',
+      },
+    ],
+    visualLabel:
+      'Example with a fictional bakery: four pages are captured one after another and go into a ZIP, along with the report.',
+  },
+  sceneLocal: {
+    stepLabel: 'Privacy',
+    title: 'Everything happens on your computer.',
+    subtitle:
+      'The extension has no server, asks for no sign-up and collects no data. Your screenshots and videos are made in the browser and go only where you save them.',
+    note: 'Screenshots can show whatever is on screen, like emails or logged-in dashboards. Worth a quick check before sharing.',
+    privacyLink: 'Read the privacy policy',
+    codeLink: 'See the permissions in the code',
+    whenLabel: "When it's requested",
+    laptopLabel:
+      'Illustration: the window, the phone and the screenshot strip from the earlier scenes sit inside the outline of a laptop.',
+    cards: [
+      {
+        permission: 'storage',
+        title: 'Remember your settings',
+        what: 'Saves kits, favorites and preferences in your own browser.',
+        when: 'On install',
+      },
+      {
+        permission: 'activeTab + scripting',
+        title: "Work with the tab you're on",
+        what: 'When you click the icon, the extension reaches only the current tab to take the screenshot or follow the scroll.',
+        when: 'On install, used only when you click',
+      },
+      {
+        permission: 'per-site access · optional',
+        title: 'Show a site on the screens',
+        what: 'You allow one site at a time and can revoke it anytime in Settings.',
+        when: 'When needed, only for the site you open',
+      },
+      {
+        permission: 'declarativeNetRequestWithHostAccess',
+        title: 'Open sites that block embedding',
+        what: 'Many sites refuse to appear inside another page. The extension adjusts this only in its own screens, only on sites you allowed, and undoes it when you close them.',
+        when: 'On install, acts only on allowed sites',
+      },
+      {
+        permission: 'offscreen',
+        title: 'Build videos without freezing',
+        what: 'A hidden page inside the extension puts videos and images together while you keep working.',
+        when: 'On install',
+      },
+      {
+        permission: 'tabCapture · optional',
+        title: 'Record the tab',
+        what: 'Needed to record video. A recording indicator stays visible the whole time.',
+        when: 'Only on your first recording',
+      },
+      {
+        permission: 'clipboardWrite · optional',
+        title: 'Copy the image',
+        what: 'Puts the screenshot on your clipboard so you can paste it anywhere.',
+        when: 'Only when you use Copy',
+      },
+    ],
+  },
+  sceneOpen: {
+    stepLabel: 'Open source',
+    title: 'Free, open source and open to anyone who wants to help.',
+    subtitle:
+      "Neruz Page View is MIT licensed: read every line, report a bug, suggest an improvement or adapt it to your needs. There's no paid version and no Pro plan.",
+    ask: 'If it helps you, a star on GitHub helps other people find it.',
+    umbrella: 'This is the first extension from Neruz Extensions. More are on the way.',
+    contribute: 'How to contribute',
+    license: 'MIT license',
+    codeLabel: 'A snippet of the SVG code that draws the Neruz Page View symbol',
+    outlineWord: 'Neruz Extensions',
+  },
+  sceneFinal: {
+    stepLabel: 'Install',
+    title: 'Try it on the next site you open.',
+    subtitle:
+      "Free, no sign-up, no data collected. If it's not for you, just remove it like any other extension.",
+    windowTitle: 'Neruz Page View',
+    widthLabel: 'Window width',
+  },
   ruler: {
     label: 'Go to section',
     counter: 'Scene {n} of {total}',
@@ -96,6 +210,10 @@ export const en: LandingCopy = {
       { id: 'um-clique', label: 'Two clicks, and your screenshot is ready to share.' },
       { id: 'role-uma-tela', label: 'Scroll one screen. They all follow.' },
       { id: 'pagina-rola-sozinha', label: 'The page scrolls itself. You just hit Record.' },
+      { id: 'site-numa-pasta', label: 'The whole site, in one folder.' },
+      { id: 'tudo-no-computador', label: 'Everything happens on your computer.' },
+      { id: 'codigo-aberto', label: 'Free, open source and open to anyone who wants to help.' },
+      { id: 'instalar', label: 'Try it on the next site you open.' },
     ],
   },
   footer: {

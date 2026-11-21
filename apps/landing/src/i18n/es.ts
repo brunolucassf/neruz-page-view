@@ -88,6 +88,124 @@ export const es: LandingCopy = {
     recording: 'Grabando {time}',
     sections: ['Inicio', 'Menú', 'Acerca de', 'Pie'],
   },
+  sceneFolder: {
+    stepLabel: 'Varias páginas',
+    title: 'Todo el sitio, en una sola carpeta.',
+    subtitle:
+      'Pega una lista de direcciones, usa el sitemap o deja que la extensión siga los enlaces internos. Las páginas se capturan una tras otra y, al final, descargas un ZIP ordenado con un informe de lo que se hizo.',
+    note: 'Ves el límite de páginas antes de empezar, sigues el progreso y puedes cancelar cuando quieras. El informe solo trae hechos: qué se capturó, qué se omitió y por qué.',
+    urlListLabel: 'Lista de páginas',
+    exampleTag: 'ejemplo',
+    counter: 'Página {n} de {total}',
+    folderName: 'forno27.zip',
+    reportTitle: 'Informe',
+    reportLines: [
+      '4 páginas capturadas',
+      '0 páginas omitidas',
+      'Pantalla: Celular · 390 px',
+      'Scroll horizontal: ninguno',
+    ],
+    pages: [
+      {
+        title: 'Forno 27',
+        line: 'Pan caliente, hornadas pequeñas, cada día.',
+        url: 'forno27.example',
+      },
+      {
+        title: 'Menú',
+        line: 'Panes, hojaldres y bizcochos que salen durante el día.',
+        url: 'forno27.example/menu',
+      },
+      {
+        title: 'Nosotros',
+        line: 'Una receta familiar, ahora en un horno más grande.',
+        url: 'forno27.example/nosotros',
+      },
+      {
+        title: 'Contacto',
+        line: 'Panadería de demostración: sin dirección ni teléfono.',
+        url: 'forno27.example/contacto',
+      },
+    ],
+    visualLabel:
+      'Ejemplo con una panadería ficticia: cuatro páginas se capturan una tras otra y van a un ZIP, junto con el informe.',
+  },
+  sceneLocal: {
+    stepLabel: 'Privacidad',
+    title: 'Todo pasa en tu computadora.',
+    subtitle:
+      'La extensión no tiene servidor, no pide registro y no recopila datos. Tus capturas y videos se crean en el navegador y van solo adonde tú los guardes.',
+    note: 'Las capturas pueden mostrar lo que haya en pantalla, como correos o paneles con sesión iniciada. Conviene revisarlas antes de compartir.',
+    privacyLink: 'Leer la política de privacidad',
+    codeLink: 'Ver los permisos en el código',
+    whenLabel: 'Cuándo se pide',
+    laptopLabel:
+      'Ilustración: la ventana, el celular y la tira de capturas de las escenas anteriores quedan dentro del contorno de una laptop.',
+    cards: [
+      {
+        permission: 'storage',
+        title: 'Guardar tus preferencias',
+        what: 'Guarda kits, favoritos y ajustes en tu propio navegador.',
+        when: 'Al instalar',
+      },
+      {
+        permission: 'activeTab + scripting',
+        title: 'Usar la pestaña que estás viendo',
+        what: 'Al hacer clic en el ícono, la extensión accede solo a la pestaña actual para la captura o para seguir el scroll.',
+        when: 'Al instalar, se usa solo cuando haces clic',
+      },
+      {
+        permission: 'acceso por sitio · opcional',
+        title: 'Mostrar un sitio en las pantallas',
+        what: 'Das permiso sitio por sitio y puedes quitarlo cuando quieras en Ajustes.',
+        when: 'En el momento, solo para el sitio que abras',
+      },
+      {
+        permission: 'declarativeNetRequestWithHostAccess',
+        title: 'Abrir sitios que bloquean la vista',
+        what: 'Muchos sitios no aceptan aparecer dentro de otra página. La extensión lo ajusta solo en sus pantallas, solo en los sitios que permitiste, y lo deshace al cerrar.',
+        when: 'Al instalar, actúa solo en sitios permitidos',
+      },
+      {
+        permission: 'offscreen',
+        title: 'Armar videos sin trabarse',
+        what: 'Una página invisible de la propia extensión arma videos e imágenes mientras sigues usando la ventana.',
+        when: 'Al instalar',
+      },
+      {
+        permission: 'tabCapture · opcional',
+        title: 'Grabar la pestaña',
+        what: 'Necesario para grabar video. Un indicador queda visible todo el tiempo.',
+        when: 'Solo en la primera grabación',
+      },
+      {
+        permission: 'clipboardWrite · opcional',
+        title: 'Copiar la imagen',
+        what: 'Pone la captura en el portapapeles para que la pegues donde quieras.',
+        when: 'Solo cuando usas Copiar',
+      },
+    ],
+  },
+  sceneOpen: {
+    stepLabel: 'Código abierto',
+    title: 'Gratis, de código abierto y abierto a quien quiera ayudar.',
+    subtitle:
+      'Neruz Page View usa la licencia MIT: puedes leer cada línea, reportar un error, sugerir una mejora o adaptarlo a lo que necesites. No hay versión de pago ni plan Pro.',
+    ask: 'Si te sirve, una estrella en GitHub ayuda a que más personas lo encuentren.',
+    umbrella: 'Es la primera extensión de Neruz Extensions. Vienen más en camino.',
+    contribute: 'Cómo contribuir',
+    license: 'Licencia MIT',
+    codeLabel: 'Fragmento del código SVG que dibuja el símbolo de Neruz Page View',
+    outlineWord: 'Neruz Extensions',
+  },
+  sceneFinal: {
+    stepLabel: 'Instalar',
+    title: 'Pruébala en el próximo sitio que abras.',
+    subtitle:
+      'Gratis, sin registro y sin recopilar datos. Si no es para ti, la quitas como cualquier otra extensión.',
+    windowTitle: 'Neruz Page View',
+    widthLabel: 'Ancho de la ventana',
+  },
   ruler: {
     label: 'Ir a la sección',
     counter: 'Escena {n} de {total}',
@@ -96,6 +214,10 @@ export const es: LandingCopy = {
       { id: 'um-clique', label: 'Dos clics y la captura ya está lista para mostrar.' },
       { id: 'role-uma-tela', label: 'Haz scroll en una pantalla. Todas te siguen.' },
       { id: 'pagina-rola-sozinha', label: 'La página se desplaza sola. Tú solo presionas Grabar.' },
+      { id: 'site-numa-pasta', label: 'Todo el sitio, en una sola carpeta.' },
+      { id: 'tudo-no-computador', label: 'Todo pasa en tu computadora.' },
+      { id: 'codigo-aberto', label: 'Gratis, de código abierto y abierto a quien quiera ayudar.' },
+      { id: 'instalar', label: 'Pruébala en el próximo sitio que abras.' },
     ],
   },
   footer: {

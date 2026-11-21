@@ -2,6 +2,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import { canUseWebGl, isMotion } from './env';
+import { initFinale } from './finale';
 import { initLanguageMenus } from './languageMenu';
 import { initScrollRuler } from './scrollRuler';
 import { initMotionStage, initStaticStage, type StageHandle } from './stage/stage';
@@ -61,7 +62,11 @@ function initMotion(journey: HTMLElement): void {
   gsap.ticker.add((time) => lenis.raf(time * 1000));
   gsap.ticker.lagSmoothing(0);
   const stage = initMotionStage(journey);
-  const updateRuler = initScrollRuler(stage.getSceneOffsets, (y) => lenis.scrollTo(y));
+  const finale = initFinale();
+  const updateRuler = initScrollRuler(
+    () => [...stage.getSceneOffsets(), ...finale.getSceneOffsets()],
+    (y) => lenis.scrollTo(y),
+  );
   lenis.on('scroll', () => {
     ScrollTrigger.update();
     updateRuler(lenis.scroll);
@@ -78,7 +83,10 @@ function boot(): void {
   const journey = document.querySelector<HTMLElement>('[data-journey]');
   if (!journey) return;
   if (isMotion) initMotion(journey);
-  else initStaticStage(journey);
+  else {
+    initStaticStage(journey);
+    initFinale();
+  }
 }
 
 boot();

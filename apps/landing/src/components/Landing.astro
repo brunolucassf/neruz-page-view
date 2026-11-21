@@ -4,6 +4,10 @@ import Base from '../layouts/Base.astro';
 import Hero from './Hero.astro';
 import Journey from './Journey.astro';
 import MobileCta from './MobileCta.astro';
+import SceneFinal from './SceneFinal.astro';
+import SceneFolder from './SceneFolder.astro';
+import SceneLocal from './SceneLocal.astro';
+import SceneOpen from './SceneOpen.astro';
 import ScrollRuler from './ScrollRuler.astro';
 import SiteFooter from './SiteFooter.astro';
 import SiteHeader from './SiteHeader.astro';
@@ -20,6 +24,10 @@ const { copy } = Astro.props;
   <main id="conteudo" tabindex="-1">
     <Hero copy={copy} />
     <Journey copy={copy} />
+    <SceneFolder copy={copy} />
+    <SceneLocal copy={copy} />
+    <SceneOpen copy={copy} />
+    <SceneFinal copy={copy} />
   </main>
   <SiteFooter copy={copy} />
   <ScrollRuler copy={copy} />

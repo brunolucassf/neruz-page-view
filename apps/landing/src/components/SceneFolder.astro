@@ -1,0 +1,559 @@
+---
+import type { LandingCopy } from '../i18n';
+
+interface Props {
+  copy: LandingCopy;
+}
+
+const { copy } = Astro.props;
+const scene = copy.sceneFolder;
+const thumbSections = ['home', 'menu', 'about', 'contact'] as const;
+const total = scene.pages.length;
+---
+
+<section
+  class="fold"
+  id="site-numa-pasta"
+  data-scene-id="site-numa-pasta"
+  aria-labelledby="fold-title"
+  data-fold
+  data-forno={JSON.stringify(copy.forno)}
+  data-counter={scene.counter}
+  data-total={total}
+>
+  <div class="scene-track scene-track--always" data-track>
+  <div class="fold__stage scene-stage">
+    <div class="fold__layout">
+      <div class="fold__text" data-fold-text>
+        <p class="scene-copy__index eyebrow">
+          <span>{scene.stepLabel}</span>
+          <span class="visually-hidden">
+            {copy.ruler.counter.replace('{n}', '5').replace('{total}', '8')}
+          </span>
+        </p>
+        <h2 id="fold-title" class="scene-copy__title fold__title">{scene.title}</h2>
+        <p class="scene-copy__subtitle fold__subtitle">{scene.subtitle}</p>
+        <p class="scene-copy__note fold__note fold__note--stage">{scene.note}</p>
+      </div>
+
+      <div class="fold__visual" role="img" aria-label={scene.visualLabel} data-fold-visual>
+        <div class="fold__list" data-fold-list>
+          <p class="fold__list-head cota-text">
+            <span>{scene.urlListLabel}</span>
+            <span class="fold__tag">{scene.exampleTag}</span>
+          </p>
+          <ol class="fold__urls">
+            {
+              scene.pages.map((page, index) => (
+                <li class="fold__url cota-text" data-fold-url={index} data-text={page.url}>
+                  <span class="fold__url-text" />
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+
+        <div class="fold__lane" data-fold-lane>
+          <p class="fold__counter cota-text" data-fold-counter>
+            {scene.counter.replace('{n}', '1').replace('{total}', String(total))} · {scene.exampleTag}
+          </p>
+          <span class="fold__progress"><i data-fold-progress></i></span>
+        </div>
+
+        <div class="fold__pages">
+          {
+            scene.pages.map((page, index) => (
+              <figure class="fold__page" data-fold-page={index}>
+                <canvas
+                  class="fold__thumb"
+                  width="216"
+                  height="288"
+                  data-fold-thumb={thumbSections[index]}
+                />
+                <figcaption class="fold__caption cota-text">{page.title}</figcaption>
+              </figure>
+            ))
+          }
+        </div>
+
+        <div class="fold__folder" data-fold-folder>
+          <svg class="fold__folder-back" viewBox="0 0 280 200" preserveAspectRatio="none" focusable="false">
+            <path d="M8 0H112L128 16H272L280 24V192L272 200H8L0 192V8Z"></path>
+          </svg>
+          <span class="fold__slot" data-folder-slot></span>
+          <div class="fold__report" data-fold-report>
+            <p class="fold__report-head cota-text">
+              <span>{scene.reportTitle}</span>
+              <span class="fold__tag">{scene.exampleTag}</span>
+            </p>
+            <ul class="fold__report-lines">
+              {scene.reportLines.map((line) => <li class="cota-text" data-fold-line>{line}</li>)}
+            </ul>
+          </div>
+          <svg class="fold__folder-front" viewBox="0 0 280 200" preserveAspectRatio="none" focusable="false">
+            <path d="M0 56H280V192L272 200H8L0 192Z"></path>
+          </svg>
+          <p class="fold__folder-name cota-text">{scene.folderName}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  <p class="scene-copy__note fold__note fold__note--flow">{scene.note}</p>
+</section>
+
+<style>
+  .fold {
+    position: relative;
+    background-color: var(--pv-bg-mat);
+    background-image:
+      linear-gradient(var(--pv-mat-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--pv-mat-grid) 1px, transparent 1px);
+    background-size: 64px 64px;
+    background-position: center top;
+  }
+
+  .fold .scene-track {
+    --scene-track: 120vh;
+  }
+
+  @media (min-width: 1024px) {
+    .fold .scene-track {
+      --scene-track: 240vh;
+    }
+  }
+
+  .fold__stage {
+    padding: var(--pv-space-12) var(--pv-site-inline);
+  }
+
+  .fold__layout {
+    display: grid;
+    gap: var(--pv-space-10);
+    height: 100%;
+    align-content: center;
+  }
+
+  .fold__title {
+    max-width: 14ch;
+    font-size: clamp(1.75rem, 1.15rem + 2.2vw, 3.5rem);
+  }
+
+  .fold__note--stage {
+    display: none;
+    margin-top: var(--pv-space-8);
+  }
+
+  .fold__note--flow {
+    padding: var(--pv-space-8) var(--pv-site-inline) var(--pv-space-12);
+  }
+
+  .fold__visual {
+    --page-w: 64px;
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    align-content: start;
+    row-gap: var(--pv-space-12);
+  }
+
+  .fold__list {
+    --cut: var(--pv-cut-md);
+    position: relative;
+    z-index: 3;
+    width: min(100%, 280px);
+    padding: var(--pv-space-5) var(--pv-space-6) var(--pv-space-6);
+    background: var(--pv-bg-raised);
+    box-shadow: inset 0 0 0 1px var(--pv-line);
+    clip-path: polygon(
+      var(--cut) 0,
+      100% 0,
+      100% calc(100% - var(--cut)),
+      calc(100% - var(--cut)) 100%,
+      0 100%,
+      0 var(--cut)
+    );
+  }
+
+  .fold__list-head,
+  .fold__report-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--pv-space-4);
+    padding-bottom: var(--pv-space-4);
+    border-bottom: 1px solid var(--pv-line);
+    color: var(--pv-text-2);
+  }
+
+  .fold__tag {
+    padding: 2px 6px;
+    background: var(--pv-bg-hover);
+    color: var(--pv-text-2);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .fold__urls {
+    display: grid;
+    gap: var(--pv-space-3);
+    margin: var(--pv-space-4) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .fold__url {
+    min-height: 18px;
+    color: var(--pv-text);
+    font-size: 12px;
+    line-height: 18px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+  }
+
+  .fold__url.is-typing .fold__url-text::after {
+    content: "";
+    display: inline-block;
+    width: 1px;
+    height: 12px;
+    margin-left: 1px;
+    background: var(--pv-cyan);
+    vertical-align: -2px;
+  }
+
+  .fold__lane {
+    position: absolute;
+    z-index: 1;
+    display: grid;
+    align-content: start;
+    gap: var(--pv-space-4);
+    pointer-events: none;
+  }
+
+  .fold__lane::before {
+    content: "";
+    height: 9px;
+    background:
+      repeating-linear-gradient(90deg, var(--pv-line-strong) 0 1px, transparent 1px 12px) bottom / 100% 5px no-repeat,
+      linear-gradient(var(--pv-line-strong), var(--pv-line-strong)) bottom / 100% 1px no-repeat;
+  }
+
+  .fold__lane.is-vertical {
+    grid-template-columns: 9px auto;
+    grid-template-rows: auto auto 1fr;
+    align-content: start;
+    column-gap: var(--pv-space-4);
+  }
+
+  .fold__lane.is-vertical::before {
+    grid-row: 1 / span 3;
+    width: 9px;
+    height: 100%;
+    background:
+      repeating-linear-gradient(0deg, var(--pv-line-strong) 0 1px, transparent 1px 12px) right / 5px 100% no-repeat,
+      linear-gradient(var(--pv-line-strong), var(--pv-line-strong)) right / 1px 100% no-repeat;
+  }
+
+  .fold__counter {
+    color: var(--pv-text);
+    font-size: 12px;
+  }
+
+  .fold__lane.is-vertical .fold__counter,
+  .fold__lane.is-vertical .fold__progress {
+    position: absolute;
+    left: var(--status-left);
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+
+  .fold__lane.is-vertical .fold__counter {
+    top: var(--status-top);
+  }
+
+  .fold__lane.is-vertical .fold__progress {
+    top: calc(var(--status-top) + 26px);
+    width: min(220px, 60vw);
+  }
+
+  .fold__progress {
+    display: block;
+    width: 100%;
+    max-width: 220px;
+    height: 2px;
+    background: var(--pv-line);
+  }
+
+  .fold__progress i {
+    display: block;
+    height: 100%;
+    background: var(--pv-accent);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+  }
+
+  .fold__pages {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .fold__page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--page-w);
+    margin: 0;
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+
+  .fold__thumb {
+    --cut: 6px;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 4;
+    background: var(--demo-cream);
+    box-shadow: var(--pv-shadow-frame);
+    clip-path: polygon(
+      var(--cut) 0,
+      calc(100% - var(--cut)) 0,
+      100% var(--cut),
+      100% calc(100% - var(--cut)),
+      calc(100% - var(--cut)) 100%,
+      var(--cut) 100%,
+      0 calc(100% - var(--cut)),
+      0 var(--cut)
+    );
+  }
+
+  .fold__caption {
+    margin-top: var(--pv-space-3);
+    color: var(--pv-text);
+    font-size: 11px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .fold__folder {
+    position: relative;
+    z-index: 3;
+    justify-self: center;
+    width: min(100%, 220px);
+    aspect-ratio: 280 / 200;
+  }
+
+  .fold__folder-back,
+  .fold__folder-front {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    overflow: visible;
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .fold__folder-back path {
+    fill: var(--pv-bg-chrome);
+    stroke: var(--pv-line-strong);
+    vector-effect: non-scaling-stroke;
+  }
+
+  .fold__folder-front {
+    z-index: 3;
+  }
+
+  .fold__folder-front path {
+    fill: var(--pv-bg-raised);
+    stroke: var(--pv-line-strong);
+    vector-effect: non-scaling-stroke;
+  }
+
+  .fold__folder-name {
+    position: absolute;
+    left: var(--pv-space-6);
+    bottom: var(--pv-space-5);
+    z-index: 4;
+    color: var(--pv-text);
+    font-size: 12px;
+  }
+
+  .fold__slot {
+    position: absolute;
+    top: 22%;
+    left: 50%;
+    width: 1px;
+    height: 1px;
+  }
+
+  .fold__report {
+    --cut: var(--pv-cut-md);
+    position: absolute;
+    top: 0;
+    left: 5%;
+    right: 5%;
+    z-index: 2;
+    padding: var(--pv-space-5) var(--pv-space-6) var(--pv-space-11);
+    background: var(--pv-ice);
+    color: var(--pv-night);
+    clip-path: polygon(
+      0 0,
+      calc(100% - var(--cut)) 0,
+      100% var(--cut),
+      100% 100%,
+      0 100%
+    );
+    will-change: transform;
+  }
+
+  .fold__report-head {
+    border-bottom-color: #c6d3e0;
+    color: #3b4b5e;
+  }
+
+  .fold__report .fold__tag {
+    background: #e1e9f1;
+    color: #3b4b5e;
+  }
+
+  .fold__report-lines {
+    display: grid;
+    gap: var(--pv-space-3);
+    margin: var(--pv-space-4) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .fold__report-lines li {
+    color: var(--pv-night);
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  @media (min-width: 768px) {
+    .fold__visual {
+      --page-w: 96px;
+    }
+
+    .fold__folder {
+      width: 230px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .fold__layout {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--pv-space-9);
+      align-items: center;
+    }
+
+    .fold__text {
+      grid-column: 1 / span 4;
+    }
+
+    .fold__visual {
+      --page-w: clamp(112px, 9.4vw, 172px);
+      grid-column: 5 / span 8;
+      grid-template-columns: clamp(230px, 19vw, 300px) minmax(0, 1fr) clamp(240px, 21vw, 340px);
+      align-items: start;
+      justify-items: stretch;
+      column-gap: var(--pv-space-6);
+      min-height: 0;
+    }
+
+    .fold__list {
+      width: 100%;
+    }
+
+    .fold__folder {
+      grid-column: 3;
+      width: 100%;
+      max-width: none;
+      margin-top: calc(var(--page-w) * 0.9);
+    }
+
+    .fold__note--stage {
+      display: block;
+    }
+
+    .fold__note--flow {
+      display: none;
+    }
+  }
+
+  :global(.is-motion) .fold__page {
+    opacity: 0;
+  }
+
+  :global(.is-static) .fold__page {
+    display: none;
+  }
+
+  @media (max-width: 1023px) {
+    :global(.is-motion) .fold__layout {
+      gap: var(--pv-space-5);
+      align-content: start;
+      padding-top: var(--pv-space-9);
+    }
+
+    :global(.is-motion) .fold__subtitle {
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+      font-size: 0.875rem;
+      line-height: 1.45;
+    }
+
+    :global(.is-motion) .fold__stage {
+      padding-top: var(--pv-space-9);
+      padding-bottom: 88px;
+    }
+
+    :global(.is-motion) .fold__visual {
+      row-gap: calc(var(--page-w) * 1.9);
+    }
+  }
+
+  @media (max-width: 1023px) and (min-height: 760px) {
+    :global(.is-motion) .fold__subtitle {
+      -webkit-line-clamp: 5;
+      line-clamp: 5;
+    }
+  }
+
+  @media (max-width: 1023px) and (max-height: 720px) {
+    :global(.is-motion) .fold__subtitle {
+      display: none;
+    }
+
+    :global(.is-motion) .fold__stage {
+      padding-top: var(--pv-space-6);
+    }
+
+    :global(.is-motion) .fold__layout {
+      padding-top: 0;
+    }
+
+    :global(.is-motion) .fold__visual {
+      --page-w: 52px;
+      row-gap: calc(var(--page-w) * 1.7);
+    }
+
+    :global(.is-motion) .fold__folder {
+      width: 170px;
+    }
+
+    :global(.is-motion) .fold__scene-text,
+    :global(.is-motion) .scene-copy__index {
+      margin-bottom: var(--pv-space-4);
+    }
+  }
+</style>

@@ -215,7 +215,7 @@ export function createGlStage(canvas: HTMLCanvasElement): GlStage | null {
     transparent: true,
     uniforms: {
       uMap: { value: null },
-      uLength: { value: 1320 },
+      uLength: { value: 1860 },
       uRolled: { value: 0 },
       uRadius: { value: 22 },
       uSize: { value: size },

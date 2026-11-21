@@ -2,9 +2,22 @@ import type { FornoCopy } from '../../i18n/types';
 
 export const PRINT_WIDTH = 390;
 export const PRINT_SCREEN_HEIGHT = 844;
-export const PRINT_HEIGHT = 1320;
+export const PRINT_HEIGHT_ESTIMATE = 1860;
+const PRINT_HEIGHT_LIMIT = 2400;
 const PRINT_DENSITY = 2;
 const PAD = 20;
+const CONTACT_CARD_HEIGHT = 104;
+const FOOTER_HEIGHT = 132;
+
+export type PrintSectionId = 'home' | 'menu' | 'about' | 'contact';
+
+export interface FornoPrint {
+  canvas: HTMLCanvasElement;
+  height: number;
+  tops: Record<PrintSectionId, number>;
+}
+
+let cachedPrint: { forno: FornoCopy; print: FornoPrint } | null = null;
 
 const COLORS = {
   cream: '#F3E9DA',
@@ -42,10 +55,11 @@ function drawParagraph(
   top: number,
   maxWidth: number,
   lineHeight: number,
+  left = PAD,
 ): number {
   const lines = wrapLines(context, text, maxWidth);
   lines.forEach((line, index) => {
-    context.fillText(line, PAD, top + index * lineHeight);
+    context.fillText(line, left, top + index * lineHeight);
   });
   return top + lines.length * lineHeight;
 }
@@ -97,13 +111,38 @@ function drawLoaf(context: CanvasRenderingContext2D, top: number): void {
   context.restore();
 }
 
-export function drawFornoPrint(forno: FornoCopy): HTMLCanvasElement {
-  const height = PRINT_HEIGHT;
+function drawContact(context: CanvasRenderingContext2D, forno: FornoCopy, top: number): number {
+  context.fillStyle = COLORS.line;
+  context.fillRect(PAD, top, PRINT_WIDTH - PAD * 2, 1);
+  context.fillStyle = COLORS.ink;
+  context.font = `600 22px ${DISPLAY_FONT}`;
+  context.fillText(forno.nav.contact, PAD, top + 58);
+  context.fillStyle = COLORS.softInk;
+  context.font = `400 15px ${UI_FONT}`;
+  let cursor = drawParagraph(context, forno.contact.line, top + 90, 300, 22) + 6;
+  const cardTitles = [forno.nav.home, forno.nav.menu, forno.nav.about];
+  forno.contact.cards.forEach((card, index) => {
+    context.fillStyle = COLORS.card;
+    context.fillRect(PAD, cursor, PRINT_WIDTH - PAD * 2, CONTACT_CARD_HEIGHT);
+    context.fillStyle = COLORS.ink;
+    context.font = `600 14px ${DISPLAY_FONT}`;
+    context.fillText(cardTitles[index], PAD * 2, cursor + 42);
+    context.fillStyle = COLORS.softInk;
+    context.font = `400 14px ${UI_FONT}`;
+    drawParagraph(context, card, cursor + 64, PRINT_WIDTH - PAD * 4, 20, PAD * 2);
+    cursor += CONTACT_CARD_HEIGHT + 12;
+  });
+  return cursor - 12 + 44;
+}
+
+function drawFornoPage(forno: FornoCopy): FornoPrint {
   const canvas = document.createElement('canvas');
   canvas.width = PRINT_WIDTH * PRINT_DENSITY;
-  canvas.height = height * PRINT_DENSITY;
+  canvas.height = PRINT_HEIGHT_LIMIT * PRINT_DENSITY;
+  const tops = { home: 0, menu: 0, about: 0, contact: 0 };
   const context = canvas.getContext('2d');
-  if (!context) return canvas;
+  if (!context) return { canvas, height: PRINT_HEIGHT_ESTIMATE, tops };
+  const height = PRINT_HEIGHT_LIMIT;
   context.scale(PRINT_DENSITY, PRINT_DENSITY);
   context.textBaseline = 'alphabetic';
 
@@ -137,6 +176,7 @@ export function drawFornoPrint(forno: FornoCopy): HTMLCanvasElement {
   drawLoaf(context, cursor);
   cursor += 248;
 
+  tops.menu = cursor - 40;
   context.fillStyle = COLORS.ink;
   context.font = `600 22px ${DISPLAY_FONT}`;
   context.fillText(forno.menu.title, PAD, cursor);
@@ -173,6 +213,7 @@ export function drawFornoPrint(forno: FornoCopy): HTMLCanvasElement {
   }
 
   cursor += 28;
+  tops.about = cursor - 24;
   context.fillStyle = COLORS.line;
   context.fillRect(PAD, cursor - 24, PRINT_WIDTH - PAD * 2, 1);
   context.fillStyle = COLORS.ink;
@@ -180,11 +221,13 @@ export function drawFornoPrint(forno: FornoCopy): HTMLCanvasElement {
   context.fillText(forno.about.title, PAD, cursor + 8);
   context.fillStyle = COLORS.softInk;
   context.font = `400 15px ${UI_FONT}`;
-  drawParagraph(context, forno.about.body, cursor + 40, PRINT_WIDTH - PAD * 2, 23);
+  const aboutEnd = drawParagraph(context, forno.about.body, cursor + 40, PRINT_WIDTH - PAD * 2, 23);
 
-  const footerTop = height - 132;
+  tops.contact = aboutEnd + 8;
+  const footerTop = drawContact(context, forno, tops.contact);
+  const footerHeight = FOOTER_HEIGHT;
   context.fillStyle = COLORS.ink;
-  context.fillRect(0, footerTop, PRINT_WIDTH, 132);
+  context.fillRect(0, footerTop, PRINT_WIDTH, footerHeight);
   context.fillStyle = COLORS.cream;
   context.font = `700 17px ${DISPLAY_FONT}`;
   context.fillText(forno.brand, PAD, footerTop + 44);
@@ -192,25 +235,92 @@ export function drawFornoPrint(forno: FornoCopy): HTMLCanvasElement {
   context.font = `400 13px ${UI_FONT}`;
   drawParagraph(context, forno.footerNote, footerTop + 70, PRINT_WIDTH - PAD * 2, 19);
 
-  return canvas;
+  const finalHeight = Math.ceil(footerTop + footerHeight);
+  const trimmed = document.createElement('canvas');
+  trimmed.width = canvas.width;
+  trimmed.height = finalHeight * PRINT_DENSITY;
+  trimmed.getContext('2d')?.drawImage(canvas, 0, 0);
+  return { canvas: trimmed, height: finalHeight, tops };
+}
+
+export function drawFornoPrint(forno: FornoCopy): FornoPrint {
+  if (cachedPrint?.forno === forno) return cachedPrint.print;
+  const print = drawFornoPage(forno);
+  cachedPrint = { forno, print };
+  return print;
 }
 
 export function paintPrintTargets(
-  print: HTMLCanvasElement,
+  print: FornoPrint,
   before: HTMLCanvasElement,
   after: HTMLCanvasElement,
 ): void {
-  after.width = print.width;
-  after.height = print.height;
-  after.getContext('2d')?.drawImage(print, 0, 0);
+  after.width = print.canvas.width;
+  after.height = print.canvas.height;
+  after.getContext('2d')?.drawImage(print.canvas, 0, 0);
+  after.parentElement?.style.setProperty('--page-aspect', `${PRINT_WIDTH} / ${print.height}`);
   const cropHeight = PRINT_SCREEN_HEIGHT * PRINT_DENSITY;
-  before.width = print.width;
+  before.width = print.canvas.width;
   before.height = cropHeight;
   before
     .getContext('2d')
-    ?.drawImage(print, 0, 0, print.width, cropHeight, 0, 0, print.width, cropHeight);
+    ?.drawImage(
+      print.canvas,
+      0,
+      0,
+      print.canvas.width,
+      cropHeight,
+      0,
+      0,
+      print.canvas.width,
+      cropHeight,
+    );
 }
 
-export function getPrintHeight(print: HTMLCanvasElement): number {
-  return print.height / PRINT_DENSITY;
+export function paintPrintSection(
+  print: FornoPrint,
+  target: HTMLCanvasElement,
+  section: PrintSectionId,
+): void {
+  const sliceHeight = Math.round((target.height / target.width) * PRINT_WIDTH);
+  const top = Math.min(print.tops[section], print.height - sliceHeight);
+  target
+    .getContext('2d')
+    ?.drawImage(
+      print.canvas,
+      0,
+      top * PRINT_DENSITY,
+      print.canvas.width,
+      sliceHeight * PRINT_DENSITY,
+      0,
+      0,
+      target.width,
+      target.height,
+    );
+}
+
+export async function ensureFornoPrint(forno: FornoCopy): Promise<FornoPrint> {
+  await Promise.allSettled([
+    document.fonts.load('600 36px "Sora"'),
+    document.fonts.load('700 19px "Sora"'),
+    document.fonts.load('400 15px "Inter"'),
+    document.fonts.load('600 15px "Inter"'),
+  ]);
+  return drawFornoPrint(forno);
+}
+
+export function paintPrintFull(print: FornoPrint, target: HTMLCanvasElement): void {
+  target
+    .getContext('2d')
+    ?.drawImage(
+      print.canvas,
+      0,
+      0,
+      print.canvas.width,
+      print.canvas.height,
+      0,
+      0,
+      target.width,
+      target.height,
+    );
 }

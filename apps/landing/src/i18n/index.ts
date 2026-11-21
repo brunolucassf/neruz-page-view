@@ -19,6 +19,8 @@ export const STORE_LINKS = {
   license: '#licenca',
   issues: '#problemas',
   privacy: '#privacidade',
+  contribute: '#contribuir',
+  permissions: '#permissoes',
 } as const;
 
 export const IS_STORE_LIVE = true;

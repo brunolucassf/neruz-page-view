@@ -1,0 +1,284 @@
+---
+import type { LandingCopy } from '../i18n';
+import { STORE_LINKS } from '../i18n';
+import { buildCodeLines, SYMBOL_PATHS } from '../scripts/finale/symbolCode';
+
+interface Props {
+  copy: LandingCopy;
+}
+
+const { copy } = Astro.props;
+const scene = copy.sceneOpen;
+const codeLines = buildCodeLines();
+---
+
+<section
+  class="opn"
+  id="codigo-aberto"
+  data-scene-id="codigo-aberto"
+  aria-labelledby="opn-title"
+  data-open
+>
+  <div class="scene-track scene-track--wide" data-track>
+    <div class="opn__stage scene-stage" data-opn-stage>
+      <div class="opn__dark" data-opn-dark aria-hidden="true"></div>
+      <p class="opn__outline" aria-hidden="true" data-opn-outline>{scene.outlineWord}</p>
+      <div class="opn__layout">
+        <div class="opn__text" data-opn-text>
+          <p class="scene-copy__index eyebrow">
+            <span>{scene.stepLabel}</span>
+            <span class="visually-hidden">
+              {copy.ruler.counter.replace('{n}', '7').replace('{total}', '8')}
+            </span>
+          </p>
+          <h2 id="opn-title" class="scene-copy__title opn__title">{scene.title}</h2>
+          <p class="scene-copy__subtitle opn__subtitle">{scene.subtitle}</p>
+          <p class="opn__ask">{scene.ask}</p>
+          <div class="opn__actions">
+            <a class="btn btn--lg" href={STORE_LINKS.github} data-wire>
+              <span>{copy.cta.viewCode}</span>
+              <svg class="btn__arrow" viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
+                <path d="M4 10h11M11 5.5 15.5 10 11 14.5" />
+              </svg>
+            </a>
+            <p class="opn__links">
+              <a class="text-link" href={STORE_LINKS.contribute}>{scene.contribute}</a>
+              <a class="text-link" href={STORE_LINKS.license}>{scene.license}</a>
+            </p>
+          </div>
+          <p class="scene-copy__note opn__umbrella">{scene.umbrella}</p>
+        </div>
+
+        <div class="opn__code" data-opn-code>
+          <figure class="opn__editor" aria-hidden="true">
+            <figcaption class="opn__editor-head cota-text">symbol.svg</figcaption>
+            <pre class="opn__pre" data-opn-pre>{
+              codeLines.map((line) => (
+                <span
+                  class="opn__line"
+                  data-opn-line
+                  data-path={line.pathIndex}
+                  data-commands={line.commands}
+                >{line.text}</span>
+              ))
+            }</pre>
+          </figure>
+          <svg
+            class="opn__logo"
+            viewBox="16 20 96 92"
+            role="img"
+            aria-label={scene.codeLabel}
+            data-opn-logo
+          >
+            <path d={SYMBOL_PATHS[0]} data-opn-path="0"></path>
+            <path d={SYMBOL_PATHS[1]} fill-rule="evenodd" data-opn-path="1"></path>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .opn {
+    position: relative;
+    overflow-x: clip;
+    background: #f4f8fc;
+  }
+
+  .opn .scene-track {
+    --scene-track: 260vh;
+  }
+
+  .opn__stage {
+    position: relative;
+    padding: var(--pv-space-13) var(--pv-site-inline);
+    color: var(--pv-text);
+  }
+
+  .opn__dark {
+    position: absolute;
+    inset: 0;
+    background-color: var(--pv-bg-mat);
+    background-image:
+      linear-gradient(var(--pv-mat-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--pv-mat-grid) 1px, transparent 1px);
+    background-size: 64px 64px;
+    background-position: center top;
+  }
+
+  .opn__outline {
+    position: absolute;
+    left: 50%;
+    bottom: -0.12em;
+    z-index: 1;
+    margin: 0;
+    color: transparent;
+    font-family: var(--pv-font-display);
+    font-size: clamp(1.75rem, 7.2vw, 8.5rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    -webkit-text-stroke: 1px var(--pv-line);
+    transform: translateX(-50%);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .opn__layout {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    gap: var(--pv-space-11);
+  }
+
+  .opn__title {
+    max-width: 18ch;
+    font-size: clamp(1.75rem, 1.1rem + 2.2vw, 3.25rem);
+  }
+
+  .opn__ask {
+    max-width: 44ch;
+    margin-top: var(--pv-space-6);
+    color: var(--pv-text);
+    font-size: var(--pv-fs-body);
+    line-height: var(--pv-fs-body-lh);
+  }
+
+  .opn__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--pv-space-5) var(--pv-space-9);
+    margin-top: var(--pv-space-8);
+  }
+
+  .opn__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--pv-space-2) var(--pv-space-7);
+  }
+
+  .opn__umbrella {
+    margin-top: var(--pv-space-8);
+  }
+
+  .opn__code {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--pv-space-9);
+    align-items: center;
+  }
+
+  .opn__editor {
+    --cut: var(--pv-cut-lg);
+    margin: 0;
+    background: var(--pv-bg-chrome);
+    box-shadow: inset 0 0 0 1px var(--pv-line);
+    clip-path: polygon(
+      var(--cut) 0,
+      100% 0,
+      100% calc(100% - var(--cut)),
+      calc(100% - var(--cut)) 100%,
+      0 100%,
+      0 var(--cut)
+    );
+  }
+
+  .opn__editor-head {
+    padding: var(--pv-space-4) var(--pv-space-7);
+    border-bottom: 1px solid var(--pv-line);
+    color: var(--pv-text-2);
+    font-size: 11px;
+  }
+
+  .opn__pre {
+    margin: 0;
+    padding: var(--pv-space-6) var(--pv-space-7) var(--pv-space-7);
+    overflow: hidden;
+    color: var(--pv-text);
+    font-family: ui-monospace, "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    tab-size: 2;
+  }
+
+  .opn__line {
+    display: block;
+    min-height: 1.7em;
+    white-space: pre;
+  }
+
+  .opn__line :global(.opn__char) {
+    display: inline-block;
+    white-space: pre;
+  }
+
+  .opn__logo {
+    width: min(100%, 240px);
+    height: auto;
+    justify-self: center;
+    overflow: visible;
+    fill: var(--pv-text);
+    stroke: var(--pv-text);
+    stroke-width: 1.2;
+    stroke-linejoin: miter;
+    stroke-linecap: square;
+  }
+
+  .opn__logo path {
+    fill-opacity: 1;
+    stroke-opacity: 0;
+  }
+
+  @media (min-width: 768px) {
+    .opn__code {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .opn__layout {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--pv-space-9);
+      align-items: center;
+      height: 100%;
+    }
+
+    .opn__text {
+      grid-column: 1 / span 5;
+    }
+
+    .opn__code {
+      grid-column: 7 / span 6;
+      grid-template-columns: minmax(0, 1fr);
+      justify-items: center;
+    }
+
+    .opn__editor {
+      width: min(100%, 380px);
+      justify-self: start;
+    }
+
+    .opn__logo {
+      width: min(100%, 220px);
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .opn__code {
+      grid-template-columns: minmax(0, 1fr) 220px;
+      justify-items: stretch;
+    }
+  }
+
+  :global(.is-motion) .opn__line {
+    opacity: 0;
+  }
+
+  :global(.is-motion) .opn__line.is-ready {
+    opacity: 1;
+  }
+</style>

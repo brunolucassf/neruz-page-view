@@ -1,5 +1,7 @@
 import { formatPx } from './env';
 
+const LIGHT_SCENE_ID = 'tudo-no-computador';
+
 export interface SceneOffset {
   id: string;
   top: number;
@@ -59,5 +61,6 @@ export function initScrollRuler(
     for (const offset of offsets) if (offset.top <= probe) currentId = offset.id;
     for (const flag of flags)
       flag.classList.toggle('is-current', flag.dataset.rulerFlag === currentId);
+    ruler.classList.toggle('is-light', currentId === LIGHT_SCENE_ID);
   };
 }

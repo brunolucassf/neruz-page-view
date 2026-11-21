@@ -452,3 +452,31 @@ button {
   font-size: var(--pv-fs-small, 0.875rem);
   line-height: 1.5;
 }
+
+.scene-track {
+  position: relative;
+}
+
+:root.is-motion .scene-track--always {
+  height: calc(100svh + var(--scene-track, 120vh));
+}
+
+:root.is-motion .scene-track--always > .scene-stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  :root.is-motion .scene-track--wide {
+    height: calc(100svh + var(--scene-track, 200vh));
+  }
+
+  :root.is-motion .scene-track--wide > .scene-stage {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    overflow: hidden;
+  }
+}

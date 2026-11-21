@@ -85,6 +85,49 @@ export interface LandingCopy {
     recording: string;
     sections: string[];
   };
+  sceneFolder: {
+    stepLabel: string;
+    title: string;
+    subtitle: string;
+    note: string;
+    urlListLabel: string;
+    exampleTag: string;
+    counter: string;
+    folderName: string;
+    reportTitle: string;
+    reportLines: string[];
+    pages: { title: string; line: string; url: string }[];
+    visualLabel: string;
+  };
+  sceneLocal: {
+    stepLabel: string;
+    title: string;
+    subtitle: string;
+    note: string;
+    privacyLink: string;
+    codeLink: string;
+    whenLabel: string;
+    laptopLabel: string;
+    cards: { permission: string; title: string; what: string; when: string }[];
+  };
+  sceneOpen: {
+    stepLabel: string;
+    title: string;
+    subtitle: string;
+    ask: string;
+    umbrella: string;
+    contribute: string;
+    license: string;
+    codeLabel: string;
+    outlineWord: string;
+  };
+  sceneFinal: {
+    stepLabel: string;
+    title: string;
+    subtitle: string;
+    windowTitle: string;
+    widthLabel: string;
+  };
   ruler: { label: string; counter: string; scenes: { id: string; label: string }[] };
   footer: {
     navLabel: string;

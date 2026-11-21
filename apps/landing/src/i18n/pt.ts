@@ -88,6 +88,124 @@ export const pt: LandingCopy = {
     recording: 'Gravando {time}',
     sections: ['Início', 'Cardápio', 'Sobre', 'Rodapé'],
   },
+  sceneFolder: {
+    stepLabel: 'Várias páginas',
+    title: 'O site inteiro, numa pasta só.',
+    subtitle:
+      'Cole uma lista de endereços, use o sitemap ou deixe a extensão seguir os links internos. As páginas são capturadas em fila e, no fim, você baixa um ZIP organizado com um relatório do que foi feito.',
+    note: 'Você vê o limite de páginas antes de começar, acompanha o progresso e pode cancelar quando quiser. O relatório traz só fatos: o que foi capturado, o que foi pulado e por quê.',
+    urlListLabel: 'Lista de páginas',
+    exampleTag: 'exemplo',
+    counter: 'Página {n} de {total}',
+    folderName: 'forno27.zip',
+    reportTitle: 'Relatório',
+    reportLines: [
+      '4 páginas capturadas',
+      '0 páginas puladas',
+      'Tela: Celular · 390 px',
+      'Rolagem lateral: nenhuma',
+    ],
+    pages: [
+      {
+        title: 'Forno 27',
+        line: 'Pão quente, fornadas pequenas, todo dia.',
+        url: 'forno27.example',
+      },
+      {
+        title: 'Cardápio',
+        line: 'Pães, folhados e bolos que saem ao longo do dia.',
+        url: 'forno27.example/cardapio',
+      },
+      {
+        title: 'Sobre',
+        line: 'Uma receita de família, agora num forno maior.',
+        url: 'forno27.example/sobre',
+      },
+      {
+        title: 'Contato',
+        line: 'Padaria de demonstração: sem endereço nem telefone.',
+        url: 'forno27.example/contato',
+      },
+    ],
+    visualLabel:
+      'Exemplo com uma padaria fictícia: quatro páginas são capturadas uma depois da outra e vão para um ZIP, junto com o relatório.',
+  },
+  sceneLocal: {
+    stepLabel: 'Privacidade',
+    title: 'Tudo acontece no seu computador.',
+    subtitle:
+      'A extensão não tem servidor, não pede cadastro e não coleta dados. Seus prints e vídeos são criados no navegador e vão só para onde você salvar.',
+    note: 'Prints podem mostrar o que estiver na tela, como e-mails ou painéis logados. Vale conferir antes de compartilhar.',
+    privacyLink: 'Ler a política de privacidade',
+    codeLink: 'Ver as permissões no código',
+    whenLabel: 'Quando é pedida',
+    laptopLabel:
+      'Ilustração: a janela, o celular e a tira de prints das cenas anteriores ficam dentro do contorno de um notebook.',
+    cards: [
+      {
+        permission: 'storage',
+        title: 'Guardar suas preferências',
+        what: 'Salva kits, favoritos e configurações no próprio navegador.',
+        when: 'Na instalação',
+      },
+      {
+        permission: 'activeTab + scripting',
+        title: 'Usar a aba que você está vendo',
+        what: 'Ao clicar no ícone, a extensão acessa só a aba atual para tirar o print ou acompanhar a rolagem.',
+        when: 'Na instalação, usada só quando você clica',
+      },
+      {
+        permission: 'acesso por site · opcional',
+        title: 'Mostrar um site nas telas',
+        what: 'Você libera site por site e pode revogar quando quiser em Configurações.',
+        when: 'Na hora, só para o site que você abrir',
+      },
+      {
+        permission: 'declarativeNetRequestWithHostAccess',
+        title: 'Abrir sites que bloqueiam exibição',
+        what: 'Muitos sites não aceitam aparecer dentro de outra página. A extensão ajusta isso só nas telas dela, só nos sites que você liberou, e desfaz ao fechar.',
+        when: 'Na instalação, age só nos sites liberados',
+      },
+      {
+        permission: 'offscreen',
+        title: 'Montar vídeos sem travar',
+        what: 'Uma página invisível da própria extensão monta vídeos e imagens enquanto você segue usando a janela.',
+        when: 'Na instalação',
+      },
+      {
+        permission: 'tabCapture · opcional',
+        title: 'Gravar a aba',
+        what: 'Necessária para gravar vídeo. Um indicador fica visível o tempo todo.',
+        when: 'Só na primeira gravação',
+      },
+      {
+        permission: 'clipboardWrite · opcional',
+        title: 'Copiar a imagem',
+        what: 'Coloca o print na área de transferência para você colar onde quiser.',
+        when: 'Só quando você usa Copiar',
+      },
+    ],
+  },
+  sceneOpen: {
+    stepLabel: 'Código aberto',
+    title: 'Gratuito, de código aberto e aberto a quem quiser ajudar.',
+    subtitle:
+      'O Neruz Page View usa a licença MIT: você pode ler cada linha, relatar um problema, sugerir uma melhoria ou adaptar para o seu uso. Não existe versão paga nem plano Pro.',
+    ask: 'Se a extensão te ajudar, uma estrela no GitHub faz ela chegar a mais gente.',
+    umbrella: 'É a primeira extensão da Neruz Extensions. Outras estão a caminho.',
+    contribute: 'Como contribuir',
+    license: 'Licença MIT',
+    codeLabel: 'Trecho do código SVG que desenha o símbolo do Neruz Page View',
+    outlineWord: 'Neruz Extensions',
+  },
+  sceneFinal: {
+    stepLabel: 'Instalar',
+    title: 'Experimente no próximo site que você abrir.',
+    subtitle:
+      'Grátis, sem cadastro e sem coleta de dados. Se não servir para você, é só remover, como qualquer extensão.',
+    windowTitle: 'Neruz Page View',
+    widthLabel: 'Largura da janela',
+  },
   ruler: {
     label: 'Ir para a seção',
     counter: 'Cena {n} de {total}',
@@ -96,6 +214,10 @@ export const pt: LandingCopy = {
       { id: 'um-clique', label: 'Dois cliques e o print já sai pronto para mostrar.' },
       { id: 'role-uma-tela', label: 'Role uma tela. Todas rolam junto.' },
       { id: 'pagina-rola-sozinha', label: 'A página rola sozinha. Você só aperta Gravar.' },
+      { id: 'site-numa-pasta', label: 'O site inteiro, numa pasta só.' },
+      { id: 'tudo-no-computador', label: 'Tudo acontece no seu computador.' },
+      { id: 'codigo-aberto', label: 'Gratuito, de código aberto e aberto a quem quiser ajudar.' },
+      { id: 'instalar', label: 'Experimente no próximo site que você abrir.' },
     ],
   },
   footer: {

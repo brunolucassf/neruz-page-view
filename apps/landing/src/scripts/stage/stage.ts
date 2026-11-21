@@ -7,7 +7,13 @@ import type { BenchState, GlStage, StripState } from '../gl/glStage';
 import { createSpring, snapSpring, stepSpring } from '../spring';
 import { createComparator } from './comparator';
 import { drawHorizontalRuler } from './horizontalRuler';
-import { drawFornoPrint, getPrintHeight, PRINT_WIDTH, paintPrintTargets } from './printCanvas';
+import {
+  drawFornoPrint,
+  type FornoPrint,
+  PRINT_HEIGHT_ESTIMATE,
+  PRINT_WIDTH,
+  paintPrintTargets,
+} from './printCanvas';
 import { type CrossReading, createScenes } from './scenes';
 import {
   SYMBOL_VIEWPORT_BOX,
@@ -244,7 +250,7 @@ function collectElements(journey: HTMLElement): StageElements {
   };
 }
 
-async function preparePrint(elements: StageElements, forno: FornoCopy): Promise<HTMLCanvasElement> {
+async function preparePrint(elements: StageElements, forno: FornoCopy): Promise<FornoPrint> {
   await Promise.allSettled([
     document.fonts.load('600 36px "Sora"'),
     document.fonts.load('700 19px "Sora"'),
@@ -328,7 +334,7 @@ export function initMotionStage(journey: HTMLElement): StageHandle {
   let previousActiveFlag = -1;
   let gl: GlStage | null = null;
   let glCanvas: HTMLCanvasElement | null = null;
-  let pageLength = 1320;
+  let pageLength = PRINT_HEIGHT_ESTIMATE;
   let printReady = false;
   let isCompareLive = false;
   let hasStripCanvas = false;
@@ -994,17 +1000,19 @@ export function initMotionStage(journey: HTMLElement): StageHandle {
   gsap.ticker.add(render);
 
   void preparePrint(elements, forno).then((print) => {
-    pageLength = getPrintHeight(print);
+    pageLength = print.height;
     printReady = true;
     const stripContext = elements.strip2d.getContext('2d');
-    elements.strip2d.width = print.width;
-    elements.strip2d.height = print.height;
+    elements.strip2d.width = print.canvas.width;
+    elements.strip2d.height = print.canvas.height;
     elements.strip2d.style.width = `${PRINT_WIDTH}px`;
     elements.strip2d.style.height = `${pageLength}px`;
-    stripContext?.drawImage(print, 0, 0);
+    stripContext?.drawImage(print.canvas, 0, 0);
     hasStripCanvas = true;
-    gl?.setPrint(print, pageLength);
-    printCanvasForGl = print;
+    layout = measure();
+    scenes.measure(layout.pageTarget);
+    gl?.setPrint(print.canvas, pageLength);
+    printCanvasForGl = print.canvas;
   });
 
   return {

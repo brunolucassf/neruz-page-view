@@ -70,7 +70,7 @@ const { copy } = Astro.props;
   .scroll-ruler__readout {
     position: absolute;
     top: 0;
-    right: 14px;
+    right: 26px;
     padding: 6px 2px;
     border-top: 1px solid var(--pv-cyan);
     color: var(--pv-text);
@@ -79,6 +79,10 @@ const { copy } = Astro.props;
     writing-mode: vertical-rl;
     transform: translateY(var(--readout-y, 0px));
     will-change: transform;
+  }
+
+  .scroll-ruler.is-light .scroll-ruler__readout {
+    color: #0e1520;
   }
 
   .scroll-ruler__flag {
