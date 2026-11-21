@@ -148,6 +148,8 @@ export async function runRecording(): Promise<void> {
     result: null,
     recordingController: controller,
     gestureShortcut: '',
+    recordingScreenId: screen.id,
+    isManuallyPaused: false,
   });
 
   let recorded: RecResult | null = null;
@@ -179,6 +181,7 @@ export async function runRecording(): Promise<void> {
     await nextPaint();
     const zoom = pickTabZoom(screen, { width: window.innerWidth, height: window.innerHeight });
     restores.push(await applyStudioTabZoom(zoom));
+    useRecording.setState({ stageZoom: zoom });
     await nextPaint();
     const { rect, viewport } = measureViewportRect();
 
@@ -254,7 +257,13 @@ export async function runRecording(): Promise<void> {
     }
     document.title = originalTitle;
     await runRestores(restores);
-    useRecording.setState({ stage: 'idle', recordingController: null });
+    useRecording.setState({
+      stage: 'idle',
+      recordingController: null,
+      recordingScreenId: null,
+      isManuallyPaused: false,
+      stageZoom: 1,
+    });
   }
 }
 

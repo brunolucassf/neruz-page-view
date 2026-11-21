@@ -1,4 +1,5 @@
 import * as v from 'valibot';
+import { MAX_COLLECTED_LINKS, MAX_PAGE_URL_LENGTH } from '../batch/types';
 import {
   ElementLocatorSchema,
   MAX_SECTIONS,
@@ -14,6 +15,8 @@ const count = v.pipe(v.number(), v.integer(), v.minValue(0));
 const MAX_WAIT_STABLE_MS = 4000;
 const MAX_WARMUP_STEPS = 120;
 const MAX_AUTOSCROLL_STOPS = 30;
+const MAX_LINK_TEXT_LENGTH = 120;
+const MAX_PAGE_TITLE_LENGTH = 200;
 
 export const studioPing = defineRequest('studio.ping', EmptySchema, EmptySchema, 3000);
 
@@ -152,6 +155,41 @@ export const studioEmulate = defineRequest(
   v.object({ rulesRewritten: count, sheetsSkipped: count }),
 );
 
+export const studioCollectLinks = defineRequest(
+  'studio.collectLinks',
+  v.object({
+    max: v.optional(
+      v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(MAX_COLLECTED_LINKS)),
+    ),
+  }),
+  v.object({
+    links: v.pipe(
+      v.array(
+        v.object({
+          url: v.pipe(v.string(), v.maxLength(MAX_PAGE_URL_LENGTH)),
+          text: v.nullable(v.pipe(v.string(), v.maxLength(MAX_LINK_TEXT_LENGTH))),
+        }),
+      ),
+      v.maxLength(MAX_COLLECTED_LINKS),
+    ),
+    total: count,
+    truncated: v.boolean(),
+  }),
+  5000,
+);
+
+export const studioPageFacts = defineRequest(
+  'studio.pageFacts',
+  EmptySchema,
+  v.object({
+    url: v.pipe(v.string(), v.maxLength(MAX_PAGE_URL_LENGTH)),
+    title: v.pipe(v.string(), v.maxLength(MAX_PAGE_TITLE_LENGTH)),
+    httpStatus: v.nullable(count),
+    hasPasswordField: v.boolean(),
+  }),
+  3000,
+);
+
 export const studioMessages = [
   studioPing,
   studioMetrics,
@@ -171,4 +209,6 @@ export const studioMessages = [
   studioAutoscrollResume,
   studioAutoscrollStop,
   studioEmulate,
+  studioCollectLinks,
+  studioPageFacts,
 ] as const;

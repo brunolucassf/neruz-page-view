@@ -110,8 +110,10 @@ export const loadCustomDevices = () => readChecked(CustomDevicesSchema, customDe
 export const saveCustomDevices = (devices: CustomDevice[]) =>
   writeChecked(CustomDevicesSchema, customDevicesItem, devices);
 
-export const loadFavorites = async () =>
-  (await readChecked(FavoritesSchema, favoritesItem, [])).filter((id) => findDevice(id));
+export const loadFavorites = async (customDeviceIds: readonly string[] = []) =>
+  (await readChecked(FavoritesSchema, favoritesItem, [])).filter(
+    (id) => findDevice(id) || customDeviceIds.includes(id),
+  );
 export const saveFavorites = (ids: string[]) =>
   writeChecked(FavoritesSchema, favoritesItem, ids.slice(0, MAX_FAVORITES));
 

@@ -21,11 +21,25 @@ export type AutoscrollTimeline = {
 
 export type AutoscrollSample = { scrollTop: number; isPaused: boolean; isComplete: boolean };
 
-const applyEasing = (easing: AutoscrollEasing, time: number) =>
-  easing === 'linear' ? time : 0.5 - Math.cos(Math.PI * time) / 2;
+const SINE_WEIGHT = 0.7;
+const INVERSION_STEPS = 32;
 
-const invertEasing = (easing: AutoscrollEasing, ratio: number) =>
-  easing === 'linear' ? ratio : Math.acos(1 - 2 * ratio) / Math.PI;
+const applyEasing = (easing: AutoscrollEasing, time: number) =>
+  easing === 'linear'
+    ? time
+    : SINE_WEIGHT * (0.5 - Math.cos(Math.PI * time) / 2) + (1 - SINE_WEIGHT) * time;
+
+const invertEasing = (easing: AutoscrollEasing, ratio: number) => {
+  if (easing === 'linear') return ratio;
+  let low = 0;
+  let high = 1;
+  for (let step = 0; step < INVERSION_STEPS; step += 1) {
+    const middle = (low + high) / 2;
+    if (applyEasing(easing, middle) < ratio) low = middle;
+    else high = middle;
+  }
+  return (low + high) / 2;
+};
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
 

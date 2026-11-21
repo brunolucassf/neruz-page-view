@@ -19,6 +19,7 @@ import './recording.css';
 
 const PRESET_OPTIONS: { value: VideoPreset; label: MessageKey }[] = [
   { value: 'vertical', label: 'studio.video.preset.vertical' },
+  { value: 'square', label: 'studio.video.preset.square' },
   { value: 'horizontal', label: 'studio.video.preset.horizontal' },
   { value: 'screen', label: 'studio.video.preset.screen' },
 ];

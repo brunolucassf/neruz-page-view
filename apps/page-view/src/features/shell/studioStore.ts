@@ -1,7 +1,8 @@
 import type { ScreenId } from '@neruz/core';
-import { type Device, findDevice, STARTER_DEVICE_IDS } from '@neruz/devices';
+import { type Device, STARTER_DEVICE_IDS } from '@neruz/devices';
 import { create } from 'zustand';
 import { t } from '../i18n';
+import { findAnyDevice } from '../screens/deviceRegistry';
 import { type BenchSize, computeFitZoom, MAX_ZOOM, MIN_ZOOM } from '../screens/layout';
 import {
   clampScreenSize,
@@ -96,7 +97,7 @@ const createScreen = (preset: ScreenPreset, isFrozen: boolean): Screen => ({
 function createScreensFromDevices(deviceIds: readonly string[]): Screen[] {
   const screens: Screen[] = [];
   for (const deviceId of deviceIds) {
-    const device = findDevice(deviceId);
+    const device = findAnyDevice(deviceId);
     const id = pickFreeScreenId(screens.map((screen) => screen.id));
     if (!device || !id) continue;
     screens.push(

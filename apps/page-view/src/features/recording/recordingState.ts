@@ -33,6 +33,9 @@ type RecordingState = {
   elapsedMs: number;
   expectedMs: number;
   gestureShortcut: string;
+  recordingScreenId: ScreenId | null;
+  isManuallyPaused: boolean;
+  stageZoom: number;
   result: VideoResult | null;
   isMakingGif: boolean;
   gifRatio: number;
@@ -50,6 +53,9 @@ export const useRecording = create<RecordingState>()(() => ({
   elapsedMs: 0,
   expectedMs: 1,
   gestureShortcut: '',
+  recordingScreenId: null,
+  isManuallyPaused: false,
+  stageZoom: 1,
   result: null,
   isMakingGif: false,
   gifRatio: 0,

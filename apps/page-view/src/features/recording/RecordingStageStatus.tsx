@@ -1,21 +1,35 @@
 import { Button, OctagonLoader } from '@neruz/ui';
+import { useEffect } from 'react';
 import { t } from '../i18n';
 import { useStudio } from '../shell/studioStore';
+import { RecordingBar } from './RecordingBar';
+import { stopRecordingNow } from './recordingControls';
 import { cancelRecording, describeRecordingStage, useRecording } from './recordingState';
 
 const STATUS_GUTTER_PX = 32;
-const STATUS_WIDTH_PX = 320;
+
+const useStopOnEscape = () => {
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      if (useRecording.getState().stage === 'recording') void stopRecordingNow();
+      else if (useRecording.getState().stage !== 'finalizing') cancelRecording();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+};
 
 export function RecordingStageStatus() {
+  useStopOnEscape();
   const stage = useRecording((state) => state.stage);
   const elapsedMs = useRecording((state) => state.elapsedMs);
   const gestureShortcut = useRecording((state) => state.gestureShortcut);
   const stageWidth = useStudio(
     (state) => state.screens.find((screen) => screen.id === state.captureStageScreenId)?.width ?? 0,
   );
-  const hasRoomBesideScreen = stageWidth + STATUS_GUTTER_PX + STATUS_WIDTH_PX <= window.innerWidth;
-  const isHiddenToStayOutOfVideo = stage === 'recording' && !hasRoomBesideScreen;
-  if (isHiddenToStayOutOfVideo) return null;
+  if (stage === 'recording') return <RecordingBar />;
   const message = describeRecordingStage(stage, elapsedMs, gestureShortcut);
 
   return (

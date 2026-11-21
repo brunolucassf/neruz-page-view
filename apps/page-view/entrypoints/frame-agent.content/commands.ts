@@ -14,11 +14,13 @@ import {
   studioAutoscrollResume,
   studioAutoscrollStart,
   studioAutoscrollStop,
+  studioCollectLinks,
   studioHideFixed,
   studioHideScrollbar,
   studioMeasure,
   studioMessages,
   studioMetrics,
+  studioPageFacts,
   studioPing,
   studioRestoreFixed,
   studioScrollTo,
@@ -30,6 +32,7 @@ import {
 import { resolveAnchorScrollTop } from './anchor-dom';
 import { pauseAutoscroll, resumeAutoscroll, startAutoscroll, stopAutoscroll } from './autoscroll';
 import { measurePage } from './measure';
+import { collectLinks, readPageFacts } from './page-facts';
 import { hideFixedElements, restoreFixedElements, setScrollbarHidden } from './page-overrides';
 import { waitStable, warmup } from './stability';
 import { maxScrollTop, nextPaint, scrollInstantly } from './timing';
@@ -88,6 +91,11 @@ const buildHandlers = ({ onScrollApplied }: CommandContext): CommandHandler[] =>
   { definition: studioAutoscrollPause, run: pauseAutoscroll },
   { definition: studioAutoscrollResume, run: resumeAutoscroll },
   { definition: studioAutoscrollStop, run: stopAutoscroll },
+  {
+    definition: studioCollectLinks,
+    run: (payload: PayloadOf<typeof studioCollectLinks>) => collectLinks(payload),
+  },
+  { definition: studioPageFacts, run: readPageFacts },
   { definition: studioHideFixed, run: () => ({ hiddenCount: hideFixedElements() }) },
   { definition: studioRestoreFixed, run: () => ({ restoredCount: restoreFixedElements() }) },
   {

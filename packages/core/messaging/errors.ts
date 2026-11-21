@@ -25,6 +25,9 @@ export const NPV_ERROR_CODES = [
   'NPV-REC-FAILED',
   'NPV-STORAGE-INVALID',
   'NPV-ABORTED',
+  'NPV-SITEMAP-FAILED',
+  'NPV-STORAGE-FULL',
+  'NPV-BATCH-LIMIT',
   'NPV-UNKNOWN',
 ] as const;
 
@@ -50,6 +53,13 @@ export const NpvErrorSchema = v.object({
 export type NpvError = v.InferOutput<typeof NpvErrorSchema>;
 export type NpvErrorDetails = NonNullable<NpvError['details']>;
 
+const RETRYABLE_SITEMAP_REASONS: ReadonlySet<unknown> = new Set(['network', 'timeout']);
+
+const isRetryable = (code: NpvErrorCode, details?: NpvErrorDetails): boolean =>
+  code === 'NPV-SITEMAP-FAILED'
+    ? RETRYABLE_SITEMAP_REASONS.has(details?.reason)
+    : RETRYABLE_CODES.has(code);
+
 export const createNpvError = (
   code: NpvErrorCode,
   message: string,
@@ -57,7 +67,7 @@ export const createNpvError = (
 ): NpvError => ({
   code,
   message,
-  retryable: RETRYABLE_CODES.has(code),
+  retryable: isRetryable(code, details),
   ...(details ? { details } : {}),
 });
 

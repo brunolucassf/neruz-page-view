@@ -53,7 +53,7 @@ describe('planRecording', () => {
   it('adds one pause per section below the top and inside the scroll range', () => {
     const plan = planRecording({ speed: 'normal', totalScroll: 2800, sections, hasPauses: true });
     expect(plan.stops.map((stop) => stop.selector)).toEqual(['b', 'c']);
-    expect(plan.durationMs).toBe(10_000 + 2400 + 3000);
+    expect(plan.durationMs).toBe(10_000 + 2400 + 3000 + 120_000);
   });
 
   it('skips pauses when disabled', () => {

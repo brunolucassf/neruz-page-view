@@ -1,6 +1,6 @@
 import type { Section, Size } from '@neruz/core';
 
-export type VideoPreset = 'vertical' | 'horizontal' | 'screen';
+export type VideoPreset = 'vertical' | 'square' | 'horizontal' | 'screen';
 export type ScrollSpeed = 'slow' | 'normal' | 'fast';
 
 export type AutoscrollStopPlan = { selector: string; pauseMs: number };
@@ -14,6 +14,7 @@ export type RecordingPlan = {
 const SPEED_PIXELS_PER_SECOND: Record<ScrollSpeed, number> = { slow: 140, normal: 280, fast: 560 };
 const FIXED_OUTPUT: Record<Exclude<VideoPreset, 'screen'>, Size> = {
   vertical: { width: 1080, height: 1920 },
+  square: { width: 1080, height: 1080 },
   horizontal: { width: 1920, height: 1080 },
 };
 const MIN_SCROLL_MS = 4000;
@@ -21,6 +22,8 @@ const MAX_SCROLL_MS = 180_000;
 const SECTION_PAUSE_MS = 1200;
 const START_SLACK_MS = 3000;
 const MAX_RECORDING_MS = 600_000;
+const MANUAL_PAUSE_ALLOWANCE_MS = 120_000;
+export const MARKED_PAUSE_MS = 1500;
 const MAX_STOPS = 30;
 const TOP_SECTION_TOLERANCE_PX = 8;
 const MIN_SCREEN_OUTPUT_SIDE = 1080;
@@ -67,7 +70,10 @@ export const planRecording = ({
   );
   const stops = hasPauses ? pickStops(sections, totalScroll) : [];
   const pausesMs = stops.reduce((sum, stop) => sum + stop.pauseMs, 0);
-  const durationMs = Math.min(MAX_RECORDING_MS, scrollMs + pausesMs + START_SLACK_MS);
+  const durationMs = Math.min(
+    MAX_RECORDING_MS,
+    scrollMs + pausesMs + START_SLACK_MS + MANUAL_PAUSE_ALLOWANCE_MS,
+  );
   return { scrollMs, stops, durationMs };
 };
 

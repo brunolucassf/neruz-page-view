@@ -18,6 +18,9 @@ export const MAX_CUSTOM_DEVICES = 100;
 export const MAX_FAVORITES = 100;
 export const MAX_KITS = 50;
 export const MAX_KIT_SCREENS = 16;
+export const DEFAULT_PAGE_LIMIT = 25;
+export const MIN_PAGE_LIMIT = 1;
+export const MAX_PAGE_LIMIT = 100;
 
 export const FRAME_KINDS = ['phone', 'foldable', 'tablet', 'laptop', 'desktop'] as const;
 export const FRAME_BACKGROUNDS = ['ice', 'night', 'petrol', 'transparent'] as const;
@@ -132,6 +135,18 @@ export const FramedCaptureSchema = v.object({
   scope: v.picklist(FRAMED_SCOPES),
 });
 
+export const BATCH_SOURCES = ['list', 'sitemap', 'links'] as const;
+
+export const BatchPreferencesSchema = v.object({
+  pageLimit: v.pipe(
+    v.number(),
+    v.integer(),
+    v.minValue(MIN_PAGE_LIMIT),
+    v.maxValue(MAX_PAGE_LIMIT),
+  ),
+  source: v.picklist(BATCH_SOURCES),
+});
+
 export const SettingsExportSchema = v.object({
   schema: v.literal('neruz.pageview.settings'),
   version: v.literal(1),
@@ -157,6 +172,8 @@ export type FrameBackground = (typeof FRAME_BACKGROUNDS)[number];
 export type FramedScope = (typeof FRAMED_SCOPES)[number];
 export type FramedCapture = v.InferOutput<typeof FramedCaptureSchema>;
 export type FramedCaptureV1 = v.InferOutput<typeof FramedCaptureV1Schema>;
+export type BatchSource = (typeof BATCH_SOURCES)[number];
+export type BatchPreferences = v.InferOutput<typeof BatchPreferencesSchema>;
 export type SettingsExport = v.InferOutput<typeof SettingsExportSchema>;
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -190,4 +207,9 @@ export const DEFAULT_FRAMED_CAPTURE: FramedCapture = {
   background: 'ice',
   backgroundColor: DEFAULT_FRAMED_BACKGROUND_COLOR,
   scope: 'fold',
+};
+
+export const DEFAULT_BATCH_PREFERENCES: BatchPreferences = {
+  pageLimit: DEFAULT_PAGE_LIMIT,
+  source: 'list',
 };
