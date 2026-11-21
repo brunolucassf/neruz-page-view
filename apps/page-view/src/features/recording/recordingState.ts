@@ -35,6 +35,10 @@ type RecordingState = {
   gestureShortcut: string;
   recordingScreenId: ScreenId | null;
   isManuallyPaused: boolean;
+  scrollFactor: number;
+  isSpeedClamped: boolean;
+  recordingStartedAt: number;
+  recordingDurationMs: number;
   stageZoom: number;
   result: VideoResult | null;
   isMakingGif: boolean;
@@ -55,6 +59,10 @@ export const useRecording = create<RecordingState>()(() => ({
   gestureShortcut: '',
   recordingScreenId: null,
   isManuallyPaused: false,
+  scrollFactor: 1,
+  isSpeedClamped: false,
+  recordingStartedAt: 0,
+  recordingDurationMs: 0,
   stageZoom: 1,
   result: null,
   isMakingGif: false,

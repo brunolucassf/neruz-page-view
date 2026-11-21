@@ -150,6 +150,10 @@ export async function runRecording(): Promise<void> {
     gestureShortcut: '',
     recordingScreenId: screen.id,
     isManuallyPaused: false,
+    scrollFactor: 1,
+    isSpeedClamped: false,
+    recordingStartedAt: 0,
+    recordingDurationMs: 0,
   });
 
   let recorded: RecResult | null = null;
@@ -193,6 +197,7 @@ export async function runRecording(): Promise<void> {
       await client.command(studioHideScrollbar, screen.id, { hidden: false });
     });
 
+    useRecording.setState({ recordingDurationMs: plan.durationMs });
     const config: RecConfig = {
       rect,
       viewport,
@@ -224,6 +229,9 @@ export async function runRecording(): Promise<void> {
           );
         }
         if (progress.phase === 'recording') {
+          if (!useRecording.getState().recordingStartedAt) {
+            useRecording.setState({ recordingStartedAt: Date.now() - progress.elapsedMs });
+          }
           document.title = t('studio.video.tabIndicator');
         }
       },
@@ -262,6 +270,8 @@ export async function runRecording(): Promise<void> {
       recordingController: null,
       recordingScreenId: null,
       isManuallyPaused: false,
+      scrollFactor: 1,
+      isSpeedClamped: false,
       stageZoom: 1,
     });
   }

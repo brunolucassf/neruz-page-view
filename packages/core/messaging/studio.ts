@@ -1,5 +1,6 @@
 import * as v from 'valibot';
 import { MAX_COLLECTED_LINKS, MAX_PAGE_URL_LENGTH } from '../batch/types';
+import { AUTOSCROLL_FACTOR_MAX, AUTOSCROLL_FACTOR_MIN } from '../scroll/autoscroll-timeline';
 import {
   ElementLocatorSchema,
   MAX_SECTIONS,
@@ -149,6 +150,26 @@ export const studioAutoscrollStop = defineRequest(
   3000,
 );
 
+export const studioAutoscrollSpeed = defineRequest(
+  'studio.autoscroll.speed',
+  v.object({
+    factor: v.pipe(
+      v.number(),
+      v.finite(),
+      v.minValue(AUTOSCROLL_FACTOR_MIN),
+      v.maxValue(AUTOSCROLL_FACTOR_MAX),
+    ),
+    maxRemainingMs: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(600_000)),
+  }),
+  v.object({
+    factor: number,
+    isClamped: v.boolean(),
+    remainingMs: number,
+    scrollY: number,
+  }),
+  3000,
+);
+
 export const studioEmulate = defineRequest(
   'studio.emulate',
   v.object({ reducedMotionCss: v.boolean() }),
@@ -208,6 +229,7 @@ export const studioMessages = [
   studioAutoscrollPause,
   studioAutoscrollResume,
   studioAutoscrollStop,
+  studioAutoscrollSpeed,
   studioEmulate,
   studioCollectLinks,
   studioPageFacts,

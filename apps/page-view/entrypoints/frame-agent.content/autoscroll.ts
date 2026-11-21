@@ -4,8 +4,13 @@ import {
   type AutoscrollTimeline,
   buildAutoscrollTimeline,
   frameAutoscrollEnded,
+  measureAutoscrollRemaining,
+  NpvException,
   type PayloadOf,
+  resolveAutoscrollFactor,
+  retimeAutoscroll,
   sampleAutoscroll,
+  type studioAutoscrollSpeed,
   type studioAutoscrollStart,
 } from '@neruz/core';
 import { sendFrameEvent } from './frame-events';
@@ -104,3 +109,22 @@ export const resumeAutoscroll = () => {
 };
 
 export const stopAutoscroll = () => ({ scrollY: endAutoscroll('stopped') });
+
+export const setAutoscrollSpeed = ({
+  factor,
+  maxRemainingMs,
+}: PayloadOf<typeof studioAutoscrollSpeed>) => {
+  const state = running;
+  if (!state)
+    throw new NpvException('NPV-BAD-REQUEST', 'autoscroll not running', { reason: 'not-running' });
+  const elapsedMs = Math.max(0, elapsedOf(state, performance.now()));
+  const remaining = measureAutoscrollRemaining(state.timeline, elapsedMs);
+  const resolved = resolveAutoscrollFactor(factor, remaining, maxRemainingMs);
+  state.timeline = retimeAutoscroll(state.timeline, elapsedMs, resolved.factor);
+  return {
+    factor: resolved.factor,
+    isClamped: resolved.isClamped,
+    remainingMs: Math.max(0, Math.round(state.timeline.totalMs - elapsedMs)),
+    scrollY: window.scrollY,
+  };
+};

@@ -17,9 +17,15 @@ export type AutoscrollTimeline = {
   plan: AutoscrollPlan;
   segments: AutoscrollSegment[];
   totalMs: number;
+  rate: number;
 };
 
+export type AutoscrollRemaining = { moveBaseMs: number; pauseLeftMs: number };
+
 export type AutoscrollSample = { scrollTop: number; isPaused: boolean; isComplete: boolean };
+
+export const AUTOSCROLL_FACTOR_MIN = 0.25;
+export const AUTOSCROLL_FACTOR_MAX = 4;
 
 const SINE_WEIGHT = 0.7;
 const INVERSION_STEPS = 32;
@@ -79,7 +85,7 @@ export const buildAutoscrollTimeline = (plan: AutoscrollPlan): AutoscrollTimelin
     clockMs += stop.pauseMs;
   }
   addMove(1);
-  return { plan, segments, totalMs: clockMs };
+  return { plan, segments, totalMs: clockMs, rate: 1 };
 };
 
 export const sampleAutoscroll = (
@@ -109,3 +115,75 @@ export const sampleAutoscroll = (
 
 export const sumPauseMs = (stops: readonly { pauseMs: number }[]) =>
   stops.reduce((total, stop) => total + Math.max(0, stop.pauseMs), 0);
+
+const timeAt = (segment: Extract<AutoscrollSegment, { kind: 'move' }>, elapsedMs: number) =>
+  segment.fromTime +
+  ((segment.toTime - segment.fromTime) * (elapsedMs - segment.startMs)) /
+    (segment.endMs - segment.startMs);
+
+const splitAt = (segments: AutoscrollSegment[], elapsedMs: number): AutoscrollSegment[] =>
+  segments.flatMap((segment): AutoscrollSegment[] => {
+    if (segment.kind !== 'move' || elapsedMs <= segment.startMs || elapsedMs >= segment.endMs)
+      return [segment];
+    const cutTime = timeAt(segment, elapsedMs);
+    return [
+      { ...segment, endMs: elapsedMs, toTime: cutTime },
+      { ...segment, startMs: elapsedMs, fromTime: cutTime },
+    ];
+  });
+
+export const retimeAutoscroll = (
+  timeline: AutoscrollTimeline,
+  elapsedMs: number,
+  rate: number,
+): AutoscrollTimeline => {
+  const pieces = splitAt(timeline.segments, elapsedMs);
+  const kept = pieces.filter((segment) => segment.endMs <= elapsedMs);
+  const upcoming = pieces.filter((segment) => segment.endMs > elapsedMs);
+  let clockMs = elapsedMs;
+  const rebuilt = upcoming.map((segment): AutoscrollSegment => {
+    const isRunningPause = segment.kind === 'pause' && segment.startMs < elapsedMs;
+    const spanMs =
+      segment.kind === 'move'
+        ? ((segment.toTime - segment.fromTime) * timeline.plan.durationMs) / rate
+        : segment.endMs - segment.startMs;
+    const startMs = isRunningPause ? segment.startMs : clockMs;
+    const retimed = {
+      ...segment,
+      startMs,
+      endMs: isRunningPause ? segment.endMs : startMs + spanMs,
+    };
+    clockMs = retimed.endMs;
+    return retimed;
+  });
+  return { ...timeline, segments: [...kept, ...rebuilt], totalMs: clockMs, rate };
+};
+
+export const measureAutoscrollRemaining = (
+  timeline: AutoscrollTimeline,
+  elapsedMs: number,
+): AutoscrollRemaining => {
+  const remaining = { moveBaseMs: 0, pauseLeftMs: 0 };
+  for (const segment of timeline.segments) {
+    if (segment.endMs <= elapsedMs) continue;
+    if (segment.kind === 'pause') {
+      remaining.pauseLeftMs += segment.endMs - Math.max(segment.startMs, elapsedMs);
+      continue;
+    }
+    const fromTime = elapsedMs > segment.startMs ? timeAt(segment, elapsedMs) : segment.fromTime;
+    remaining.moveBaseMs += (segment.toTime - fromTime) * timeline.plan.durationMs;
+  }
+  return remaining;
+};
+
+export const resolveAutoscrollFactor = (
+  requested: number,
+  remaining: AutoscrollRemaining,
+  maxRemainingMs: number,
+): { factor: number; isClamped: boolean } => {
+  const movableMs = maxRemainingMs - remaining.pauseLeftMs;
+  const feasible = movableMs > 0 ? remaining.moveBaseMs / movableMs : AUTOSCROLL_FACTOR_MAX;
+  const floor = Math.max(AUTOSCROLL_FACTOR_MIN, feasible);
+  const factor = Math.min(AUTOSCROLL_FACTOR_MAX, Math.max(floor, requested));
+  return { factor, isClamped: factor !== requested };
+};

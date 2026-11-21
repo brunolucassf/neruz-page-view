@@ -1,6 +1,7 @@
 import { OctagonLoader } from '@neruz/ui';
 import { useEffect } from 'react';
 import { StudioBar } from '../bar/StudioBar';
+import { initBatchStorage, removeSessionOnPageHide } from '../batch/batchStorage';
 import { Bench } from '../bench/Bench';
 import { CapturePanel } from '../capture/CapturePanel';
 import { useCapture } from '../capture/captureStore';
@@ -21,6 +22,12 @@ export function StudioApp() {
   const isRecording = useRecording((state) => isRecordingBusy(state.stage));
   useLocale((state) => state.locale);
   useShortcuts();
+
+  useEffect(() => {
+    void initBatchStorage();
+    window.addEventListener('pagehide', removeSessionOnPageHide);
+    return () => window.removeEventListener('pagehide', removeSessionOnPageHide);
+  }, []);
 
   useEffect(() => {
     const root = document.documentElement;

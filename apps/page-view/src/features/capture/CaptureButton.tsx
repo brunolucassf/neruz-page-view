@@ -1,10 +1,14 @@
 import { animateEnter, Button } from '@neruz/ui';
 import { Camera } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import { ProgressBar } from 'react-aria-components';
 import { t } from '../i18n';
 import { useStudio } from '../shell/studioStore';
 import { cancelCapture, runCapture, useCapture } from './captureStore';
+
+const BatchFooter = lazy(() =>
+  import('../batch/BatchFooter').then((module) => ({ default: module.BatchFooter })),
+);
 
 export function CaptureButton() {
   const swapRef = useRef<HTMLDivElement>(null);
@@ -25,6 +29,13 @@ export function CaptureButton() {
     }
     if (swapRef.current) animateEnter(swapRef.current, 0, isRunning ? 200 : 140);
   }, [isRunning]);
+
+  if (target === 'pages')
+    return (
+      <Suspense fallback={null}>
+        <BatchFooter />
+      </Suspense>
+    );
 
   const isAllTarget = target === 'all';
   const canCapture = isAllTarget ? readyCount > 0 : isActiveReady;

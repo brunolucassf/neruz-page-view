@@ -11,7 +11,7 @@ import { useFramed } from './framedStore';
 import { createPreviewSource } from './framing/framedOutput';
 
 export type CaptureModeChoice = 'fast' | 'experience' | 'moments';
-export type CaptureTarget = 'active' | 'all';
+export type CaptureTarget = 'active' | 'all' | 'pages';
 export type { ImageFormat };
 
 type CaptureState = {
@@ -66,7 +66,7 @@ export const nextPaint = () =>
     requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
   );
 
-const captureHooks = (screenId: ScreenId) => ({
+export const captureHooks = (screenId: ScreenId) => ({
   enterCaptureLayout: async () => {
     useStudio.getState().setCaptureStage(screenId);
     await nextPaint();
@@ -111,7 +111,7 @@ async function storeCapturedShots(shots: CapturedShot[]) {
 
 export async function runCapture(): Promise<void> {
   const state = useCapture.getState();
-  if (state.isRunning) return;
+  if (state.isRunning || state.target === 'pages') return;
   const screens = listTargetScreens(state.target);
   if (screens.length === 0) return;
   const mode = state.mode;

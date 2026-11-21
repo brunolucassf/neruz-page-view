@@ -17,6 +17,7 @@ import {
   SliderThumb,
   SliderTrack,
 } from 'react-aria-components';
+import { useBatch } from '../batch/batchStore';
 import { ResultSection } from '../export/ResultSection';
 import { type MessageKey, t } from '../i18n';
 import { isRecordingBusy, type PanelTab, useRecording } from '../recording/recordingState';
@@ -32,6 +33,9 @@ import {
 import { FramedSwitch } from './FramedSwitch';
 import './capture-panel.css';
 
+const BatchSection = lazy(() =>
+  import('../batch/BatchSection').then((module) => ({ default: module.BatchSection })),
+);
 const VideoPanel = lazy(() =>
   import('../recording/VideoPanel').then((module) => ({ default: module.VideoPanel })),
 );
@@ -70,6 +74,7 @@ const MODE_OPTIONS: ModeOption[] = [
 const TARGET_OPTIONS: { value: CaptureTarget; label: MessageKey }[] = [
   { value: 'active', label: 'studio.capture.target.active' },
   { value: 'all', label: 'studio.capture.target.all' },
+  { value: 'pages', label: 'batch.title' },
 ];
 
 const FORMAT_OPTIONS: { value: ImageFormat; label: string }[] = [
@@ -93,14 +98,7 @@ export function CapturePanel() {
             <VideoPanel />
           </Suspense>
         ) : (
-          <>
-            <ActiveScreenSize />
-            <ModePicker />
-            <TargetPicker />
-            <FramedSwitch />
-            <AdvancedOptions />
-            <ResultSection />
-          </>
+          <ImageTabContent />
         )}
       </div>
       <div className="capture-panel__footer">
@@ -128,6 +126,40 @@ const TAB_OPTIONS: { value: PanelTab; label: MessageKey }[] = [
   { value: 'image', label: 'studio.capture.tab.image' },
   { value: 'video', label: 'studio.capture.tab.video' },
 ];
+
+function ImageTabContent() {
+  const target = useCapture((state) => state.target);
+  const isBatchBusy = useBatch(
+    (state) => !['idle', 'collecting', 'reviewing'].includes(state.phase),
+  );
+  if (target !== 'pages') {
+    return (
+      <>
+        <ActiveScreenSize />
+        <ModePicker />
+        <TargetPicker />
+        <FramedSwitch />
+        <AdvancedOptions />
+        <ResultSection />
+      </>
+    );
+  }
+  return (
+    <>
+      <TargetPicker />
+      <Suspense fallback={null}>
+        <BatchSection />
+      </Suspense>
+      {!isBatchBusy && (
+        <>
+          <ModePicker />
+          <FramedSwitch />
+          <AdvancedOptions />
+        </>
+      )}
+    </>
+  );
+}
 
 function TabSwitch() {
   const tab = useRecording((state) => state.tab);

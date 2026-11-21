@@ -23,6 +23,8 @@ const SECTION_PAUSE_MS = 1200;
 const START_SLACK_MS = 3000;
 const MAX_RECORDING_MS = 600_000;
 const MANUAL_PAUSE_ALLOWANCE_MS = 120_000;
+export const SPEED_FACTORS = [0.5, 1, 1.5, 2] as const;
+export const SLOWEST_UI_FACTOR = Math.min(...SPEED_FACTORS);
 export const MARKED_PAUSE_MS = 1500;
 const MAX_STOPS = 30;
 const TOP_SECTION_TOLERANCE_PX = 8;
@@ -72,7 +74,7 @@ export const planRecording = ({
   const pausesMs = stops.reduce((sum, stop) => sum + stop.pauseMs, 0);
   const durationMs = Math.min(
     MAX_RECORDING_MS,
-    scrollMs + pausesMs + START_SLACK_MS + MANUAL_PAUSE_ALLOWANCE_MS,
+    scrollMs / SLOWEST_UI_FACTOR + pausesMs + START_SLACK_MS + MANUAL_PAUSE_ALLOWANCE_MS,
   );
   return { scrollMs, stops, durationMs };
 };

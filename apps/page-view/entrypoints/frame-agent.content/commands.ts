@@ -12,6 +12,7 @@ import {
   studioApplyScroll,
   studioAutoscrollPause,
   studioAutoscrollResume,
+  studioAutoscrollSpeed,
   studioAutoscrollStart,
   studioAutoscrollStop,
   studioCollectLinks,
@@ -30,7 +31,13 @@ import {
   withTimeout,
 } from '@neruz/core';
 import { resolveAnchorScrollTop } from './anchor-dom';
-import { pauseAutoscroll, resumeAutoscroll, startAutoscroll, stopAutoscroll } from './autoscroll';
+import {
+  pauseAutoscroll,
+  resumeAutoscroll,
+  setAutoscrollSpeed,
+  startAutoscroll,
+  stopAutoscroll,
+} from './autoscroll';
 import { measurePage } from './measure';
 import { collectLinks, readPageFacts } from './page-facts';
 import { hideFixedElements, restoreFixedElements, setScrollbarHidden } from './page-overrides';
@@ -91,6 +98,10 @@ const buildHandlers = ({ onScrollApplied }: CommandContext): CommandHandler[] =>
   { definition: studioAutoscrollPause, run: pauseAutoscroll },
   { definition: studioAutoscrollResume, run: resumeAutoscroll },
   { definition: studioAutoscrollStop, run: stopAutoscroll },
+  {
+    definition: studioAutoscrollSpeed,
+    run: (payload: PayloadOf<typeof studioAutoscrollSpeed>) => setAutoscrollSpeed(payload),
+  },
   {
     definition: studioCollectLinks,
     run: (payload: PayloadOf<typeof studioCollectLinks>) => collectLinks(payload),

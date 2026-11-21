@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { formatClock, pickTabZoom, planRecording, resolveOutputSize } from './recordingPlan';
+import {
+  formatClock,
+  pickTabZoom,
+  planRecording,
+  resolveOutputSize,
+  SLOWEST_UI_FACTOR,
+} from './recordingPlan';
 
 describe('resolveOutputSize', () => {
   it('uses fixed sizes for vertical and horizontal', () => {
@@ -53,7 +59,7 @@ describe('planRecording', () => {
   it('adds one pause per section below the top and inside the scroll range', () => {
     const plan = planRecording({ speed: 'normal', totalScroll: 2800, sections, hasPauses: true });
     expect(plan.stops.map((stop) => stop.selector)).toEqual(['b', 'c']);
-    expect(plan.durationMs).toBe(10_000 + 2400 + 3000 + 120_000);
+    expect(plan.durationMs).toBe(10_000 / SLOWEST_UI_FACTOR + 2400 + 3000 + 120_000);
   });
 
   it('skips pauses when disabled', () => {

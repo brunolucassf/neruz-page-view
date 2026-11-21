@@ -1,6 +1,6 @@
 import { Flag, GripVertical, Pause, Play, Square } from 'lucide-react';
 import { type KeyboardEvent, type PointerEvent, useLayoutEffect, useRef, useState } from 'react';
-import { Button } from 'react-aria-components';
+import { Button, Radio, RadioGroup } from 'react-aria-components';
 import { t } from '../i18n';
 import {
   type BarBox,
@@ -8,8 +8,13 @@ import {
   pickInitialBarPoint,
   placeBarOutsideVideo,
 } from './recordingBarLayout';
-import { markPauseHere, stopRecordingNow, toggleScrollPause } from './recordingControls';
-import { formatClock } from './recordingPlan';
+import {
+  markPauseHere,
+  setScrollSpeed,
+  stopRecordingNow,
+  toggleScrollPause,
+} from './recordingControls';
+import { formatClock, SPEED_FACTORS } from './recordingPlan';
 import { useRecording } from './recordingState';
 
 const STOP_HINT_ID = 'rec-bar-stop-hint';
@@ -31,6 +36,8 @@ const measureBar = (bar: HTMLElement | null, scale: number) => {
   return { size, video, viewport };
 };
 
+const formatFactor = (factor: number) => `${String(factor).replace('.', ',')}×`;
+
 const KEY_DIRECTIONS: Record<string, BarPoint> = {
   ArrowLeft: { x: -1, y: 0 },
   ArrowRight: { x: 1, y: 0 },
@@ -41,6 +48,8 @@ const KEY_DIRECTIONS: Record<string, BarPoint> = {
 export function RecordingBar() {
   const elapsedMs = useRecording((state) => state.elapsedMs);
   const isPaused = useRecording((state) => state.isManuallyPaused);
+  const scrollFactor = useRecording((state) => state.scrollFactor);
+  const isSpeedClamped = useRecording((state) => state.isSpeedClamped);
   const scale = 1 / useRecording((state) => state.stageZoom);
   const barRef = useRef<HTMLFieldSetElement>(null);
   const dragOffset = useRef<BarPoint | null>(null);
@@ -148,6 +157,19 @@ export function RecordingBar() {
         >
           <Flag size={16} strokeWidth={1.75} aria-hidden="true" />
         </Button>
+        <RadioGroup
+          className="rec-bar__speed"
+          orientation="horizontal"
+          aria-label={t('studio.recbar.speed.label')}
+          value={String(scrollFactor)}
+          onChange={(value) => void setScrollSpeed(Number(value))}
+        >
+          {SPEED_FACTORS.map((factor) => (
+            <Radio key={factor} value={String(factor)} className="rec-bar__speed-option pv-tnum">
+              {formatFactor(factor)}
+            </Radio>
+          ))}
+        </RadioGroup>
         <Button
           className="rec-bar__button rec-bar__button--stop"
           aria-label={t('studio.recbar.stop')}
@@ -157,6 +179,11 @@ export function RecordingBar() {
           <Square size={14} strokeWidth={1.75} aria-hidden="true" />
           {t('studio.recbar.stop')}
         </Button>
+        {isSpeedClamped && (
+          <p className="rec-bar__notice" role="status">
+            {t('studio.recbar.speed.clamped')}
+          </p>
+        )}
       </fieldset>
     </>
   );

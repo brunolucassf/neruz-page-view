@@ -1,8 +1,11 @@
 import {
+  type BatchPreferences,
+  BatchPreferencesSchema,
   type CaptureDefaults,
   CaptureDefaultsSchema,
   type CustomDevice,
   CustomDevicesSchema,
+  DEFAULT_BATCH_PREFERENCES,
   DEFAULT_CAPTURE_DEFAULTS,
   DEFAULT_FRAMED_CAPTURE,
   DEFAULT_ONBOARDING,
@@ -57,6 +60,11 @@ const framedCaptureItem = storage.defineItem<FramedCapture>('local:studio.framed
       return parsed.success ? migrateFramedCaptureV1ToV2(parsed.output) : DEFAULT_FRAMED_CAPTURE;
     },
   },
+});
+
+const batchPreferencesItem = storage.defineItem<BatchPreferences>('local:studio.batch', {
+  fallback: DEFAULT_BATCH_PREFERENCES,
+  version: 1,
 });
 
 function logInvalid(key: string): void {
@@ -130,6 +138,11 @@ export const loadFramedCapture = () =>
   readChecked(FramedCaptureSchema, framedCaptureItem, DEFAULT_FRAMED_CAPTURE);
 export const saveFramedCapture = (value: FramedCapture) =>
   writeChecked(FramedCaptureSchema, framedCaptureItem, value);
+
+export const loadBatchPreferences = () =>
+  readChecked(BatchPreferencesSchema, batchPreferencesItem, DEFAULT_BATCH_PREFERENCES);
+export const saveBatchPreferences = (value: BatchPreferences) =>
+  writeChecked(BatchPreferencesSchema, batchPreferencesItem, value);
 
 export async function buildSettingsExport(): Promise<SettingsExport> {
   const [settings, captureDefaults, devicesCustom, devicesFavorites, kits, framedCapture] =
