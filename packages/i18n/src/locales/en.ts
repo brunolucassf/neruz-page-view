@@ -327,7 +327,8 @@ export const en: Record<MessageKey, string> = {
   'batch.sitemap.label': 'Sitemap URL',
   'batch.sitemap.placeholder': 'Leave empty to use the site on the screens',
   'batch.sitemap.hint': 'Same-site pages only.',
-  'batch.links.hint': 'Uses the links on the open page that stay on the same site, without going further.',
+  'batch.links.hint':
+    'Uses the links on the open page that stay on the same site, without going further.',
   'batch.limit.label': 'Page limit',
   'batch.limit.hint': 'Up to {max} pages at a time.',
   'batch.action.review': 'See pages',

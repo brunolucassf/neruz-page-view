@@ -1,5 +1,7 @@
 import * as v from 'valibot';
 
+const MAX_ID_LENGTH = 128;
+
 export const MIN_MAX_SCREENS = 1;
 export const MAX_MAX_SCREENS = 16;
 export const MIN_IMAGE_QUALITY = 0.5;
@@ -95,19 +97,26 @@ export const CustomDeviceSchema = v.object({
   dpr: v.pipe(v.number(), v.minValue(MIN_DEVICE_DPR), v.maxValue(MAX_DEVICE_DPR)),
   type: v.picklist(['phone', 'tablet', 'laptop', 'desktop', 'tv']),
   frame: v.picklist(['none', 'phone', 'tablet', 'laptop', 'monitor']),
-  userAgentPresetId: v.optional(v.string()),
+  userAgentPresetId: v.optional(v.pipe(v.string(), v.maxLength(MAX_ID_LENGTH))),
 });
 
 export const CustomDevicesSchema = v.pipe(
   v.array(CustomDeviceSchema),
   v.maxLength(MAX_CUSTOM_DEVICES),
 );
-export const FavoritesSchema = v.pipe(v.array(v.string()), v.maxLength(MAX_FAVORITES));
+export const FavoritesSchema = v.pipe(
+  v.array(v.pipe(v.string(), v.maxLength(MAX_ID_LENGTH))),
+  v.maxLength(MAX_FAVORITES),
+);
 
 export const KitSchema = v.object({
   id: v.pipe(v.string(), v.uuid()),
   name: NameSchema,
-  deviceIds: v.pipe(v.array(v.string()), v.minLength(1), v.maxLength(MAX_KIT_SCREENS)),
+  deviceIds: v.pipe(
+    v.array(v.pipe(v.string(), v.maxLength(MAX_ID_LENGTH))),
+    v.minLength(1),
+    v.maxLength(MAX_KIT_SCREENS),
+  ),
   orientation: v.picklist(['portrait', 'landscape']),
 });
 

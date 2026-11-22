@@ -7,13 +7,15 @@ export default defineConfig({
   manifest: ({ browser }) => {
     const isFirefox = browser === 'firefox';
     return {
-      name: 'Neruz Page View',
-      version: '0.0.0',
-      action: { default_title: 'Neruz Page View' },
+      name: '__MSG_extName__',
+      description: '__MSG_extDescription__',
+      default_locale: 'en',
+      version: '1.0.0',
+      action: { default_title: '__MSG_extName__' },
       commands: {
         _execute_action: {
           suggested_key: { default: 'Alt+Shift+P' },
-          description: 'Open Neruz Page View',
+          description: '__MSG_commandOpen__',
         },
       },
       permissions: [

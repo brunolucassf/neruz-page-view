@@ -14,7 +14,8 @@ import type {
 
 const MAX_OVERFLOW_SELECTORS = 5;
 const DATA_IMAGE_PATTERN = /^data:image\/(?:webp|jpeg|png);base64,[A-Za-z0-9+/=]+$/;
-const CONTENT_SECURITY_POLICY = "default-src 'none'; img-src data:; style-src 'unsafe-inline'";
+const CONTENT_SECURITY_POLICY =
+  "default-src 'none'; img-src data:; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'";
 const EMPTY_VALUE = '—';
 
 export type BuildBatchReportInput = {

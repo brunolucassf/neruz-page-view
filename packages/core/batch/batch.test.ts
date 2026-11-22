@@ -526,7 +526,7 @@ describe('batch report', () => {
   it('has CSP, language, no script, fixed footer and generatedBy', () => {
     const html = renderReportHtml(report, strings, new Map());
     expect(html).toContain(
-      `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'">`,
+      `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">`,
     );
     expect(html).toContain('<html lang="pt-BR">');
     expect(html).not.toMatch(/<script/i);

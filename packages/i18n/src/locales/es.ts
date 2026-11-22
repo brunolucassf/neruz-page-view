@@ -330,7 +330,8 @@ export const es: Record<MessageKey, string> = {
   'batch.sitemap.label': 'Dirección del sitemap',
   'batch.sitemap.placeholder': 'Si lo dejas vacío, usa el sitio de las pantallas',
   'batch.sitemap.hint': 'Solo páginas del mismo sitio.',
-  'batch.links.hint': 'Usa los enlaces de la página abierta que quedan en el mismo sitio, sin ir más allá.',
+  'batch.links.hint':
+    'Usa los enlaces de la página abierta que quedan en el mismo sitio, sin ir más allá.',
   'batch.limit.label': 'Límite de páginas',
   'batch.limit.hint': 'Hasta {max} páginas por vez.',
   'batch.action.review': 'Ver páginas',

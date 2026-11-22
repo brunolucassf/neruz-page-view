@@ -1,0 +1,11 @@
+{
+  "extName": {
+    "message": "Neruz Page View"
+  },
+  "extDescription": {
+    "message": "Preview your site on many screen sizes at once, then capture screenshots, videos and mockups. Free, open source, 100% local."
+  },
+  "commandOpen": {
+    "message": "Open Neruz Page View"
+  }
+}
