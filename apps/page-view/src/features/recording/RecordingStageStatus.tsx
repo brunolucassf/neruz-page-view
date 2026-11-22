@@ -1,4 +1,5 @@
 import { Button, OctagonLoader } from '@neruz/ui';
+import { ArrowUpRight } from 'lucide-react';
 import { useEffect } from 'react';
 import { t } from '../i18n';
 import { useStudio } from '../shell/studioStore';
@@ -32,17 +33,27 @@ export function RecordingStageStatus() {
   if (stage === 'recording') return <RecordingBar />;
   const message = describeRecordingStage(stage, elapsedMs, gestureShortcut);
 
+  if (stage === 'awaiting-gesture') {
+    return (
+      <div className="capture-stage-status rec-gesture" role="status">
+        <ArrowUpRight className="rec-gesture__arrow" size={28} aria-hidden="true" />
+        <p className="rec-gesture__title">{t('studio.video.gesture.title')}</p>
+        <p className="rec-gesture__message">{message}</p>
+        <p className="rec-gesture__hint">{t('studio.video.gesture.pinHint')}</p>
+        <Button variant="secondary" onPress={cancelRecording}>
+          {t('queue.cancel')}
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div
       className="capture-stage-status rec-stage-status"
       style={{ left: stageWidth + STATUS_GUTTER_PX }}
       role="status"
     >
-      {stage === 'awaiting-gesture' ? (
-        <p className="rec-stage-status__message">{message}</p>
-      ) : (
-        <OctagonLoader label={message} />
-      )}
+      <OctagonLoader label={message} />
       <Button variant="secondary" onPress={cancelRecording}>
         {t('queue.cancel')}
       </Button>

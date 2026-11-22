@@ -296,6 +296,9 @@ export const en: Record<MessageKey, string> = {
   'studio.video.step.preparing': 'Getting the screen ready',
   'studio.video.gesture':
     'Click the extension icon or press {shortcut} to start. Your browser asks for this step for security.',
+  'studio.video.gesture.title': 'One more click',
+  'studio.video.gesture.pinHint':
+    "Can't see the icon? Click the puzzle piece next to the address bar and pin Neruz Page View.",
   'studio.video.gesture.noShortcut':
     'Click the extension icon to start. Your browser asks for this step for security.',
   'studio.video.step.recording': 'Recording {time}',

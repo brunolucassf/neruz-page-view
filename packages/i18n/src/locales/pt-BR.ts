@@ -295,6 +295,9 @@ export const ptBR = {
   'studio.video.step.preparing': 'Preparando a tela',
   'studio.video.gesture':
     'Clique no ícone da extensão ou aperte {shortcut} para começar. O navegador pede esse passo por segurança.',
+  'studio.video.gesture.title': 'Falta um clique',
+  'studio.video.gesture.pinHint':
+    'Não vê o ícone? Clique na peça de quebra-cabeça ao lado da barra de endereço e fixe o Neruz Page View.',
   'studio.video.gesture.noShortcut':
     'Clique no ícone da extensão para começar. O navegador pede esse passo por segurança.',
   'studio.video.step.recording': 'Gravando {time}',

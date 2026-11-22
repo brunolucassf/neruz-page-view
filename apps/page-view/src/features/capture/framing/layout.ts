@@ -35,7 +35,7 @@ const STRETCH_BAND_UNITS = 8;
 
 const toEven = (value: number) => Math.max(2, Math.round(value / 2) * 2);
 
-const rotateScreenClockwise = (frame: FrameSpec): FrameRect => ({
+export const rotateScreenClockwise = (frame: FrameSpec): FrameRect => ({
   x: frame.height - frame.screen.y - frame.screen.height,
   y: frame.screen.x,
   width: frame.screen.height,

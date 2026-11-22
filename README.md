@@ -32,15 +32,15 @@ Para testar no navegador: `chrome://extensions` → modo do desenvolvedor → **
 
 ## Estrutura
 
-| Pasta | Conteúdo |
-| --- | --- |
-| `apps/page-view` | Extensão (WXT + React + TypeScript) |
-| `apps/landing` | Página de apresentação (Astro) |
-| `packages/core` | Mensageria, armazenamento, lote e relatório |
-| `packages/capture` | Captura de imagem e vídeo |
-| `packages/devices` | Biblioteca de aparelhos |
-| `packages/i18n` | Traduções pt-BR, en, es |
-| `packages/ui` | Tokens e estilos compartilhados |
+| Pasta              | Conteúdo                                    |
+| ------------------ | ------------------------------------------- |
+| `apps/page-view`   | Extensão (WXT + React + TypeScript)         |
+| `apps/landing`     | Página de apresentação (Astro)              |
+| `packages/core`    | Mensageria, armazenamento, lote e relatório |
+| `packages/capture` | Captura de imagem e vídeo                   |
+| `packages/devices` | Biblioteca de aparelhos                     |
+| `packages/i18n`    | Traduções pt-BR, en, es                     |
+| `packages/ui`      | Tokens e estilos compartilhados             |
 
 Arquitetura, contratos e decisões: [docs/ARQUITETURA.md](docs/ARQUITETURA.md), [docs/API.md](docs/API.md), [docs/DECISOES.md](docs/DECISOES.md).
 

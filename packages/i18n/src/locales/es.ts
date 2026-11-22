@@ -298,6 +298,9 @@ export const es: Record<MessageKey, string> = {
   'studio.video.step.preparing': 'Preparando la pantalla',
   'studio.video.gesture':
     'Haz clic en el ícono de la extensión o pulsa {shortcut} para empezar. El navegador pide este paso por seguridad.',
+  'studio.video.gesture.title': 'Falta un clic',
+  'studio.video.gesture.pinHint':
+    '¿No ves el ícono? Haz clic en la pieza de rompecabezas junto a la barra de direcciones y fija Neruz Page View.',
   'studio.video.gesture.noShortcut':
     'Haz clic en el ícono de la extensión para empezar. El navegador pide este paso por seguridad.',
   'studio.video.step.recording': 'Grabando {time}',

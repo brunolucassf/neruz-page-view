@@ -211,7 +211,7 @@ export const DEFAULT_ONBOARDING: StudioOnboarding = {
 };
 
 export const DEFAULT_FRAMED_CAPTURE: FramedCapture = {
-  isEnabled: true,
+  isEnabled: false,
   frameDeviceId: null,
   background: 'ice',
   backgroundColor: DEFAULT_FRAMED_BACKGROUND_COLOR,

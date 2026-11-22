@@ -72,10 +72,53 @@
   white-space: normal;
 }
 
-.rec-stage-status__message {
-  min-width: 0;
+.rec-gesture {
+  top: var(--pv-space-5);
+  right: var(--pv-space-8);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--pv-space-3);
+  width: min(360px, calc(100vw - 2 * var(--pv-space-8)));
+  padding: var(--pv-space-6);
+  white-space: normal;
+  box-shadow:
+    0 0 0 1px var(--pv-accent),
+    var(--pv-shadow-popover);
+}
+
+.rec-gesture__arrow {
+  align-self: flex-end;
+  color: var(--pv-accent-text);
+  animation: rec-gesture-nudge 1.2s var(--pv-ease-out) infinite;
+}
+
+.rec-gesture__title {
+  margin: 0;
+  color: var(--pv-text);
+  font-size: var(--pv-ui-16);
+  line-height: var(--pv-ui-16-lh);
+  font-weight: 600;
+}
+
+.rec-gesture__message,
+.rec-gesture__hint {
+  margin: 0;
+  color: var(--pv-text-2);
   font-size: var(--pv-ui-13);
   line-height: var(--pv-ui-13-lh);
+}
+
+.rec-gesture__hint {
+  color: var(--pv-text-3);
+  font-size: var(--pv-ui-12);
+  line-height: var(--pv-ui-12-lh);
+}
+
+@keyframes rec-gesture-nudge {
+  50% {
+    transform: translate(3px, -3px);
+  }
 }
 
 .rec-bar__announce {
@@ -273,7 +316,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rec-bar__dot {
+  .rec-bar__dot,
+  .rec-gesture__arrow {
     animation: none;
   }
 

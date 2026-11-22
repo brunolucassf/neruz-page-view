@@ -288,3 +288,22 @@
     animation: none;
   }
 }
+
+.frame-preview {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  animation: framed-fade 200ms var(--pv-ease-out);
+}
+
+.frame-preview__image {
+  display: block;
+  max-width: none;
+  transform-origin: 0 0;
+}
+
+.screen__viewport[data-framed] {
+  isolation: isolate;
+  background: transparent;
+  box-shadow: none;
+}

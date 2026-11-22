@@ -12,6 +12,8 @@ import {
 import { Moon, ShieldAlert } from 'lucide-react';
 import { type CSSProperties, useEffect, useRef } from 'react';
 import { ToggleButton } from 'react-aria-components';
+import { FramePreview, measureFramePreview } from '../capture/FramePreview';
+import { useFramed } from '../capture/framedStore';
 import { formatSize, t } from '../i18n';
 import { useMaxActiveScreens } from '../settings/settingsStore';
 import { loadScreen } from '../shell/studioSession';
@@ -47,6 +49,8 @@ export function ScreenView({ screen, index, box, zoom }: ScreenViewProps) {
   const toggleScreenDark = useStudio((state) => state.toggleScreenDark);
   const reloadScreen = useStudio((state) => state.reloadScreen);
   const maxActiveScreens = useMaxActiveScreens();
+  const isFramedOn = useFramed((state) => state.isEnabled);
+  const chosenFrame = useFramed((state) => state.frameDeviceId);
 
   const label = screen.name;
   const accessibleName = t('studio.screen.a11yName', {
@@ -58,6 +62,13 @@ export function ScreenView({ screen, index, box, zoom }: ScreenViewProps) {
   const effectiveZoom = isCaptureTarget ? 1 : zoom;
   const viewportWidth = isCaptureTarget ? screen.width : box.scaledWidth;
   const viewportHeight = isCaptureTarget ? screen.height : box.scaledHeight;
+  const isFramePreviewOn = isFramedOn && isActive && !isCaptureTarget;
+  const frameTopInset = isFramePreviewOn
+    ? -measureFramePreview(
+        { screenKind: screen.kind, isLandscape: screen.width > screen.height, viewportWidth },
+        chosenFrame,
+      ).top
+    : 0;
 
   useEffect(() => {
     if (sectionRef.current) animateEnter(sectionRef.current, index * STAGGER_MS, 260);
@@ -102,7 +113,10 @@ export function ScreenView({ screen, index, box, zoom }: ScreenViewProps) {
       onPointerDownCapture={() => activateScreen(screen.id)}
       onFocusCapture={() => activateScreen(screen.id)}
     >
-      <header className="screen__header">
+      <header
+        className="screen__header"
+        style={frameTopInset ? { transform: `translateY(${-frameTopInset}px)` } : undefined}
+      >
         <Button
           variant="ghost"
           className="screen__name"
@@ -134,7 +148,19 @@ export function ScreenView({ screen, index, box, zoom }: ScreenViewProps) {
           <ScreenMenu screenId={screen.id} index={index} total={total} />
         </div>
       </header>
-      <div className="screen__viewport" style={{ width: viewportWidth, height: viewportHeight }}>
+      <div
+        className="screen__viewport"
+        style={{ width: viewportWidth, height: viewportHeight }}
+        data-framed={isFramePreviewOn || undefined}
+      >
+        {isFramePreviewOn && (
+          <FramePreview
+            screenKind={screen.kind}
+            isDark={screen.isDark}
+            isLandscape={screen.width > screen.height}
+            viewportWidth={viewportWidth}
+          />
+        )}
         <div
           className="screen__scale"
           style={{
