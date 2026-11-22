@@ -406,7 +406,7 @@ thead th,.facts th{background:var(--surface);font-weight:600}
 .scroll{overflow-x:auto}
 .page{margin:1.5rem 0;padding:1rem;border:1px solid var(--line);border-radius:.5rem;break-inside:avoid}
 .notes{margin:.5rem 0 1rem;padding-left:1.25rem}
-img{display:block;width:10rem;max-width:100%;height:auto;border:1px solid var(--line)}
+img{display:block;width:8rem;max-width:100%;height:6rem;object-fit:cover;object-position:top;border:1px solid var(--line)}
 a{color:var(--accent)}
 code{font-size:.85em}
 footer{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--line);color:var(--muted)}

@@ -107,6 +107,7 @@
   color: var(--pv-text);
   font-size: var(--pv-ui-13);
   line-height: var(--pv-ui-13-lh);
+  max-width: calc(100vw - 2 * var(--pv-space-3));
   transform-origin: 0 0;
   visibility: visible;
   transition:
@@ -244,6 +245,24 @@
   .rec-bar__handle[data-hovered],
   .rec-bar__button[data-hovered] {
     background: var(--pv-bg-raised);
+  }
+}
+
+@media (max-width: 480px) {
+  .rec-bar {
+    gap: var(--pv-space-2);
+  }
+
+  .rec-bar__status {
+    min-width: 0;
+  }
+
+  .rec-bar__speed {
+    flex-basis: 100%;
+  }
+
+  .rec-bar__speed-option {
+    flex: 1;
   }
 }
 
