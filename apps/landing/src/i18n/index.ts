@@ -9,21 +9,24 @@ export function getCopy(locale: Locale): LandingCopy {
   return DICTIONARIES[locale];
 }
 
+const REPO_URL = 'https://github.com/brunolucassf/neruz-page-view';
+const INSTALL_URL = `${REPO_URL}#instalar`;
+
 export const STORE_LINKS = {
-  chrome: '#instalar',
-  edge: '#instalar',
-  firefox: '#instalar',
-  brave: '#instalar',
-  opera: '#instalar',
-  github: '#github',
-  license: '#licenca',
-  issues: '#problemas',
-  privacy: '#privacidade',
-  contribute: '#contribuir',
-  permissions: '#permissoes',
+  chrome: INSTALL_URL,
+  edge: INSTALL_URL,
+  firefox: INSTALL_URL,
+  brave: INSTALL_URL,
+  opera: INSTALL_URL,
+  github: REPO_URL,
+  license: `${REPO_URL}/blob/main/LICENSE`,
+  issues: `${REPO_URL}/issues`,
+  privacy: `${REPO_URL}/blob/main/docs/PRIVACIDADE.md`,
+  contribute: `${REPO_URL}#contribuir`,
+  permissions: `${REPO_URL}#privacidade-e-permiss%C3%B5es`,
 } as const;
 
-export const IS_STORE_LIVE = true;
+export const IS_STORE_LIVE = false;
 
 export const FONTE_DEV_URL = 'https://fontedev.com';
 
