@@ -1,57 +1,56 @@
-# Privacy Policy (technical draft, English)
+# Neruz Page View — Privacy Policy
 
-> DRAFT. Review with a lawyer before publishing (revisar com advogado). This is not legal advice.
-> Translated from docs/PRIVACIDADE.md. Statements must stay identical across pt-BR, en and es. Do not cite specific laws beyond those the lawyer approves.
-> Items in brackets are pending input from Bruno.
+Last updated: November 22, 2026
 
-**Neruz Page View** · Last updated: [publication date]
+## 1. Developer and scope
 
-## Summary
-Neruz Page View runs on your device. We have no server for the extension, we don't create accounts, and we don't collect or receive your personal data, the content of the sites you view, or the captures you make.
+This policy describes how the Neruz Page View browser extension operates. The extension is developed by Bruno Lucas (Fonte Dev). Contact: contato@fontedev.com.
 
-## What the extension accesses
-To work, the extension accesses the following in your browser, and only when you ask it to:
-- the pages you open to view on multiple screens, including their displayed content, so it can mirror scrolling, clicks and typing, and so it can capture them;
-- the URLs you enter (one by one, as a list, from a sitemap or from a page's internal links);
-- your settings (kits, favorites, custom screens, preferences).
+This policy applies to the extension. Websites opened in the Studio, extension stores, GitHub and email services have their own policies. The Neruz Page View promotional website is outside the scope of this document.
 
-## Where your data stays
-- Settings: in your browser's local storage. They stay there until you delete them or remove the extension.
-- Captures (screenshots, videos, mockups, reports): created on your device and saved wherever you choose. Temporary files are discarded after export or when you close the extension.
-- The extension does not send any of this to us or to third parties.
+## 2. Processing on your device
 
-When you view a site, your browser makes requests to that site, just like a normal visit. The site you visit may log that access under its own policy.
+The extension runs on your device without requiring an account. It does not send page content, URLs opened in the Studio, settings, interactions or captures to the developer. The extension contains no advertising, usage analytics or trackers, and does not load remote code to execute its features.
 
-## Captures and third-party data
-Captures may show other people's personal information that is visible on screen (for example, names or email addresses in a dashboard). You decide what to capture, keep and share, and you are responsible for that material. We recommend reviewing the content before sharing it.
+To preview and capture a page, the extension processes its URL and displayed content locally. When you enable mirroring, it also processes the actions needed to reproduce scrolling, clicks and typing across the preview screens.
 
-## Browser permissions
-The extension asks for broad permissions because you can view any site. They are used only to display, mirror and capture the pages you choose. The extension temporarily changes security headers only within its own viewing screens, so that sites can appear inside frames, and removes that change when it closes. We do not use these permissions to collect browsing history.
+## 3. Settings and captures
 
-Only inside the Studio screens, and only on sites you have given access to, the extension injects a small script that adjusts how the simulated device identifies itself (how the browser presents itself to the site) and the "reduce motion" preference, so the site looks the way it would on that device. It only works when it receives the simulated device code through the screen's own name (for example, the screen size you chose); without that code, it does nothing. That code contains no personal data, but the displayed site can read it. The script does not read or send any data, does not receive or send messages, and does not use any extension features. It is turned on when you open the Studio and removed when you close it, and it does not act on your regular browser tabs.
+Custom screens, kits, favorites and preferences are stored locally in your browser. You can remove this data using your browser's extension and storage management options.
 
-## Tracking
-The extension contains no analytics, ads, trackers or remote code.
+Images, videos, mockups and reports are generated on your device and exported to the destination you choose. The extension does not automatically send them to the developer or third parties. Exported files remain at the chosen destination until you delete them. When you copy a capture, its content is placed on your device's clipboard.
 
-## Website (landing page)
-- [Version without analytics] The website does not use tracking cookies or analytics tools.
-- [If Bruno chooses cookieless analytics: tool name, aggregated data, no personal identification, where it is hosted.]
-- The website's hosting provider keeps technical access logs (such as IP address, date and page) for security and operational purposes, retained for [period] by [hosting provider].
-- The website may store your language preference in your browser, only so it works the way you chose. [Remove if not applicable.]
-- Links to extension stores and to GitHub take you to third-party services, which have their own policies.
+## 4. Browser permissions
 
-## Open source
-The code is open source under the MIT license at [repository URL], so you can check how the extension works.
+Permissions are used to preview, mirror and capture the pages you choose:
 
-## Your rights
-Since we don't keep any of your personal data, there is generally nothing for us to access, correct or delete. You can erase the local data at any time by removing the extension or clearing its data in your browser. For questions, or requests related to the website logs, contact [contact email]. If you are in Brazil, you may also contact the Brazilian National Data Protection Authority (ANPD). [lawyer to validate wording and other jurisdictions]
+- **Storage:** save settings locally.
+- **Active tab:** open the Studio with the current tab's URL when you activate the extension.
+- **Site access and script execution:** load pages in the Studio, synchronize interactions and make captures. Site access is requested during use as needed.
+- **Network rules:** allow pages to appear in the Studio's preview screens by adjusting headers that prevent them from loading inside frames. These rules are limited to subframes in the Studio tab and are removed when it closes; they do not apply to ordinary browsing in other tabs.
+- **Clipboard:** copy captures when you choose that action.
+- **Tab capture and background processing, where available in the browser version:** produce the recording you request.
 
-## Children
-The extension is a general-purpose work tool and is not directed at children. [lawyer to validate]
+Within the Studio screens, the extension may also adjust presentation properties, such as the simulated device identification and reduced-motion preference. The displayed website may detect this simulation information.
 
-## Changes
-If the extension starts handling data differently, we will update this policy before that happens and show the update date. Changes of this kind also follow the stores' rules.
+## 5. Connections to websites you preview
 
-## Controller
-Bruno Lucas (Fonte Dev) · [email] · [controller identification as advised by the lawyer]
-Developed by Fonte Dev · Bruno Lucas (https://fontedev.com)
+Opening a website in the Studio creates connections between your browser and that website, as with a regular visit. The website and services it embeds may receive your IP address and other information normally transmitted by your browser, use cookies and log access under their own policies. The extension's local processing does not prevent these connections or make your browsing anonymous.
+
+## 6. Sharing and captured content
+
+The developer does not receive, sell or share the data processed locally by the extension. If you choose to send or publish a capture, that sharing happens at your direction through the destination or service you select.
+
+Captures may contain personal or confidential information displayed on a page. Review their content before saving, copying or sharing. If you select a folder synchronized with a cloud service, that service may upload the files according to your settings.
+
+## 7. Contact and support
+
+If you send a support email, your email address and the content you provide will be used to respond to your request and follow up on its resolution. This communication is separate from the extension's operation. You can request clarification or deletion of information you supplied by emailing contato@fontedev.com, subject to applicable obligations.
+
+Issues opened in the public GitHub repository may be visible to others. Do not post passwords, identity documents or confidential information in those issues.
+
+## 8. Open source and changes
+
+The source code is available under the MIT license at https://github.com/brunolucassf/neruz-page-view.
+
+If the extension's data handling changes, this policy will be updated to describe the new behavior and show the revision date.
