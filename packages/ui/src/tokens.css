@@ -150,12 +150,12 @@
   --pv-bar-h: 48px;
   --pv-library-w: 240px;
   --pv-library-rail-w: 56px;
-  --pv-panel-w: 280px;
+  --pv-panel-w: 320px;
   --pv-screen-header-h: 28px;
   --pv-ruler-h: 24px;
   --pv-dock-h: 44px;
   --pv-screen-gap: 32px;
-  --pv-panel-pad: 16px;
+  --pv-panel-pad: 20px;
   --pv-target-dense: 32px;
   --pv-target-min: 44px;
 

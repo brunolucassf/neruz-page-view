@@ -145,7 +145,7 @@ export const useStudio = create<StudioState & StudioActions>()((set, get) => ({
   screens: starterScreens,
   activeScreenId: starterScreens[0]?.id ?? 's1',
   zoom: 1,
-  isFitMode: true,
+  isFitMode: false,
   isMirrorOn: true,
   bench: { width: 0, height: 0 },
   resize: null,
@@ -164,8 +164,7 @@ export const useStudio = create<StudioState & StudioActions>()((set, get) => ({
       screens: state.screens.map((screen) =>
         withLoadStarted({ ...state, pageUrl: url, access }, screen),
       ),
-      isFitMode: true,
-      zoom: computeFitZoom(state.screens, state.bench),
+      zoom: refit(state, state.screens),
     })),
 
   showEmpty: (emptyReason) => set({ pageUrl: null, emptyReason }),
@@ -319,8 +318,7 @@ export const useStudio = create<StudioState & StudioActions>()((set, get) => ({
       history: pushHistory(state),
       activeScreenId: screens[0]?.id ?? state.activeScreenId,
       loadedSignature: signatureOf(screens),
-      isFitMode: true,
-      zoom: computeFitZoom(screens, state.bench),
+      zoom: refit(state, screens),
     });
     return screens.filter((screen) => screen.isFrozen).length;
   },
