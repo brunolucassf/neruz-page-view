@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 28" width="640" height="28" role="img" aria-label="Licencia MIT · Manifest V3 · Chrome, Edge, Opera, Brave e Firefox · Sin recopilar datos">
+  <style>.t{font-family:"Segoe UI",Helvetica,Arial,sans-serif;font-size:12px;font-weight:600}</style>
+  <g>
+    <rect width="102" height="28" rx="3" fill="#00E5FF"/>
+    <text class="t" x="51" y="18.5" fill="#05080D" text-anchor="middle">Licencia MIT</text>
+  </g>
+  <g transform="translate(110 0)">
+    <rect width="102" height="28" rx="3" fill="#00E5FF"/>
+    <text class="t" x="51" y="18.5" fill="#05080D" text-anchor="middle">Manifest V3</text>
+  </g>
+  <g transform="translate(220 0)">
+    <rect width="254" height="28" rx="3" fill="#00E5FF"/>
+    <text class="t" x="127" y="18.5" fill="#05080D" text-anchor="middle">Chrome · Edge · Opera · Brave · Firefox</text>
+  </g>
+  <g transform="translate(482 0)">
+    <rect width="158" height="28" rx="3" fill="#00E5FF"/>
+    <text class="t" x="79" y="18.5" fill="#05080D" text-anchor="middle">Sin recopilar datos</text>
+  </g>
+</svg>

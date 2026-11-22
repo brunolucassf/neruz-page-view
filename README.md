@@ -1,12 +1,13 @@
 <p align="center">
+  <b>🇧🇷 Português</b> · <a href="README.en.md">🇺🇸 English</a> · <a href="README.es.md">🇪🇸 Español</a>
+</p>
+
+<p align="center">
   <img src="docs/assets/banner.svg" alt="Neruz Page View: seu site em várias telas ao mesmo tempo" width="100%">
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img alt="Licença MIT" src="https://img.shields.io/badge/licen%C3%A7a-MIT-00E5FF?style=flat-square&labelColor=080D14"></a>
-  <img alt="Manifest V3" src="https://img.shields.io/badge/Manifest-V3-00E5FF?style=flat-square&labelColor=080D14">
-  <img alt="Chrome, Edge, Opera, Brave e Firefox" src="https://img.shields.io/badge/Chrome%20%C2%B7%20Edge%20%C2%B7%20Opera%20%C2%B7%20Brave%20%C2%B7%20Firefox-304256?style=flat-square&labelColor=080D14">
-  <img alt="Sem coleta de dados" src="https://img.shields.io/badge/dados%20coletados-nenhum-304256?style=flat-square&labelColor=080D14">
+  <a href="LICENSE"><img src="docs/assets/badges.svg" alt="Licença MIT · Manifest V3 · Chrome, Edge, Opera, Brave e Firefox · Nenhum dado coletado" width="640"></a>
 </p>
 
 <p align="center">
@@ -30,14 +31,21 @@
 
 ## Instalar
 
-| Navegador            | Como                                                                                                                                                     |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Chrome, Brave, Opera | Chrome Web Store (link em breve)                                                                                                                         |
-| Edge                 | Edge Add-ons (em breve)                                                                                                                                  |
-| Firefox 128+         | Firefox Add-ons (em breve)                                                                                                                               |
-| Versão de teste      | Baixe o `.zip` em [Releases](../../releases), descompacte e carregue em `chrome://extensions` → **Modo do desenvolvedor** → **Carregar sem compactação** |
+| Navegador            | Onde                                         |
+| -------------------- | -------------------------------------------- |
+| Chrome, Brave, Opera | Chrome Web Store (em análise, link em breve) |
+| Edge                 | Edge Add-ons (em breve)                      |
+| Firefox 128+         | Firefox Add-ons (em breve)                   |
 
-Depois de instalar, clique no ícone da extensão (ou `Alt+Shift+P`) para abrir o **Estúdio** com a página atual.
+### Versão de teste, já disponível
+
+1. Baixe o arquivo: **[Chrome, Edge, Brave e Opera](../../releases/download/v1.0.0-beta.1/neruz-page-view-1.0.0-chrome.zip)** ou **[Firefox](../../releases/download/v1.0.0-beta.1/neruz-page-view-1.0.0-firefox.zip)**.
+2. Descompacte o `.zip` numa pasta que você não vá apagar.
+3. **Chrome/Edge/Brave/Opera:** abra `chrome://extensions` (no Edge, `edge://extensions`), ligue o **Modo do desenvolvedor** e clique em **Carregar sem compactação**, escolhendo a pasta.
+   **Firefox:** abra `about:debugging#/runtime/this-firefox`, clique em **Carregar extensão temporária** e escolha o `manifest.json` da pasta.
+4. Fixe o ícone pela peça de quebra-cabeça ao lado da barra de endereço e clique nele (ou `Alt+Shift+P`) em qualquer site para abrir o **Estúdio**.
+
+Todas as versões: [Releases](../../releases).
 
 ## Como funciona
 
@@ -111,6 +119,5 @@ O Page View é a primeira extensão da **Neruz Extensions**, uma família de fer
 ---
 
 <p align="center">
-  Desenvolvido por <a href="https://fontedev.com"><b>Fonte Dev · Bruno Lucas</b></a>.<br>
-  A Fonte Dev cria sites e experiências digitais sob medida. <a href="https://fontedev.com">Conheça o trabalho</a>.
+  <a href="https://fontedev.com/links/"><img src="docs/assets/fonte-dev.svg" alt="Desenvolvido por Fonte Dev · Bruno Lucas. Conheça em fontedev.com/links" width="100%"></a>
 </p>

@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 260" width="1280" height="260" role="img" aria-label="Desenvolvido por Fonte Dev · Bruno Lucas. Conheça em fontedev.com/links">
+  <style>
+    .t{font-family:"Segoe UI",Helvetica,Arial,sans-serif}
+    .ring{fill:none;stroke-width:1.5}
+    .r1{animation:spin 18s linear infinite;transform-origin:250px 130px}
+    .r2{animation:spin 26s linear infinite reverse;transform-origin:250px 130px}
+    .glow{animation:pulse 4s ease-in-out infinite;transform-origin:250px 130px}
+    .float{animation:float 5s ease-in-out infinite}
+    .shine{animation:shine 6s ease-in-out infinite}
+    .arrow{animation:nudge 1.6s ease-in-out infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes pulse{50%{opacity:.55;transform:scale(1.08)}}
+    @keyframes float{50%{transform:translateY(-6px)}}
+    @keyframes shine{0%,60%{transform:translateX(-200px)}100%{transform:translateX(1400px)}}
+    @keyframes nudge{50%{transform:translateX(4px)}}
+    @media (prefers-reduced-motion:reduce){.r1,.r2,.glow,.float,.shine,.arrow{animation:none}}
+  </style>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#05010D"/>
+      <stop offset=".55" stop-color="#12021E"/>
+      <stop offset="1" stop-color="#2A0A45"/>
+    </linearGradient>
+    <radialGradient id="halo" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#FF008A" stop-opacity=".55"/>
+      <stop offset=".5" stop-color="#7B2CFF" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#7B2CFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ringA" x1="0" x2="1">
+      <stop offset="0" stop-color="#FF008A"/>
+      <stop offset=".5" stop-color="#7B2CFF" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#FF792E"/>
+    </linearGradient>
+    <linearGradient id="ringB" x1="0" x2="1">
+      <stop offset="0" stop-color="#00F0FF" stop-opacity=".1"/>
+      <stop offset=".5" stop-color="#00F0FF"/>
+      <stop offset="1" stop-color="#7B2CFF" stop-opacity=".1"/>
+    </linearGradient>
+    <linearGradient id="cta" x1="0" x2="1">
+      <stop offset="0" stop-color="#FF008A"/>
+      <stop offset="1" stop-color="#FF792E"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" x2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#fff" stop-opacity=".06"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <path id="orbitA" d="M110 130a140 46 0 1 0 280 0a140 46 0 1 0 -280 0"/>
+    <path id="orbitB" d="M150 130a100 70 0 1 1 200 0a100 70 0 1 1 -200 0"/>
+    <clipPath id="frame"><rect width="1280" height="260" rx="18"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#frame)">
+    <rect width="1280" height="260" fill="url(#bg)"/>
+    <g opacity=".35" stroke="#2A0A45">
+      <path d="M0 52H1280M0 104H1280M0 156H1280M0 208H1280"/>
+      <path d="M512 0V260M640 0V260M768 0V260M896 0V260M1024 0V260M1152 0V260"/>
+    </g>
+    <circle class="glow" cx="250" cy="130" r="120" fill="url(#halo)"/>
+
+    <g class="r1"><use href="#orbitA" class="ring" stroke="url(#ringA)" transform="rotate(-14 250 130)"/></g>
+    <g class="r2"><use href="#orbitB" class="ring" stroke="url(#ringB)" transform="rotate(32 250 130)" opacity=".8"/></g>
+
+    <g transform="rotate(-14 250 130)">
+      <circle r="6" fill="#FF008A"><animateMotion dur="7s" repeatCount="indefinite"><mpath href="#orbitA"/></animateMotion></circle>
+      <circle r="4" fill="#FF792E"><animateMotion dur="7s" begin="-3.5s" repeatCount="indefinite"><mpath href="#orbitA"/></animateMotion></circle>
+    </g>
+    <g transform="rotate(32 250 130)">
+      <circle r="4" fill="#00F0FF"><animateMotion dur="9s" repeatCount="indefinite"><mpath href="#orbitB"/></animateMotion></circle>
+    </g>
+
+    <g class="float">
+      <svg x="200" y="86" width="100" height="88" viewBox="368.54 0 1021.50 893.78">
+        <path fill="#F4F7FF" d="M368.54,0v638.44h255.39v255.34h319.22c246.81,0,446.89-200.08,446.89-446.89h0C1390.04,200.08,1189.96,0,943.150,0H368.54ZM943.11,766.11l-191.510,127.670v-255.34h105.39l150-127.71h-255.38v-127.67h232.39l150.67-127.71h-510.73v255.38h-127.710V127.67h446.89c176.3,0,319.22,142.92,319.22,319.22h0c0,176.3-142.92,319.22-319.22,319.22Z"/>
+        <rect fill="#FF008A" x="368.54" y="766.11" width="127.71" height="127.71"/>
+      </svg>
+    </g>
+
+    <text class="t" x="470" y="86" fill="#FF008A" font-size="14" font-weight="600" letter-spacing="3">DESENVOLVIDO POR</text>
+    <text class="t" x="468" y="138" fill="#F4F7FF" font-size="44" font-weight="700">Fonte Dev · Bruno Lucas</text>
+    <text class="t" x="470" y="174" fill="#A7AEBD" font-size="18">Sites e experiências digitais sob medida, com assinatura própria.</text>
+
+    <g transform="translate(470 196)">
+      <rect width="232" height="40" rx="20" fill="url(#cta)"/>
+      <text class="t" x="24" y="26" fill="#05010D" font-size="15" font-weight="700">fontedev.com/links</text>
+      <g class="arrow"><path d="M190 20h18m-6-6 6 6-6 6" stroke="#05010D" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
+    </g>
+
+    <rect class="shine" x="0" y="0" width="200" height="260" fill="url(#sheen)"/>
+    <rect width="1278" height="258" x="1" y="1" rx="17" fill="none" stroke="#2A0A45" stroke-width="2"/>
+  </g>
+</svg>
