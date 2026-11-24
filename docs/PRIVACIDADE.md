@@ -4,7 +4,7 @@
 > Nota para o copywriter: traduzir para en e es de forma nativa, com contexto, sem tradução literal e sem acrescentar promessas. As afirmações devem ser idênticas nos 3 idiomas. Não citar leis específicas além das que o advogado validar.
 > Campos entre colchetes são pendências do Bruno.
 
-**Neruz Page View** · Última atualização: [data de publicação]
+**Neruz Page View** · Última atualização: 23 de novembro de 2026
 
 ## Resumo
 O Neruz Page View funciona no seu dispositivo. Não temos servidor próprio para a extensão, não criamos conta e não recebemos os sites que você visualiza, o conteúdo deles nem as capturas que você faz. A extensão envia estatística anônima de uso ao Google Analytics 4, que você pode desligar (seção "Estatística anônima de uso").
@@ -41,37 +41,35 @@ O que é enviado:
 
 O que não é enviado: o endereço ou o domínio das páginas que você visualiza, o conteúdo delas, as capturas, textos copiados, nome ou e-mail. O Google Analytics 4 não registra nem armazena endereços IP.
 
-O envio vai direto da extensão ao Google. Não usa cookies nem script remoto, e a extensão não passa por servidor nosso. Nada é vendido nem usado para anúncios. O Google trata os dados conforme a política dele e pode processá-los fora do Brasil. [advogado validar]
+O envio vai direto da extensão ao Google. Não usa cookies nem script remoto, e a extensão não passa por servidor nosso. Nada é vendido nem usado para anúncios. O Google trata os dados conforme a política dele e pode processá-los fora do Brasil.
 
 Como controlar:
 - Chrome, Edge, Opera e Brave: o envio vem ligado. Para desligar, abra as opções da extensão e desmarque "Enviar estatísticas anônimas de uso".
 - Firefox: a extensão só envia se você aceitar a permissão opcional de dados técnicos e de interação. Você liga ou desliga nas opções da extensão e nas configurações de permissões do Firefox.
 
-Base legal: legítimo interesse da Fonte Dev em entender e melhorar o produto, com a opção de desligar. [advogado validar a base legal e a avaliação de balanceamento]
-Prazo de retenção no Google Analytics: [Bruno confirmar o prazo configurado na propriedade GA4].
+Base legal: legítimo interesse da Fonte Dev em entender e melhorar o produto, com a opção de desligar.
 
 ## Rastreamento
 A extensão não contém anúncios, rastreadores de terceiros nem código remoto. A única medição é a estatística anônima descrita acima.
 
 ## Site (landing page)
-- [Versão sem analytics] O site não usa cookies de rastreamento nem ferramentas de análise.
-- [Se Bruno optar por analytics sem cookies: nome da ferramenta, dados agregados, sem identificação pessoal, onde é hospedada.]
-- A hospedagem do site registra logs técnicos de acesso (como endereço IP, data e página) por motivos de segurança e operação, mantidos por [prazo] por [provedor de hospedagem].
-- O site pode guardar no seu navegador a preferência de idioma, apenas para funcionar como você escolheu. [Remover se não houver.]
+- O site tem política própria em https://pageview.neruz.tech/privacy/ . A medição do site (Google Analytics 4 e Meta Pixel) só carrega se você aceitar no aviso de cookies.
+- A hospedagem do site registra logs técnicos de acesso (como endereço IP, data e página) por motivos de segurança e operação, mantidos pelo provedor de hospedagem (Hostinger).
+- O site pode guardar no seu navegador a preferência de idioma, apenas para funcionar como você escolheu.
 - Links para lojas de extensões e para o GitHub levam a serviços de terceiros, que têm políticas próprias.
 
 ## Código aberto
-O código é aberto sob licença MIT em [URL do repositório], e você pode conferir como a extensão funciona.
+O código é aberto sob licença MIT em https://github.com/brunolucassf/neruz-page-view, e você pode conferir como a extensão funciona.
 
 ## Seus direitos
-Não mantemos seu nome, e-mail nem conta. O que existe é o identificador aleatório da estatística de uso, que sozinho não diz quem você é. Você pode desligar o envio nas opções e apagar os dados locais a qualquer momento, removendo a extensão ou limpando os dados dela no navegador. [Bruno/advogado: definir como atender pedido de exclusão da estatística no GA4, que depende do identificador guardado no navegador.] Para dúvidas, ou pedidos relacionados aos logs do site, fale com [e-mail de contato]. Se você estiver no Brasil, também pode procurar a Autoridade Nacional de Proteção de Dados. [advogado validar redação e demais jurisdições]
+Não mantemos seu nome, e-mail nem conta. O que existe é o identificador aleatório da estatística de uso, que sozinho não diz quem você é. Você pode desligar o envio nas opções e apagar os dados locais a qualquer momento, removendo a extensão ou limpando os dados dela no navegador. Remover a extensão apaga o identificador guardado no seu navegador. Para dúvidas, ou pedidos relacionados aos logs do site, fale com contato@fontedev.com. Se você estiver no Brasil, também pode procurar a Autoridade Nacional de Proteção de Dados.
 
 ## Crianças
-A extensão é uma ferramenta de trabalho geral e não é direcionada a crianças. [advogado validar]
+A extensão é uma ferramenta de trabalho geral e não é direcionada a crianças.
 
 ## Mudanças
 Esta atualização inclui a estatística anônima de uso, que antes não existia. Se a extensão passar a tratar dados de outra forma, atualizaremos esta política antes disso e indicaremos a data de atualização. Mudanças desse tipo também seguem as regras das lojas.
 
 ## Responsável
-Bruno Lucas (Fonte Dev) · [e-mail] · [identificação do responsável conforme orientação do advogado]
+Bruno Lucas (Fonte Dev) · contato@fontedev.com
 Desenvolvido por Fonte Dev · Bruno Lucas (https://fontedev.com)
