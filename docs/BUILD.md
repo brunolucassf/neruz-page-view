@@ -46,7 +46,7 @@ Os manifestos gerados ficam em `manifest.json` de cada pasta. O Chromium usa `se
 2. Inclua na revisão este arquivo e a instrução de build acima.
 3. Reviewer: descompacte em pasta nova e vazia, rode os comandos do passo a passo e compare o resultado com o pacote enviado.
 
-O que o revisor precisa saber: o build não usa variáveis de ambiente, não baixa nada em tempo de build e não depende de servidor. Os segredos não existem neste projeto (sem `.env` obrigatório).
+O que o revisor precisa saber: o build não baixa nada em tempo de build e não depende de servidor. A única variável é `WXT_GA_API_SECRET` (chave do Measurement Protocol do GA4, em `.env`, fora do git; veja `apps/page-view/.env.example`). Sem ela, o código gerado é o mesmo, com a estatística de uso desligada.
 
 ## Limites conhecidos
 
