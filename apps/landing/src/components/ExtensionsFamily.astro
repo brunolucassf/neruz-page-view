@@ -1,0 +1,806 @@
+---
+import type { LandingCopy } from '../i18n';
+import {
+  BROWSER_NAMES,
+  INSPECT_ALSO_BROWSERS,
+  INSPECT_LINKS,
+  INSPECT_URL,
+  NERUZ_HUB_URL,
+  STORE_LINKS,
+} from '../i18n';
+import StoreButton from './StoreButton.astro';
+
+interface Props {
+  copy: LandingCopy;
+}
+
+const { copy } = Astro.props;
+const { extensions } = copy;
+const inspectHost = new URL(INSPECT_URL).host;
+---
+
+<section
+  class="fam"
+  id="neruz-extensions"
+  data-scene-id="neruz-extensions"
+  aria-labelledby="fam-title"
+  data-family
+>
+  <div class="fam__rule" aria-hidden="true"></div>
+  <div class="fam__inner">
+    <header class="fam__head">
+      <p class="scene-copy__index eyebrow fam__eyebrow">{extensions.eyebrow}</p>
+      <div class="fam__measure" data-fam-measure>
+        <div class="fam__cota" aria-hidden="true">
+          <span class="fam__cota-line" data-fam-cota-line></span>
+          <span class="fam__cota-end fam__cota-end--start"></span>
+          <span class="fam__cota-end" data-fam-cota-end></span>
+          <span class="fam__cota-value cota-text" data-fam-value></span>
+        </div>
+        <h2 id="fam-title" class="fam__title">
+          <span class="fam__outline-word"><span class="fam__w">Neruz</span> <span class="fam__w">Extensions</span></span>
+          <span class="fam__fill" aria-hidden="true" data-fam-fill><span class="fam__w">Neruz</span> <span class="fam__w">Extensions</span></span>
+        </h2>
+      </div>
+      {
+        NERUZ_HUB_URL && (
+          <a class="text-link fam__hub" href={NERUZ_HUB_URL} target="_blank" rel="noopener">
+            {extensions.hubLink}
+          </a>
+        )
+      }
+      <p class="fam__lead">{extensions.lead}</p>
+    </header>
+
+    <div class="fam__stack" data-fam-stack>
+      <ul class="fam__cards" role="list">
+        <li class="fam__item" aria-current="page">
+          <div class="fam__bay fam__bay--page" data-fam-bay>
+            <svg class="fam__outline" aria-hidden="true" focusable="false" data-fam-outline>
+              <path pathLength="1" data-fam-outline-path></path>
+            </svg>
+            <span class="fam__lamp" aria-hidden="true" data-fam-lamp></span>
+            <div class="fam__socket">
+              <span class="fam__recess" aria-hidden="true"></span>
+              <span class="fam__shadow" aria-hidden="true" data-fam-shadow></span>
+              <img class="fam__icon" src="/favicon.svg" width="112" height="112" alt="" decoding="async" data-fam-icon />
+              <span class="fam__marks" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            </div>
+            <div class="fam__info">
+              <span class="fam__flag" data-fam-flag>{extensions.pageView.flag}</span>
+              <span class="fam__lockup">Neruz</span>
+              <h3 class="fam__name">{extensions.pageView.name}</h3>
+              <p class="fam__text">{extensions.pageView.text}</p>
+              <p class="fam__meta cota-text">{extensions.meta}</p>
+            </div>
+            <div class="fam__actions">
+              <StoreButton copy={copy} withMeta />
+              <a class="text-link fam__code" href={STORE_LINKS.github}>{copy.cta.viewCode}</a>
+            </div>
+          </div>
+        </li>
+
+        <li class="fam__item">
+          <div class="fam__bay fam__bay--inspect" data-fam-bay>
+            <svg class="fam__outline" aria-hidden="true" focusable="false" data-fam-outline>
+              <path pathLength="1" data-fam-outline-path></path>
+            </svg>
+            <span class="fam__lamp" aria-hidden="true" data-fam-lamp></span>
+            <div class="fam__socket">
+              <span class="fam__recess" aria-hidden="true"></span>
+              <span class="fam__shadow" aria-hidden="true" data-fam-shadow></span>
+              <img class="fam__icon" src="/neruz-inspect-icon.svg" width="112" height="112" alt="" loading="lazy" decoding="async" data-fam-icon />
+              <span class="fam__marks" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            </div>
+            <div class="fam__info">
+              <span class="fam__lockup">Neruz</span>
+              <h3 class="fam__name">{extensions.inspect.name}</h3>
+              <p class="fam__text" id="fam-inspect-text">{extensions.inspect.text}</p>
+              <p class="fam__meta cota-text">{extensions.meta} · {inspectHost}</p>
+            </div>
+            <div class="fam__actions">
+              <a
+                class="btn fam__cta fam__link"
+                href={INSPECT_URL}
+                target="_blank"
+                rel="noopener"
+                aria-describedby="fam-inspect-text"
+                data-wire
+              >
+                <span>{extensions.inspect.cta}</span>
+                <span class="visually-hidden">{extensions.inspect.newTab}</span>
+                <svg class="btn__arrow" viewBox="0 0 20 20" width="20" height="20" aria-hidden="true" focusable="false">
+                  <path d="M5.5 14.5 14.5 5.5M7 5.5h7.5V13" />
+                </svg>
+              </a>
+              <p class="fam__also">
+                <span>{copy.cta.alsoFor}</span>
+                {
+                  INSPECT_ALSO_BROWSERS.map((browser) => (
+                    <a href={INSPECT_LINKS[browser]} data-install-store={browser} data-install-product="inspect">
+                      {BROWSER_NAMES[browser]}
+                    </a>
+                  ))
+                }
+              </p>
+              <a class="text-link fam__code" href={INSPECT_LINKS.github}>{copy.cta.viewCode}</a>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .fam {
+    --fam-magenta: #ff4fd0;
+    --fam-magenta-lamp: rgb(255 79 208 / 0.08);
+    --fam-ice-lamp: rgb(244 248 252 / 0.04);
+    position: relative;
+    background-color: var(--pv-bg-mat);
+    background-image:
+      linear-gradient(var(--pv-mat-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--pv-mat-grid) 1px, transparent 1px);
+    background-size: 64px 64px;
+    background-position: center top;
+  }
+
+  .fam__rule {
+    height: 16px;
+    border-block: 1px solid var(--pv-line-soft);
+    background:
+      linear-gradient(90deg, var(--pv-line) 1px, transparent 1px) left bottom / 64px 100% repeat-x,
+      linear-gradient(90deg, var(--pv-line) 1px, transparent 1px) left bottom / 8px 40% repeat-x,
+      var(--pv-bg-chrome);
+  }
+
+  .fam__inner {
+    padding: var(--pv-space-12) var(--pv-site-inline) var(--pv-section-y);
+  }
+
+  .fam__eyebrow {
+    margin-bottom: var(--pv-space-6);
+  }
+
+  .fam__measure {
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .fam__cota {
+    position: relative;
+    height: 17px;
+    margin-bottom: var(--pv-space-4);
+  }
+
+  .fam__cota-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 8px;
+    height: 1px;
+    background: var(--pv-cyan);
+    transform-origin: left;
+  }
+
+  .fam__cota-end {
+    position: absolute;
+    top: 4px;
+    right: 0;
+    width: 1px;
+    height: 9px;
+    background: var(--pv-cyan);
+  }
+
+  .fam__cota-end--start {
+    right: auto;
+    left: 0;
+  }
+
+  .fam__cota-value {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    padding: 0 var(--pv-space-4);
+    background: var(--pv-bg-mat);
+    color: var(--pv-text);
+    line-height: 17px;
+    white-space: nowrap;
+    transform: translateX(-50%);
+  }
+
+  :global(:root:not(.has-js)) .fam__cota {
+    visibility: hidden;
+  }
+
+  .fam__title {
+    position: relative;
+    margin: 0;
+    font-family: var(--pv-font-display);
+    font-size: clamp(2.75rem, 0.6rem + 8.4vw, 8.25rem);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 0.95;
+  }
+
+  .fam__outline-word {
+    display: block;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--pv-line-strong);
+  }
+
+  .fam__fill {
+    position: absolute;
+    inset: 0;
+    display: block;
+    color: var(--pv-text);
+  }
+
+  .fam__w {
+    display: block;
+  }
+
+  .fam__lead {
+    max-width: 48ch;
+    margin-top: var(--pv-space-8);
+    color: var(--pv-text-2);
+    font-size: var(--pv-fs-lead);
+    line-height: var(--pv-fs-lead-lh);
+  }
+
+  .fam__hub {
+    margin-top: var(--pv-space-6);
+  }
+
+  .fam__stack {
+    margin-top: var(--pv-space-11);
+  }
+
+  .fam__cards {
+    display: grid;
+    gap: var(--pv-space-6);
+    max-width: 64rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .fam__item {
+    position: relative;
+    min-width: 0;
+  }
+
+  .fam__bay {
+    --cut: 14px;
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "socket info"
+      "actions actions";
+    align-items: start;
+    gap: var(--pv-space-6) var(--pv-space-7);
+    height: 100%;
+    padding: var(--pv-space-7);
+    overflow: hidden;
+    background: var(--pv-line);
+    color: inherit;
+    text-decoration: none;
+    clip-path: polygon(
+      var(--cut) 0,
+      calc(100% - var(--cut)) 0,
+      100% var(--cut),
+      100% calc(100% - var(--cut)),
+      calc(100% - var(--cut)) 100%,
+      var(--cut) 100%,
+      0 calc(100% - var(--cut)),
+      0 var(--cut)
+    );
+    transition: background-color 120ms var(--pv-ease-hover);
+  }
+
+  .fam__bay::before {
+    --inset: 1px;
+    content: "";
+    position: absolute;
+    inset: var(--inset);
+    z-index: -1;
+    background: var(--pv-bg-chrome);
+    box-shadow: var(--pv-inset-top);
+    clip-path: polygon(
+      calc(var(--cut) - var(--inset) * 0.7) 0,
+      calc(100% - var(--cut) + var(--inset) * 0.7) 0,
+      100% calc(var(--cut) - var(--inset) * 0.7),
+      100% calc(100% - var(--cut) + var(--inset) * 0.7),
+      calc(100% - var(--cut) + var(--inset) * 0.7) 100%,
+      calc(var(--cut) - var(--inset) * 0.7) 100%,
+      0 calc(100% - var(--cut) + var(--inset) * 0.7),
+      0 calc(var(--cut) - var(--inset) * 0.7)
+    );
+  }
+
+  .fam__outline {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    fill: none;
+    stroke: var(--pv-line-strong);
+    stroke-width: 1;
+    stroke-linejoin: miter;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    pointer-events: none;
+    transition: stroke 400ms var(--pv-ease-out);
+  }
+
+  .fam__outline.is-settled {
+    stroke: var(--pv-line);
+  }
+
+  .fam.is-armed .fam__bay:not(.is-in) {
+    background: transparent;
+  }
+
+  .fam.is-armed .fam__bay:not(.is-in) .fam__outline {
+    display: block;
+  }
+
+  .fam__socket {
+    --socket: 72px;
+    --cut: calc((var(--socket) - 16px) * 0.1875 + 4.7px);
+    position: relative;
+    grid-area: socket;
+    perspective: 800px;
+    width: var(--socket);
+    height: var(--socket);
+  }
+
+  .fam__recess {
+    position: absolute;
+    inset: 0;
+    background: var(--pv-line-soft);
+    clip-path: polygon(
+      var(--cut) 0,
+      calc(100% - var(--cut)) 0,
+      100% var(--cut),
+      100% calc(100% - var(--cut)),
+      calc(100% - var(--cut)) 100%,
+      var(--cut) 100%,
+      0 calc(100% - var(--cut)),
+      0 var(--cut)
+    );
+  }
+
+  .fam__recess::before {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    background: var(--pv-bg-mat);
+    clip-path: polygon(
+      calc(var(--cut) - 0.4px) 0,
+      calc(100% - var(--cut) + 0.4px) 0,
+      100% calc(var(--cut) - 0.4px),
+      100% calc(100% - var(--cut) + 0.4px),
+      calc(100% - var(--cut) + 0.4px) 100%,
+      calc(var(--cut) - 0.4px) 100%,
+      0 calc(100% - var(--cut) + 0.4px),
+      0 calc(var(--cut) - 0.4px)
+    );
+  }
+
+  .fam__shadow {
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    bottom: 2px;
+    height: 24%;
+    background: radial-gradient(50% 50% at 50% 50%, rgb(0 0 0 / 0.55), transparent);
+    opacity: 0.8;
+    pointer-events: none;
+  }
+
+  .fam__icon {
+    position: absolute;
+    inset: 8px;
+    width: calc(100% - 16px);
+    height: calc(100% - 16px);
+    will-change: transform;
+  }
+
+  .fam__marks {
+    --mark-color: var(--pv-accent);
+    position: absolute;
+    inset: -6px;
+    color: var(--mark-color);
+    pointer-events: none;
+    transition:
+      transform 280ms var(--pv-ease-out),
+      color 280ms var(--pv-ease-hover);
+  }
+
+  .fam__marks i {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border: 0 solid currentColor;
+  }
+
+  .fam__marks i:nth-child(1) {
+    top: 0;
+    left: 0;
+    border-top-width: 1px;
+    border-left-width: 1px;
+  }
+
+  .fam__marks i:nth-child(2) {
+    top: 0;
+    right: 0;
+    border-top-width: 1px;
+    border-right-width: 1px;
+  }
+
+  .fam__marks i:nth-child(3) {
+    right: 0;
+    bottom: 0;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+  }
+
+  .fam__marks i:nth-child(4) {
+    bottom: 0;
+    left: 0;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+  }
+
+  .fam__bay--inspect .fam__marks {
+    --mark-color: color-mix(in srgb, var(--fam-magenta) 55%, var(--pv-line));
+    transform: scale(1.06);
+  }
+
+  .fam__info {
+    grid-area: info;
+    display: grid;
+    justify-items: start;
+    align-content: start;
+    min-width: 0;
+  }
+
+  .fam__flag {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    margin-bottom: var(--pv-space-4);
+    padding: 0 var(--pv-space-4) 0 var(--pv-space-5);
+    background: var(--pv-accent);
+    color: var(--pv-on-accent);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    clip-path: polygon(3px 0, 100% 0, 100% 100%, 3px 100%, 0 50%);
+  }
+
+  .fam__lockup {
+    display: block;
+    color: var(--pv-text-3);
+    font-family: var(--pv-fs-eyebrow-ff);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    line-height: 1.3;
+    text-transform: uppercase;
+  }
+
+  .fam__name {
+    margin: var(--pv-space-1) 0 0;
+    color: var(--pv-text);
+    font-family: var(--pv-fs-h3-ff);
+    font-size: var(--pv-fs-h3);
+    font-weight: var(--pv-fs-h3-fw);
+    letter-spacing: var(--pv-fs-h3-ls);
+    line-height: var(--pv-fs-h3-lh);
+  }
+
+  .fam__text {
+    max-width: 38ch;
+    margin: var(--pv-space-4) 0 0;
+    color: var(--pv-text-2);
+    font-size: var(--pv-fs-small);
+    line-height: 1.5;
+  }
+
+  .fam__meta {
+    margin: var(--pv-space-5) 0 0;
+    color: var(--pv-text-3);
+    overflow-wrap: anywhere;
+  }
+
+  .fam__actions {
+    grid-area: actions;
+    display: grid;
+    gap: var(--pv-space-3);
+    justify-items: stretch;
+    min-width: 0;
+  }
+
+  .fam__actions :global(.store-cta),
+  .fam__actions :global(.store-cta__desktop),
+  .fam__actions :global(.store-cta__mobile) {
+    align-items: stretch;
+    justify-items: stretch;
+  }
+
+  .fam__actions :global(.store-cta__desktop > .btn),
+  .fam__actions :global(.store-cta__picker),
+  .fam__actions :global(.store-cta__picker summary),
+  .fam__actions :global(.store-cta__mobile .btn) {
+    width: 100%;
+    min-height: 52px;
+    font-size: 1rem;
+  }
+
+  .fam__actions :global(.store-cta__picker ul) {
+    right: 0;
+    min-width: 0;
+  }
+
+  .fam__code {
+    justify-content: center;
+  }
+
+  .fam__cta {
+    --cut: var(--pv-cut-md);
+    width: 100%;
+    min-height: 52px;
+    padding-inline: var(--pv-space-7);
+    font-size: 1rem;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .fam__also {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--pv-space-3);
+    color: var(--pv-text-3);
+    font-size: var(--pv-fs-small, 0.875rem);
+  }
+
+  .fam__also a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    color: var(--pv-text-2);
+    text-underline-offset: 4px;
+    text-decoration-color: var(--pv-line-strong);
+  }
+
+  .fam__also a::before {
+    content: "·";
+    margin-right: var(--pv-space-3);
+    color: var(--pv-text-3);
+  }
+
+  .fam__also span + a::before {
+    content: none;
+  }
+
+  .fam__lamp {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: -1;
+    width: 240px;
+    height: 240px;
+    margin: -120px 0 0 -120px;
+    background: radial-gradient(circle closest-side, var(--lamp-color), transparent);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms var(--pv-ease-out);
+    will-change: transform, opacity;
+  }
+
+  .fam__bay--page {
+    --lamp-color: var(--pv-lamp);
+  }
+
+  .fam__bay--inspect {
+    --lamp-color: var(--fam-magenta-lamp);
+  }
+
+  .fam__link {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      transform var(--pv-dur-press) var(--pv-ease-out),
+      background-color 120ms var(--pv-ease-hover);
+  }
+
+  .fam__bay--inspect:has(.fam__link:focus-visible) .fam__marks,
+  .fam__bay--inspect:has(.fam__link:active) .fam__marks {
+    --mark-color: var(--fam-magenta);
+    transform: scale(1);
+  }
+
+  .fam__link:focus-visible {
+    --cut: var(--pv-cut-md-hover);
+  }
+
+  .fam__link:focus-visible::before {
+    background: var(--pv-accent-hover);
+  }
+
+  .fam__link:focus-visible .btn__wire {
+    stroke-dashoffset: 0;
+  }
+
+  .fam__link:focus-visible .btn__arrow {
+    transform: translate(3px, -3px);
+  }
+
+  .fam__link:active {
+    transform: scale(0.97);
+  }
+
+  .fam.is-armed .fam__bay:not(.is-in) .fam__icon {
+    opacity: 0;
+    transform: translateY(-24px) scale(0.95);
+  }
+
+  .fam.is-armed .fam__bay:not(.is-in) .fam__flag {
+    opacity: 0;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .fam__bay.is-lit .fam__lamp {
+      opacity: 1;
+    }
+
+    .fam__bay--inspect:hover .fam__marks {
+      --mark-color: var(--fam-magenta);
+      transform: scale(1);
+    }
+
+    .fam__link:hover {
+      --cut: var(--pv-cut-md-hover);
+    }
+
+    .fam__link:hover::before {
+      background: var(--pv-accent-hover);
+    }
+
+    .fam__link:hover .btn__wire {
+      stroke-dashoffset: 0;
+    }
+
+    .fam__link:hover .btn__arrow {
+      transform: translate(3px, -3px);
+    }
+  }
+
+  @media (min-width: 480px) {
+    .fam__socket {
+      --socket: 80px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .fam__inner {
+      padding-top: var(--pv-space-14);
+    }
+
+    .fam__rule {
+      height: var(--pv-ruler-h);
+    }
+
+    .fam__title {
+      white-space: nowrap;
+    }
+
+    .fam__w {
+      display: inline;
+    }
+
+    .fam__stack {
+      margin-top: var(--pv-space-12);
+    }
+
+    .fam__cards {
+      gap: var(--pv-space-7);
+    }
+
+    .fam__bay {
+      --cut: 16px;
+      grid-template-areas:
+        "socket info"
+        ". actions";
+      padding: var(--pv-space-8);
+      column-gap: var(--pv-space-8);
+    }
+
+    .fam__socket {
+      --socket: 88px;
+    }
+
+    .fam__marks i {
+      width: 10px;
+      height: 10px;
+    }
+
+    .fam__text {
+      font-size: var(--pv-fs-body);
+    }
+
+    .fam__actions {
+      grid-template-columns: minmax(0, 18rem);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .fam__head {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--pv-space-9);
+    }
+
+    .fam__head > * {
+      grid-column: 1 / -1;
+    }
+
+    .fam__head > .fam__lead {
+      grid-column: 1 / 8;
+      max-width: 48ch;
+    }
+
+    .fam__bay {
+      grid-template-columns: auto minmax(0, 1fr) 20rem;
+      grid-template-areas: "socket info actions";
+      align-items: center;
+    }
+
+    .fam__actions {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fam__marks,
+    .fam__lamp {
+      transition-duration: 120ms;
+    }
+
+    .fam__bay--inspect .fam__marks,
+    .fam__bay--inspect:hover .fam__marks,
+    .fam__bay--inspect:has(.fam__link:focus-visible) .fam__marks,
+    .fam__bay--inspect:has(.fam__link:active) .fam__marks,
+    .fam__link:active,
+    .fam__link:hover .btn__arrow,
+    .fam__link:focus-visible .btn__arrow {
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) and (hover: hover) and (pointer: fine) {
+    .fam__bay:hover .fam__lamp {
+      opacity: 1;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .fam__bay {
+      border: 1px solid CanvasText;
+    }
+
+    .fam__link:focus-visible {
+      outline: 2px solid Highlight;
+    }
+  }
+</style>

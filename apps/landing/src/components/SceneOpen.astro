@@ -22,13 +22,12 @@ const codeLines = buildCodeLines();
   <div class="scene-track scene-track--wide" data-track>
     <div class="opn__stage scene-stage" data-opn-stage>
       <div class="opn__dark" data-opn-dark aria-hidden="true"></div>
-      <p class="opn__outline" aria-hidden="true" data-opn-outline>{scene.outlineWord}</p>
       <div class="opn__layout">
         <div class="opn__text" data-opn-text>
           <p class="scene-copy__index eyebrow">
             <span>{scene.stepLabel}</span>
             <span class="visually-hidden">
-              {copy.ruler.counter.replace('{n}', '7').replace('{total}', '8')}
+              {copy.ruler.counter.replace('{n}', '7').replace('{total}', '7')}
             </span>
           </p>
           <h2 id="opn-title" class="scene-copy__title opn__title">{scene.title}</h2>
@@ -105,26 +104,6 @@ const codeLines = buildCodeLines();
       linear-gradient(90deg, var(--pv-mat-grid) 1px, transparent 1px);
     background-size: 64px 64px;
     background-position: center top;
-  }
-
-  .opn__outline {
-    position: absolute;
-    left: 50%;
-    bottom: -0.12em;
-    z-index: 1;
-    margin: 0;
-    color: transparent;
-    font-family: var(--pv-font-display);
-    font-size: clamp(1.75rem, 7.2vw, 8.5rem);
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    line-height: 1;
-    text-transform: uppercase;
-    white-space: nowrap;
-    -webkit-text-stroke: 1px var(--pv-line);
-    transform: translateX(-50%);
-    pointer-events: none;
-    user-select: none;
   }
 
   .opn__layout {

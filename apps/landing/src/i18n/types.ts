@@ -24,6 +24,7 @@ export interface LandingCopy {
   locale: Locale;
   htmlLang: string;
   path: string;
+  privacyPath: string;
   meta: { title: string; description: string; ogDescription: string };
   skipLink: string;
   languageLabel: string;
@@ -119,16 +120,34 @@ export interface LandingCopy {
     contribute: string;
     license: string;
     codeLabel: string;
-    outlineWord: string;
   };
-  sceneFinal: {
-    stepLabel: string;
+  extensions: {
+    eyebrow: string;
     title: string;
-    subtitle: string;
-    windowTitle: string;
-    widthLabel: string;
+    lead: string;
+    hubLink: string;
+    pageView: { name: string; flag: string; text: string };
+    inspect: { name: string; text: string; cta: string; newTab: string };
+    meta: string;
   };
   ruler: { label: string; counter: string; scenes: { id: string; label: string }[] };
+  consent: {
+    label: string;
+    text: string;
+    accept: string;
+    reject: string;
+    policy: string;
+    preferences: string;
+  };
+  sitePrivacy: {
+    title: string;
+    description: string;
+    heading: string;
+    updated: string;
+    back: string;
+    extension: string;
+    blocks: { title: string; paragraphs: string[] }[];
+  };
   footer: {
     navLabel: string;
     product: { title: string; installTitle: string; comingSoon: string };

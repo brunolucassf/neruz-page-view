@@ -6,6 +6,7 @@ interface Props {
 }
 
 const { copy } = Astro.props;
+const FAMILY_SCENE_ID = 'neruz-extensions';
 ---
 
 <nav class="scroll-ruler" aria-label={copy.ruler.label} data-scroll-ruler>
@@ -20,7 +21,7 @@ const { copy } = Astro.props;
           aria-label={scene.label}
           data-ruler-flag={scene.id}
         >
-          {String(index + 1).padStart(2, '0')}
+          {scene.id === FAMILY_SCENE_ID ? <i class="scroll-ruler__diamond" aria-hidden="true" /> : String(index + 1).padStart(2, '0')}
         </button>
       ))
     }
@@ -112,6 +113,13 @@ const { copy } = Astro.props;
     z-index: -1;
     background: var(--pv-bg-raised);
     clip-path: polygon(3px 0, 100% 0, 100% 100%, 3px 100%, 0 50%);
+  }
+
+  .scroll-ruler__diamond {
+    width: 6px;
+    height: 6px;
+    background: currentColor;
+    transform: rotate(45deg);
   }
 
   .scroll-ruler__flag.is-current {

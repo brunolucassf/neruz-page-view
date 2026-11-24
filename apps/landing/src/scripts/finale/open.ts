@@ -12,14 +12,12 @@ const PHASES = {
     text: [0.15, 0.32],
     typing: [0.32, 0.8],
     fill: [0.78, 0.92],
-    word: [0.55, 0.9],
   },
   compact: {
     wipe: [0, 0.05],
     text: [0.02, 0.07],
     typing: [0.3, 0.5],
     fill: [0.48, 0.56],
-    word: [0.2, 0.4],
   },
 };
 
@@ -62,7 +60,6 @@ export function initOpen(section: HTMLElement): TrackedScene {
   const text = query<HTMLElement>(section, '[data-opn-text]');
   const lines = queryAll<HTMLElement>(section, '[data-opn-line]');
   const logoPaths = queryAll<SVGPathElement>(section, '[data-opn-path]');
-  const word = query<HTMLElement>(section, '[data-opn-outline]');
   let isWideLayout = isWide(1024);
   let stageSize = { width: 0, height: 0 };
   let chars: HTMLElement[] = [];
@@ -154,9 +151,6 @@ export function initOpen(section: HTMLElement): TrackedScene {
     const typingAmount = rampProgress(progress, phases.typing[0], phases.typing[1]);
     const typed = renderTyping(typingAmount);
     renderLogo(typed, rampProgress(progress, phases.fill[0], phases.fill[1]));
-    const wordAmount = rampProgress(progress, phases.word[0], phases.word[1]);
-    setStyle(word, 'opacity', wordAmount.toFixed(3));
-    setStyle(word, 'transform', `translate3d(-50%, ${((1 - wordAmount) * 40).toFixed(1)}px, 0)`);
   }
 
   return trackScene({

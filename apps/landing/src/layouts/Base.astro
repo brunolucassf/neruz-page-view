@@ -3,27 +3,34 @@ import '@neruz/ui/tokens.css';
 import '../styles/global.css';
 import type { LandingCopy } from '../i18n';
 import { DICTIONARIES } from '../i18n';
+import ConsentBanner from '../components/ConsentBanner.astro';
 
 interface Props {
   copy: LandingCopy;
+  kind?: 'home' | 'privacy';
+  title?: string;
+  description?: string;
 }
 
-const { copy } = Astro.props;
+const { copy, kind = 'home' } = Astro.props;
+const title = Astro.props.title ?? copy.meta.title;
+const description = Astro.props.description ?? copy.meta.description;
+const ogDescription = kind === 'home' ? copy.meta.ogDescription : description;
 const alternates = Object.values(DICTIONARIES);
 ---
 
 <!doctype html>
-<html lang={copy.htmlLang} data-locale={copy.locale}>
+<html lang={copy.htmlLang} data-locale={copy.locale} data-product="page-view">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>{copy.meta.title}</title>
-    <meta name="description" content={copy.meta.description} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
     <meta name="theme-color" content="#080D14" />
-    <meta property="og:title" content={copy.meta.title} />
-    <meta property="og:description" content={copy.meta.ogDescription} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={ogDescription} />
     <meta property="og:type" content="website" />
-    {alternates.map((alt) => <link rel="alternate" hreflang={alt.htmlLang} href={alt.path} />)}
+    {alternates.map((alt) => <link rel="alternate" hreflang={alt.htmlLang} href={kind === 'home' ? alt.path : alt.privacyPath} />)}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="preload" href="/fonts/Sora-600.woff2" as="font" type="font/woff2" crossorigin />
@@ -53,6 +60,10 @@ const alternates = Object.values(DICTIONARIES);
   </head>
   <body>
     <a class="skip-link" href="#conteudo">{copy.skipLink}</a>
+    <ConsentBanner copy={copy} />
     <slot />
+    <script>
+      import '../scripts/consent';
+    </script>
   </body>
 </html>

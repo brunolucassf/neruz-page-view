@@ -40,6 +40,7 @@ export interface GlStage {
   resize(width: number, height: number): void;
   render(bench: BenchState, strip: StripState): void;
   setPrint(print: HTMLCanvasElement, pageLength: number): void;
+  hideStrip(): void;
 }
 
 const MAX_DPR = 1.5;
@@ -248,6 +249,12 @@ export function createGlStage(canvas: HTMLCanvasElement): GlStage | null {
       stripMaterial.uniforms.uLength.value = pageLength;
       hasPrint = true;
     },
+    hideStrip() {
+      if (!strip.visible) return;
+      strip.visible = false;
+      renderer.render(scene, camera);
+    },
+
     render(benchState, stripState) {
       const uniforms = benchMaterial.uniforms;
       uniforms.uHorizon.value = benchState.horizon;

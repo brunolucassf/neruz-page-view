@@ -1,0 +1,103 @@
+---
+import type { LandingCopy } from '../i18n';
+
+interface Props {
+  copy: LandingCopy;
+}
+
+const { copy } = Astro.props;
+const { consent } = copy;
+---
+
+<section class="consent" data-consent-banner hidden aria-labelledby="consent-title">
+  <h2 class="consent__title" id="consent-title">{consent.label}</h2>
+  <p class="consent__text">
+    {consent.text}{' '}
+    <a class="consent__link" href={copy.privacyPath}>{consent.policy}</a>
+  </p>
+  <div class="consent__actions">
+    <button type="button" class="consent__btn consent__btn--accept" data-consent-accept>{consent.accept}</button>
+    <button type="button" class="consent__btn" data-consent-reject>{consent.reject}</button>
+  </div>
+</section>
+
+<style>
+  .consent {
+    position: fixed;
+    right: var(--pv-space-5, 12px);
+    bottom: var(--pv-space-5, 12px);
+    left: var(--pv-space-5, 12px);
+    z-index: 120;
+    display: grid;
+    gap: var(--pv-space-4, 8px);
+    max-width: 460px;
+    padding: var(--pv-space-6, 16px);
+    border: 1px solid var(--pv-line-strong);
+    background: var(--pv-bg-raised);
+    color: var(--pv-text);
+    font-size: var(--pv-fs-small, 0.875rem);
+    line-height: 1.5;
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity 240ms ease,
+      transform 240ms ease;
+  }
+  .consent[hidden] {
+    display: none;
+  }
+  .consent.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+  .consent__title {
+    font-family: var(--pv-font-display);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .consent__text {
+    color: var(--pv-text-2);
+  }
+  .consent__link {
+    color: var(--pv-text);
+    text-underline-offset: 3px;
+  }
+  .consent__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--pv-space-3, 8px);
+  }
+  .consent__btn {
+    flex: 1 1 140px;
+    min-height: 44px;
+    padding: 0 var(--pv-space-6, 16px);
+    border: 1px solid var(--pv-line-strong);
+    background: transparent;
+    color: var(--pv-text);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .consent__btn--accept {
+    border-color: var(--pv-accent);
+    background: var(--pv-accent);
+    color: var(--pv-on-accent);
+  }
+  @media (hover: hover) {
+    .consent__btn:hover {
+      border-color: var(--pv-text);
+    }
+  }
+  @media (min-width: 640px) {
+    .consent {
+      right: auto;
+      bottom: var(--pv-space-7, 24px);
+      left: var(--pv-space-7, 24px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .consent {
+      transform: none;
+      transition: none;
+    }
+  }
+</style>

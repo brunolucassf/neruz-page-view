@@ -494,6 +494,11 @@ export function initMotionStage(journey: HTMLElement): StageHandle {
     };
   }
 
+  function hideStrip(): void {
+    gl?.hideStrip();
+    setStyleIfChanged(elements.strip2d, 'opacity', '0');
+  }
+
   function renderStrip2d(strip: StripState): void {
     const element = elements.strip2d;
     if (!hasStripCanvas) return;
@@ -961,8 +966,9 @@ export function initMotionStage(journey: HTMLElement): StageHandle {
         invalidateOnRefresh: true,
       },
     });
-    new IntersectionObserver(([entry]) => {
-      isStageVisible = entry.isIntersecting;
+    new IntersectionObserver((entries) => {
+      isStageVisible = entries[entries.length - 1].isIntersecting;
+      if (!isStageVisible) hideStrip();
     }).observe(stage);
   }
 

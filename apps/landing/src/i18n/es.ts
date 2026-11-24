@@ -3,13 +3,14 @@ import type { LandingCopy } from './types';
 export const es: LandingCopy = {
   locale: 'es',
   htmlLang: 'es',
+  privacyPath: '/es/privacy/',
   path: '/es/',
   meta: {
     title: 'Neruz Page View: visor responsive y capturas gratis',
     description:
-      'Mira tu sitio en varios tamaños de pantalla a la vez y haz capturas, videos con scroll y mockups. Extensión gratis, de código abierto y 100% local.',
+      'Mira tu sitio en varios tamaños de pantalla a la vez y haz capturas, videos con scroll y mockups. Extensión gratis y de código abierto, sin cuenta. Las capturas y los videos se hacen en tu computadora.',
     ogDescription:
-      'Mira tu sitio en varias pantallas y haz capturas, videos y mockups. Gratis, abierto y 100% local.',
+      'Mira tu sitio en varias pantallas y haz capturas, videos y mockups. Gratis, abierto y sin cuenta.',
   },
   skipLink: 'Saltar al contenido',
   languageLabel: 'Cambiar idioma',
@@ -47,7 +48,7 @@ export const es: LandingCopy = {
   hero: {
     title: 'Mira tu sitio en varias pantallas a la vez.',
     subtitle:
-      'Prueba el diseño responsive, haz capturas con marco de dispositivo y graba videos que recorren la página solos. Una extensión gratis y de código abierto que funciona solo en tu computadora.',
+      'Prueba el diseño responsive, haz capturas con marco de dispositivo y graba videos que recorren la página solos. Una extensión gratis y de código abierto que crea capturas y videos en tu computadora.',
     posterAlt: 'Un sitio mostrado a la vez en celular, tablet y laptop',
     windowWidthLabel: 'Ancho de la ventana',
     skipIntro: 'Saltar intro',
@@ -132,9 +133,9 @@ export const es: LandingCopy = {
   },
   sceneLocal: {
     stepLabel: 'Privacidad',
-    title: 'Todo pasa en tu computadora.',
+    title: 'Tus capturas se quedan en tu computadora.',
     subtitle:
-      'La extensión no tiene servidor, no pide registro y no recopila datos. Tus capturas y videos se crean en el navegador y van solo adonde tú los guardes.',
+      'La extensión no tiene servidor propio ni pide registro. Tus capturas y videos se crean en el navegador y van solo adonde tú los guardes. Envía estadísticas anónimas de uso, sin dirección de página ni contenido, y puedes desactivarlas en las opciones.',
     note: 'Las capturas pueden mostrar lo que haya en pantalla, como correos o paneles con sesión iniciada. Conviene revisarlas antes de compartir.',
     privacyLink: 'Leer la política de privacidad',
     codeLink: 'Ver los permisos en el código',
@@ -192,19 +193,28 @@ export const es: LandingCopy = {
     subtitle:
       'Neruz Page View usa la licencia MIT: puedes leer cada línea, reportar un error, sugerir una mejora o adaptarlo a lo que necesites. No hay versión de pago ni plan Pro.',
     ask: 'Si te sirve, una estrella en GitHub ayuda a que más personas lo encuentren.',
-    umbrella: 'Es la primera extensión de Neruz Extensions. Vienen más en camino.',
+    umbrella: 'Forma parte de Neruz Extensions, junto con Neruz Inspect y las que vendrán.',
     contribute: 'Cómo contribuir',
     license: 'Licencia MIT',
     codeLabel: 'Fragmento del código SVG que dibuja el símbolo de Neruz Page View',
-    outlineWord: 'Neruz Extensions',
   },
-  sceneFinal: {
-    stepLabel: 'Instalar',
-    title: 'Pruébala en el próximo sitio que abras.',
-    subtitle:
-      'Gratis, sin registro y sin recopilar datos. Si no es para ti, la quitas como cualquier otra extensión.',
-    windowTitle: 'Neruz Page View',
-    widthLabel: 'Ancho de la ventana',
+  extensions: {
+    eyebrow: 'De la misma familia',
+    title: 'Neruz Extensions',
+    lead: 'Acabas de conocer una. Extensiones pequeñas para quien crea sitios, cada una enfocada en una tarea.',
+    hubLink: 'Ver todas las extensiones',
+    pageView: {
+      name: 'Page View',
+      flag: 'Estás aquí',
+      text: 'Mira tu sitio en varias pantallas y captura imágenes y videos.',
+    },
+    inspect: {
+      name: 'Inspect',
+      text: 'Inspecciona cualquier sitio: colores, fuentes, medidas, animaciones y tecnologías.',
+      cta: 'Conocer Neruz Inspect',
+      newTab: '(se abre en una pestaña nueva)',
+    },
+    meta: 'Gratis · MIT',
   },
   ruler: {
     label: 'Ir a la sección',
@@ -215,9 +225,58 @@ export const es: LandingCopy = {
       { id: 'role-uma-tela', label: 'Haz scroll en una pantalla. Todas te siguen.' },
       { id: 'pagina-rola-sozinha', label: 'La página se desplaza sola. Tú solo presionas Grabar.' },
       { id: 'site-numa-pasta', label: 'Todo el sitio, en una sola carpeta.' },
-      { id: 'tudo-no-computador', label: 'Todo pasa en tu computadora.' },
+      { id: 'tudo-no-computador', label: 'Tus capturas se quedan en tu computadora.' },
       { id: 'codigo-aberto', label: 'Gratis, de código abierto y abierto a quien quiera ayudar.' },
-      { id: 'instalar', label: 'Pruébala en el próximo sitio que abras.' },
+      { id: 'neruz-extensions', label: 'Neruz Extensions' },
+    ],
+  },
+  consent: {
+    label: 'Cookies y medición',
+    text: 'Con tu permiso, usamos Google Analytics 4 (Google) y Meta Pixel (Meta Platforms) para medir visitas, clics de instalación y el rendimiento de anuncios. Sin tu aceptación, nada de esto se carga.',
+    accept: 'Aceptar',
+    reject: 'Rechazar',
+    policy: 'Privacidad del sitio',
+    preferences: 'Preferencias de cookies',
+  },
+  sitePrivacy: {
+    title: 'Privacidad del sitio · Neruz Page View',
+    description:
+      'Cómo el sitio de Neruz Page View trata las cookies y la medición: nada se carga sin tu aceptación y puedes cambiar la elección cuando quieras.',
+    heading: 'Privacidad del sitio',
+    updated: 'Actualizada el 23 de noviembre de 2026',
+    back: 'Volver al inicio',
+    extension: 'Política de privacidad de la extensión',
+    blocks: [
+      {
+        title: 'Esta página',
+        paragraphs: [
+          'Aquí hablamos solo de este sitio (pageview.neruz.tech). La política de la extensión, que explica qué hace con tus datos, es un documento aparte enlazado abajo.',
+        ],
+      },
+      {
+        title: 'Sin tu aceptación',
+        paragraphs: [
+          'No se carga ninguna medición: el sitio no usa cookies de analytics ni scripts de terceros. Solo guardamos, en tu navegador, una marca de sesión para no repetir la animación de entrada y tu elección de cookies (clave neruz.consent).',
+        ],
+      },
+      {
+        title: 'Si aceptas',
+        paragraphs: [
+          'Cargamos Google Analytics 4 (Google LLC) y Meta Pixel (Meta Platforms, Inc.). Usan cookies e identificadores para medir visitas, clics en los botones de instalación y el rendimiento de anuncios. Estos proveedores tratan los datos según sus propias políticas. No vendemos nada.',
+        ],
+      },
+      {
+        title: 'Cómo cambiar la elección',
+        paragraphs: [
+          'Usa "Preferencias de cookies" en el pie de página. Si rechazas, se borran las cookies de medición y no se envía ningún evento.',
+        ],
+      },
+      {
+        title: 'Contacto',
+        paragraphs: [
+          'Dudas o reportes: abre un issue en el GitHub del proyecto. El código es abierto, con licencia MIT.',
+        ],
+      },
     ],
   },
   footer: {

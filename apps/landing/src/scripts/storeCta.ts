@@ -42,6 +42,7 @@ function setupDesktopCta(container: HTMLElement, browser: BrowserId | null): voi
 
   label.textContent = data.addTo[browser];
   primary.href = data.links[browser];
+  primary.dataset.installStore = browser;
   const browserNote = data.notes[browser];
   if (note && browserNote) {
     note.textContent = browserNote;
@@ -96,13 +97,14 @@ function setupCopyButtons(): void {
 function setupMobileBar(): void {
   const bar = document.querySelector<HTMLElement>('[data-mobile-cta]');
   const heroCta = document.querySelector<HTMLElement>('[data-hero-cta]');
-  const finalCta = document.querySelector<HTMLElement>('[data-final-cta]');
+  const hidingZones = document.querySelectorAll<HTMLElement>('[data-family], .site-footer');
   if (!bar || !heroCta) return;
   bar.hidden = false;
   bar.inert = true;
-  const state = { isPastHero: false, isFinalVisible: false };
+  const state = { isPastHero: false };
+  const visibleZones = new Set<Element>();
   const update = () => {
-    const shouldShow = state.isPastHero && !state.isFinalVisible;
+    const shouldShow = state.isPastHero && visibleZones.size === 0;
     bar.classList.toggle('is-visible', shouldShow);
     bar.inert = !shouldShow;
   };
@@ -110,11 +112,14 @@ function setupMobileBar(): void {
     state.isPastHero = !entry.isIntersecting && entry.boundingClientRect.top < 0;
     update();
   }).observe(heroCta);
-  if (!finalCta) return;
-  new IntersectionObserver(([entry]) => {
-    state.isFinalVisible = entry.isIntersecting;
+  const zoneObserver = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) visibleZones.add(entry.target);
+      else visibleZones.delete(entry.target);
+    }
     update();
-  }).observe(finalCta);
+  });
+  for (const zone of hidingZones) zoneObserver.observe(zone);
 }
 
 export function initStoreCta(): void {

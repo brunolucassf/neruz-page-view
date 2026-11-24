@@ -3,13 +3,14 @@ import type { LandingCopy } from './types';
 export const en: LandingCopy = {
   locale: 'en',
   htmlLang: 'en',
+  privacyPath: '/en/privacy/',
   path: '/en/',
   meta: {
     title: 'Neruz Page View: free responsive viewer and screenshots',
     description:
-      'Preview your site on many screen sizes at once. Capture screenshots, scroll videos and mockups. Free, open source extension: 100% local, no tracking.',
+      'Preview your site on many screen sizes at once. Capture screenshots, scroll videos and mockups. Free, open source extension with no account. Screenshots and videos are made on your computer.',
     ogDescription:
-      'See your site on many screens and capture screenshots, videos and mockups. Free, open and 100% local.',
+      'See your site on many screens and capture screenshots, videos and mockups. Free, open and no account.',
   },
   skipLink: 'Skip to content',
   languageLabel: 'Change language',
@@ -47,7 +48,7 @@ export const en: LandingCopy = {
   hero: {
     title: 'Your site on many screens, all at once.',
     subtitle:
-      'Test responsive layouts, grab screenshots in device frames and record videos that scroll the page for you. One free, open source extension that runs entirely on your computer.',
+      'Test responsive layouts, grab screenshots in device frames and record videos that scroll the page for you. One free, open source extension that makes screenshots and videos on your computer.',
     posterAlt: 'A website shown at once on phone, tablet and laptop',
     windowWidthLabel: 'Window width',
     skipIntro: 'Skip intro',
@@ -128,9 +129,9 @@ export const en: LandingCopy = {
   },
   sceneLocal: {
     stepLabel: 'Privacy',
-    title: 'Everything happens on your computer.',
+    title: 'Your screenshots stay on your computer.',
     subtitle:
-      'The extension has no server, asks for no sign-up and collects no data. Your screenshots and videos are made in the browser and go only where you save them.',
+      'The extension has no server of its own and asks for no sign-up. Your screenshots and videos are made in the browser and go only where you save them. It sends anonymous usage statistics, with no page address and no content, and you can turn that off in the options.',
     note: 'Screenshots can show whatever is on screen, like emails or logged-in dashboards. Worth a quick check before sharing.',
     privacyLink: 'Read the privacy policy',
     codeLink: 'See the permissions in the code',
@@ -188,19 +189,28 @@ export const en: LandingCopy = {
     subtitle:
       "Neruz Page View is MIT licensed: read every line, report a bug, suggest an improvement or adapt it to your needs. There's no paid version and no Pro plan.",
     ask: 'If it helps you, a star on GitHub helps other people find it.',
-    umbrella: 'This is the first extension from Neruz Extensions. More are on the way.',
+    umbrella: 'Part of Neruz Extensions, alongside Neruz Inspect and the ones to come.',
     contribute: 'How to contribute',
     license: 'MIT license',
     codeLabel: 'A snippet of the SVG code that draws the Neruz Page View symbol',
-    outlineWord: 'Neruz Extensions',
   },
-  sceneFinal: {
-    stepLabel: 'Install',
-    title: 'Try it on the next site you open.',
-    subtitle:
-      "Free, no sign-up, no data collected. If it's not for you, just remove it like any other extension.",
-    windowTitle: 'Neruz Page View',
-    widthLabel: 'Window width',
+  extensions: {
+    eyebrow: 'From the same family',
+    title: 'Neruz Extensions',
+    lead: 'You just met one. Small extensions for people who build websites, each focused on one job.',
+    hubLink: 'See all extensions',
+    pageView: {
+      name: 'Page View',
+      flag: 'You are here',
+      text: 'See your site on several screens and capture screenshots and videos.',
+    },
+    inspect: {
+      name: 'Inspect',
+      text: 'Inspect any website: colors, fonts, spacing, animations and tech stack.',
+      cta: 'Discover Neruz Inspect',
+      newTab: '(opens in a new tab)',
+    },
+    meta: 'Free · MIT',
   },
   ruler: {
     label: 'Go to section',
@@ -211,9 +221,58 @@ export const en: LandingCopy = {
       { id: 'role-uma-tela', label: 'Scroll one screen. They all follow.' },
       { id: 'pagina-rola-sozinha', label: 'The page scrolls itself. You just hit Record.' },
       { id: 'site-numa-pasta', label: 'The whole site, in one folder.' },
-      { id: 'tudo-no-computador', label: 'Everything happens on your computer.' },
+      { id: 'tudo-no-computador', label: 'Your screenshots stay on your computer.' },
       { id: 'codigo-aberto', label: 'Free, open source and open to anyone who wants to help.' },
-      { id: 'instalar', label: 'Try it on the next site you open.' },
+      { id: 'neruz-extensions', label: 'Neruz Extensions' },
+    ],
+  },
+  consent: {
+    label: 'Cookies and measurement',
+    text: 'With your permission, we use Google Analytics 4 (Google) and Meta Pixel (Meta Platforms) to measure visits, install clicks and ad performance. Without your consent, none of it loads.',
+    accept: 'Accept',
+    reject: 'Decline',
+    policy: 'Site privacy',
+    preferences: 'Cookie preferences',
+  },
+  sitePrivacy: {
+    title: 'Site privacy · Neruz Page View',
+    description:
+      'How the Neruz Page View website handles cookies and measurement: nothing loads without your consent, and you can change your choice anytime.',
+    heading: 'Site privacy',
+    updated: 'Updated November 23, 2026',
+    back: 'Back to home',
+    extension: 'Extension privacy policy',
+    blocks: [
+      {
+        title: 'This page',
+        paragraphs: [
+          'This covers the website only (pageview.neruz.tech). The extension policy, which says what it does with your data, is a separate document linked below.',
+        ],
+      },
+      {
+        title: 'Without your consent',
+        paragraphs: [
+          'No measurement loads: the site sets no analytics cookies and loads no third-party scripts. We only keep, in your browser, a session flag so the intro animation does not repeat and your cookie choice (key neruz.consent).',
+        ],
+      },
+      {
+        title: 'If you accept',
+        paragraphs: [
+          'We load Google Analytics 4 (Google LLC) and Meta Pixel (Meta Platforms, Inc.). They use cookies and identifiers to measure visits, install button clicks and ad performance. These providers handle data under their own policies. We sell nothing.',
+        ],
+      },
+      {
+        title: 'How to change your choice',
+        paragraphs: [
+          'Use "Cookie preferences" in the footer. If you decline, measurement cookies are deleted and no event is sent.',
+        ],
+      },
+      {
+        title: 'Contact',
+        paragraphs: [
+          "Questions or reports: open an issue on the project's GitHub. The code is open, under the MIT license.",
+        ],
+      },
     ],
   },
   footer: {

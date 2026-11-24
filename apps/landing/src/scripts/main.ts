@@ -2,6 +2,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import { canUseWebGl, isMotion } from './env';
+import { initFamily } from './family';
 import { initFinale } from './finale';
 import { initLanguageMenus } from './languageMenu';
 import { initScrollRuler } from './scrollRuler';
@@ -63,8 +64,9 @@ function initMotion(journey: HTMLElement): void {
   gsap.ticker.lagSmoothing(0);
   const stage = initMotionStage(journey);
   const finale = initFinale();
+  const family = initFamily();
   const updateRuler = initScrollRuler(
-    () => [...stage.getSceneOffsets(), ...finale.getSceneOffsets()],
+    () => [...stage.getSceneOffsets(), ...finale.getSceneOffsets(), ...family.getSceneOffsets()],
     (y) => lenis.scrollTo(y),
   );
   lenis.on('scroll', () => {
@@ -86,6 +88,7 @@ function boot(): void {
   else {
     initStaticStage(journey);
     initFinale();
+    initFamily();
   }
 }
 

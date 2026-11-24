@@ -24,6 +24,7 @@ const storeData = JSON.stringify({
       class:list={buttonClasses}
       href={STORE_LINKS[defaultBrowser]}
       data-store-primary
+      data-install-store={defaultBrowser}
       data-wire
     >
       <span data-store-label>{copy.cta.addTo[defaultBrowser]}</span>
@@ -43,7 +44,7 @@ const storeData = JSON.stringify({
         {
           BROWSER_ORDER.map((browser) => (
             <li>
-              <a href={STORE_LINKS[browser]}>{copy.cta.addTo[browser]}</a>
+              <a href={STORE_LINKS[browser]} data-install-store={browser}>{copy.cta.addTo[browser]}</a>
             </li>
           ))
         }
@@ -56,7 +57,7 @@ const storeData = JSON.stringify({
           <p class="store-cta__also">
             <span>{copy.cta.alsoFor}</span>
             {BROWSER_ORDER.map((browser) => (
-              <a href={STORE_LINKS[browser]} data-also-browser={browser}>
+              <a href={STORE_LINKS[browser]} data-also-browser={browser} data-install-store={browser}>
                 {BROWSER_NAMES[browser]}
               </a>
             ))}

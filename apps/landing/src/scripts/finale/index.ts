@@ -1,4 +1,3 @@
-import { initFinal } from './final';
 import { initFold } from './fold';
 import { initLocal } from './local';
 import { initOpen } from './open';
@@ -12,7 +11,6 @@ const SCENES: { selector: string; init: (section: HTMLElement) => TrackedScene }
   { selector: '[data-fold]', init: initFold },
   { selector: '[data-local]', init: initLocal },
   { selector: '[data-open]', init: initOpen },
-  { selector: '[data-final]', init: initFinal },
 ];
 
 export function initFinale(): FinaleHandle {

@@ -5,9 +5,10 @@ import { DICTIONARIES } from '../i18n';
 interface Props {
   copy: LandingCopy;
   opensUp?: boolean;
+  kind?: 'home' | 'privacy';
 }
 
-const { copy, opensUp = false } = Astro.props;
+const { copy, opensUp = false, kind = 'home' } = Astro.props;
 const languages = Object.values(DICTIONARIES);
 const currentName = copy.languageNames[copy.locale];
 const currentText = copy.language.current.replace('{idioma}', currentName);
@@ -31,7 +32,7 @@ const currentText = copy.language.current.replace('{idioma}', currentName);
       languages.map((language) => (
         <li>
           <a
-            href={language.path}
+            href={kind === 'home' ? language.path : language.privacyPath}
             hreflang={language.htmlLang}
             lang={language.htmlLang}
             aria-current={language.locale === copy.locale ? 'true' : undefined}

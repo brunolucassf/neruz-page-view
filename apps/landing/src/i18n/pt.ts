@@ -3,13 +3,14 @@ import type { LandingCopy } from './types';
 export const pt: LandingCopy = {
   locale: 'pt-BR',
   htmlLang: 'pt-BR',
+  privacyPath: '/privacy/',
   path: '/',
   meta: {
     title: 'Neruz Page View: veja seu site em várias telas e capture',
     description:
-      'Teste seu site em várias telas ao mesmo tempo e capture prints, vídeos e mockups. Extensão gratuita, de código aberto e 100% local: sem conta, sem coleta.',
+      'Teste seu site em várias telas ao mesmo tempo e capture prints, vídeos e mockups. Extensão gratuita e de código aberto, sem conta. Prints e vídeos são feitos no seu computador.',
     ogDescription:
-      'Veja seu site em várias telas e capture prints, vídeos e mockups. Grátis, aberto e 100% local.',
+      'Veja seu site em várias telas e capture prints, vídeos e mockups. Grátis, aberto e sem conta.',
   },
   skipLink: 'Pular para o conteúdo',
   languageLabel: 'Mudar idioma',
@@ -47,7 +48,7 @@ export const pt: LandingCopy = {
   hero: {
     title: 'Veja seu site em várias telas ao mesmo tempo.',
     subtitle:
-      'Teste o responsivo, tire prints com moldura de aparelho e grave vídeos que rolam a página sozinhos. Uma extensão gratuita e de código aberto que roda só no seu computador.',
+      'Teste o responsivo, tire prints com moldura de aparelho e grave vídeos que rolam a página sozinhos. Uma extensão gratuita e de código aberto que cria prints e vídeos no seu computador.',
     posterAlt: 'Um site exibido ao mesmo tempo em celular, tablet e notebook',
     windowWidthLabel: 'Largura da janela',
     skipIntro: 'Pular entrada',
@@ -132,9 +133,9 @@ export const pt: LandingCopy = {
   },
   sceneLocal: {
     stepLabel: 'Privacidade',
-    title: 'Tudo acontece no seu computador.',
+    title: 'Seus prints ficam no seu computador.',
     subtitle:
-      'A extensão não tem servidor, não pede cadastro e não coleta dados. Seus prints e vídeos são criados no navegador e vão só para onde você salvar.',
+      'A extensão não tem servidor próprio nem pede cadastro. Seus prints e vídeos são criados no navegador e vão só para onde você salvar. Ela envia estatística anônima de uso, sem endereço de página nem conteúdo, e dá para desligar nas opções.',
     note: 'Prints podem mostrar o que estiver na tela, como e-mails ou painéis logados. Vale conferir antes de compartilhar.',
     privacyLink: 'Ler a política de privacidade',
     codeLink: 'Ver as permissões no código',
@@ -192,19 +193,28 @@ export const pt: LandingCopy = {
     subtitle:
       'O Neruz Page View usa a licença MIT: você pode ler cada linha, relatar um problema, sugerir uma melhoria ou adaptar para o seu uso. Não existe versão paga nem plano Pro.',
     ask: 'Se a extensão te ajudar, uma estrela no GitHub faz ela chegar a mais gente.',
-    umbrella: 'É a primeira extensão da Neruz Extensions. Outras estão a caminho.',
+    umbrella: 'Faz parte da Neruz Extensions, com o Neruz Inspect e as próximas.',
     contribute: 'Como contribuir',
     license: 'Licença MIT',
     codeLabel: 'Trecho do código SVG que desenha o símbolo do Neruz Page View',
-    outlineWord: 'Neruz Extensions',
   },
-  sceneFinal: {
-    stepLabel: 'Instalar',
-    title: 'Experimente no próximo site que você abrir.',
-    subtitle:
-      'Grátis, sem cadastro e sem coleta de dados. Se não servir para você, é só remover, como qualquer extensão.',
-    windowTitle: 'Neruz Page View',
-    widthLabel: 'Largura da janela',
+  extensions: {
+    eyebrow: 'Da mesma família',
+    title: 'Neruz Extensions',
+    lead: 'Você acabou de conhecer uma. Extensões pequenas para quem cria sites, cada uma focada em uma tarefa.',
+    hubLink: 'Ver todas as extensões',
+    pageView: {
+      name: 'Page View',
+      flag: 'Você está aqui',
+      text: 'Veja seu site em várias telas e capture prints e vídeos.',
+    },
+    inspect: {
+      name: 'Inspect',
+      text: 'Inspecione qualquer site: cores, fontes, medidas, animações e tecnologias.',
+      cta: 'Conhecer o Neruz Inspect',
+      newTab: '(abre em nova aba)',
+    },
+    meta: 'Grátis · MIT',
   },
   ruler: {
     label: 'Ir para a seção',
@@ -215,9 +225,58 @@ export const pt: LandingCopy = {
       { id: 'role-uma-tela', label: 'Role uma tela. Todas rolam junto.' },
       { id: 'pagina-rola-sozinha', label: 'A página rola sozinha. Você só aperta Gravar.' },
       { id: 'site-numa-pasta', label: 'O site inteiro, numa pasta só.' },
-      { id: 'tudo-no-computador', label: 'Tudo acontece no seu computador.' },
+      { id: 'tudo-no-computador', label: 'Seus prints ficam no seu computador.' },
       { id: 'codigo-aberto', label: 'Gratuito, de código aberto e aberto a quem quiser ajudar.' },
-      { id: 'instalar', label: 'Experimente no próximo site que você abrir.' },
+      { id: 'neruz-extensions', label: 'Neruz Extensions' },
+    ],
+  },
+  consent: {
+    label: 'Cookies e medição',
+    text: 'Com a sua permissão, usamos o Google Analytics 4 (Google) e o Meta Pixel (Meta Platforms) para medir visitas e cliques de instalação e a eficácia de anúncios. Sem aceite, nada disso carrega.',
+    accept: 'Aceitar',
+    reject: 'Recusar',
+    policy: 'Privacidade do site',
+    preferences: 'Preferências de cookies',
+  },
+  sitePrivacy: {
+    title: 'Privacidade do site · Neruz Page View',
+    description:
+      'Como o site do Neruz Page View trata cookies e medição: nada carrega sem o seu aceite, e você pode mudar a escolha quando quiser.',
+    heading: 'Privacidade do site',
+    updated: 'Atualizada em 23 de novembro de 2026',
+    back: 'Voltar ao início',
+    extension: 'Política de privacidade da extensão',
+    blocks: [
+      {
+        title: 'Esta página',
+        paragraphs: [
+          'Aqui falamos só deste site (pageview.neruz.tech). A política da extensão, que diz o que ela faz com os seus dados, fica em um documento separado, linkado abaixo.',
+        ],
+      },
+      {
+        title: 'Sem o seu aceite',
+        paragraphs: [
+          'Nada de medição carrega: o site não usa cookies de analytics nem scripts de terceiros. Guardamos apenas, no seu navegador, uma marca de sessão para não repetir a animação de entrada e a sua escolha de cookies (chave neruz.consent).',
+        ],
+      },
+      {
+        title: 'Se você aceitar',
+        paragraphs: [
+          'Carregamos o Google Analytics 4 (Google LLC) e o Meta Pixel (Meta Platforms, Inc.). Eles usam cookies e identificadores para medir visitas, cliques nos botões de instalação e o desempenho de anúncios. Esses provedores tratam os dados conforme as próprias políticas. Nada é vendido por nós.',
+        ],
+      },
+      {
+        title: 'Como mudar a escolha',
+        paragraphs: [
+          'Use "Preferências de cookies" no rodapé. Ao recusar, os cookies de medição são apagados e nenhum evento é enviado.',
+        ],
+      },
+      {
+        title: 'Contato',
+        paragraphs: [
+          'Dúvidas ou relatos: abra uma issue no GitHub do projeto. O código é aberto, sob licença MIT.',
+        ],
+      },
     ],
   },
   footer: {

@@ -5,14 +5,16 @@ import LanguageMenu from './LanguageMenu.astro';
 
 interface Props {
   copy: LandingCopy;
+  kind?: 'home' | 'privacy';
 }
 
-const { copy } = Astro.props;
+const { copy, kind = 'home' } = Astro.props;
 const { footer } = copy;
 const projectLinks = [
   { href: STORE_LINKS.github, label: footer.project.github },
   { href: STORE_LINKS.license, label: footer.project.license },
   { href: STORE_LINKS.privacy, label: footer.privacy },
+  { href: copy.privacyPath, label: copy.consent.policy },
   { href: STORE_LINKS.issues, label: footer.project.issue },
 ];
 ---
@@ -48,6 +50,7 @@ const projectLinks = [
               </li>
             ))
           }
+          <li><button type="button" class="site-footer__consent" data-consent-open>{copy.consent.preferences}</button></li>
         </ul>
       </section>
 
@@ -93,7 +96,7 @@ const projectLinks = [
         loading="lazy"
         decoding="async"
       />
-      <LanguageMenu copy={copy} opensUp />
+      <LanguageMenu copy={copy} opensUp kind={kind} />
       <p class="site-footer__credit">
         <a href={FONTE_DEV_URL} target="_blank" rel="noopener">
           {footer.credit}
@@ -178,6 +181,20 @@ const projectLinks = [
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  .site-footer__consent {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--pv-text-2);
+    font-size: var(--pv-fs-body);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
   }
 
   .site-footer__list a,

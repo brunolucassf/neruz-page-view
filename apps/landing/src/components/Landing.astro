@@ -1,10 +1,10 @@
 ---
 import type { LandingCopy } from '../i18n';
 import Base from '../layouts/Base.astro';
+import ExtensionsFamily from './ExtensionsFamily.astro';
 import Hero from './Hero.astro';
 import Journey from './Journey.astro';
 import MobileCta from './MobileCta.astro';
-import SceneFinal from './SceneFinal.astro';
 import SceneFolder from './SceneFolder.astro';
 import SceneLocal from './SceneLocal.astro';
 import SceneOpen from './SceneOpen.astro';
@@ -27,7 +27,7 @@ const { copy } = Astro.props;
     <SceneFolder copy={copy} />
     <SceneLocal copy={copy} />
     <SceneOpen copy={copy} />
-    <SceneFinal copy={copy} />
+    <ExtensionsFamily copy={copy} />
   </main>
   <SiteFooter copy={copy} />
   <ScrollRuler copy={copy} />
