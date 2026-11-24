@@ -14,6 +14,7 @@ import {
   RadioGroup,
   Switch,
 } from 'react-aria-components';
+import { track } from '../analytics/analytics';
 import { type MessageKey, t } from '../i18n';
 import { KIND_LABEL } from '../screens/presets';
 import { selectActiveScreen, useStudio } from '../shell/studioStore';
@@ -46,7 +47,10 @@ export function FramedSwitch() {
         <Switch
           className="framed__switch"
           isSelected={isEnabled}
-          onChange={(isOn) => patch({ isEnabled: isOn })}
+          onChange={(isOn) => {
+            patch({ isEnabled: isOn });
+            void track('mockup_toggle', { state: isOn ? 'on' : 'off' });
+          }}
         >
           <span className="framed__track" aria-hidden="true">
             <span className="framed__thumb" />

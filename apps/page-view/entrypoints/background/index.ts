@@ -1,5 +1,6 @@
 import { isExtensionPageSender, STUDIO_PORT_NAME } from '@neruz/core';
 import { defineBackground } from 'wxt/utils/define-background';
+import { track } from '../../src/features/analytics/analytics';
 import { forgetStudioOrigin, handleActionClick } from './action-click';
 import { getExtensionIdentity, isRoutableType, routeMessage } from './message-router';
 import { handleRecordingTabClosed, reconcileRecording } from './recording';
@@ -36,6 +37,11 @@ export default defineBackground(() => {
     if (typeof type !== 'string' || !isRoutableType(type)) return false;
     void routeMessage(raw, sender).then(sendResponse);
     return true;
+  });
+
+  chrome.runtime.onInstalled.addListener(({ reason }) => {
+    if (reason === 'install') void track('extension_install');
+    if (reason === 'update') void track('extension_update');
   });
 
   chrome.runtime.onConnect.addListener(handleStudioPort);

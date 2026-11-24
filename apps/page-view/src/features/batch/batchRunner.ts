@@ -25,6 +25,7 @@ import {
   thumbnailKey,
   toNpvError,
 } from '@neruz/core';
+import { track } from '../analytics/analytics';
 import { captureHooks, useCapture } from '../capture/captureStore';
 import { applyFrame } from '../capture/framing/framedOutput';
 import { convertImage } from '../export/encodeClient';
@@ -571,9 +572,11 @@ async function executeBatch(
     if (isCancelled) {
       useBatch.setState({ phase: 'cancelled' });
       announceEnd(true);
+      void track('batch_end', { status: 'cancelled', source: context.config.source });
     } else {
       await exportBatch();
       announceEnd(false);
+      void track('batch_end', { status: 'completed', source: context.config.source });
     }
   }
 }
@@ -628,5 +631,9 @@ export function startBatch(): void {
   document.addEventListener('visibilitychange', handleVisibilityChange);
   window.addEventListener('beforeunload', handleBeforeUnload);
   void warnIfLowSpace(config);
+  void track('batch_start', {
+    source: config.source,
+    is_framed: config.framed?.isEnabled ?? false,
+  });
   void executeBatch(config, context, permission);
 }

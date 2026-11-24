@@ -105,7 +105,8 @@ export const es: Record<MessageKey, string> = {
   'welcome.title': 'Tu sitio en todas las pantallas',
   'welcome.benefit1': 'Mira celular, tablet y laptop lado a lado.',
   'welcome.benefit2': 'Desplaza una pantalla y las demás la siguen.',
-  'welcome.benefit3': 'Todo se queda en tu computadora. Sin cuenta, sin rastreo.',
+  'welcome.benefit3':
+    'Todo se queda en tu computadora. Sin cuenta y sin datos personales; solo estadísticas anónimas de uso, que puedes desactivar.',
   'welcome.start': 'Empezar',
   'welcome.skip': 'Omitir',
 
@@ -231,6 +232,9 @@ export const es: Record<MessageKey, string> = {
   'shortcuts.remap': 'Cambiar atajos',
   'settings.capture.title': 'Opciones de captura',
   'settings.capture.quality': 'Calidad (JPG y WebP)',
+  'settings.analytics.label': 'Enviar estadísticas anónimas de uso',
+  'settings.analytics.hint':
+    'No envía la dirección ni el contenido de las páginas que abres. Solo qué funciones se usan.',
   'settings.data.title': 'Tus datos',
   'settings.data.hint':
     'Todo se queda en este navegador. El archivo exportado incluye tus preferencias, favoritos y kits.',

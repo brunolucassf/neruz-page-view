@@ -9,6 +9,7 @@ import {
   studioMetrics,
   studioScrollTo,
 } from '@neruz/core';
+import { track } from '../analytics/analytics';
 import { downloadBlob } from '../capture/captureOutput';
 import { nextPaint } from '../capture/captureStore';
 import { type MessageKey, t } from '../i18n';
@@ -254,6 +255,11 @@ export async function runRecording(): Promise<void> {
       title: t('state.success.video'),
       actions: [{ label: t('state.success.download'), onPress: downloadVideo }],
     });
+    void track('record_done', {
+      preset: settings.preset,
+      speed: settings.speed,
+      has_pauses: settings.hasPauses,
+    });
   } catch (cause) {
     if (controller.signal.aborted || isAbortCause(cause)) {
       showToast({ tone: 'neutral', title: t('state.canceled') });
@@ -282,7 +288,9 @@ export async function runRecording(): Promise<void> {
 
 export function downloadVideo(): void {
   const { result } = useRecording.getState();
-  if (result) downloadBlob(result.blob, result.filename);
+  if (!result) return;
+  downloadBlob(result.blob, result.filename);
+  void track('record_download');
 }
 
 export async function makeGif(): Promise<void> {
@@ -300,6 +308,7 @@ export async function makeGif(): Promise<void> {
       controller.signal,
     );
     downloadBlob(gif.blob, result.filename.replace(/\.[a-z0-9]+$/i, '.gif'));
+    void track('gif_done', { is_trimmed: gif.isTruncated });
     showToast({
       tone: 'success',
       title: t(gif.isTruncated ? 'studio.video.gif.trimmed' : 'state.success.gif'),

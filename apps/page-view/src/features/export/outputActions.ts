@@ -1,3 +1,4 @@
+import { track } from '../analytics/analytics';
 import { copyImage, downloadBlob, openPart } from '../capture/captureOutput';
 import { useCapture } from '../capture/captureStore';
 import { useFramed } from '../capture/framedStore';
@@ -74,6 +75,7 @@ export async function exportOutput(format?: ExportFormat): Promise<void> {
     downloadBlob(outcome.blob, outcome.filename);
     if (outcomes.length > 1) await wait(BATCH_DOWNLOAD_GAP_MS);
   }
+  void track('export_image', { format: chosen, is_framed: useFramed.getState().isEnabled });
 }
 
 async function firstOutputPart(): Promise<Blob | null> {
@@ -84,7 +86,9 @@ async function firstOutputPart(): Promise<Blob | null> {
 
 export async function copyOutput(): Promise<void> {
   const part = await firstOutputPart();
-  if (part) await copyImage(part);
+  if (!part) return;
+  await copyImage(part);
+  void track('copy_image');
 }
 
 export async function showOutput(): Promise<void> {

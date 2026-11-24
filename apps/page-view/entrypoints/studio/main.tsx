@@ -4,6 +4,7 @@ import '@neruz/ui/base.css';
 import '@neruz/ui/graphics.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { trackPageView } from '../../src/features/analytics/analytics';
 import { startFramedPreview } from '../../src/features/capture/framedPreview';
 import { useFramed } from '../../src/features/capture/framedStore';
 import { useLibrary } from '../../src/features/library/libraryStore';
@@ -26,4 +27,5 @@ if (container) {
   void useFramed.getState().hydrate();
   void hydrateSettings();
   void runInitialLaunch();
+  void trackPageView('studio');
 }

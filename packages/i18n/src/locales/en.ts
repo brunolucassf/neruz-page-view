@@ -106,7 +106,8 @@ export const en: Record<MessageKey, string> = {
   'welcome.title': 'Your site on every screen',
   'welcome.benefit1': 'See phone, tablet and laptop side by side.',
   'welcome.benefit2': 'Scroll one screen and the others follow.',
-  'welcome.benefit3': 'Everything stays on your computer. No account, no tracking.',
+  'welcome.benefit3':
+    'Everything stays on your computer. No account and no personal data; only anonymous usage statistics, which you can turn off.',
   'welcome.start': 'Get started',
   'welcome.skip': 'Skip',
 
@@ -230,6 +231,9 @@ export const en: Record<MessageKey, string> = {
   'shortcuts.remap': 'Change shortcuts',
   'settings.capture.title': 'Capture defaults',
   'settings.capture.quality': 'Quality (JPG and WebP)',
+  'settings.analytics.label': 'Send anonymous usage statistics',
+  'settings.analytics.hint':
+    'Never sends the address or content of the pages you open. Only which features are used.',
   'settings.data.title': 'Your data',
   'settings.data.hint':
     'Everything stays in this browser. The exported file holds your preferences, favorites and kits.',

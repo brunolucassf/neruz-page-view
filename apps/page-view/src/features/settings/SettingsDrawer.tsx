@@ -26,6 +26,7 @@ import type { CaptureModeChoice } from '../capture/captureStore';
 import { type MessageKey, t } from '../i18n';
 import { SHORTCUTS } from '../shell/Dialogs';
 import { showToast } from '../toasts/toastStore';
+import { AnalyticsSection } from './AnalyticsSection';
 import { exportSettingsFile, importSettingsFile } from './dataTransfer';
 import { useSettings } from './settingsStore';
 import './settings.css';
@@ -92,6 +93,7 @@ export function SettingsDrawer() {
             <ScreensSection />
             <CaptureDefaultsSection />
             <ShortcutsSection />
+            <AnalyticsSection />
             <DataSection />
           </div>
           <a

@@ -63,6 +63,7 @@ export const SettingsSchema = v.object({
     input: v.boolean(),
   }),
   emulateEnvInMainWorld: v.boolean(),
+  analytics: v.fallback(v.boolean(), true),
 });
 
 export const CaptureDefaultsSchema = v.object({
@@ -192,6 +193,7 @@ export const DEFAULT_SETTINGS: Settings = {
   freezeOffscreenAfterMs: 10000,
   mirror: { scroll: true, click: true, navigate: true, input: false },
   emulateEnvInMainWorld: false,
+  analytics: true,
 };
 
 export const DEFAULT_CAPTURE_DEFAULTS: CaptureDefaults = {

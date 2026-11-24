@@ -1,6 +1,7 @@
 import { type CaptureProgress, captureScreen } from '@neruz/capture';
 import { NpvException, type ScreenId } from '@neruz/core';
 import { create } from 'zustand';
+import { track } from '../analytics/analytics';
 import type { CapturedShot, ImageFormat } from '../export/exportService';
 import { copyOutput, exportOutput, redoWithFrame, showOutput } from '../export/outputActions';
 import { useResult } from '../export/resultStore';
@@ -152,6 +153,11 @@ export async function runCapture(): Promise<void> {
     useCapture.setState({ ratio: 1 });
     await storeCapturedShots(shots);
     announceSuccess();
+    void track('capture_done', {
+      mode,
+      target: state.target,
+      is_framed: useFramed.getState().isEnabled,
+    });
   } catch (cause) {
     const isAborted =
       controller.signal.aborted ||

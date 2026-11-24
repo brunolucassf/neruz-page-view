@@ -104,7 +104,8 @@ export const ptBR = {
   'welcome.title': 'Seu site em todas as telas',
   'welcome.benefit1': 'Veja celular, tablet e notebook lado a lado.',
   'welcome.benefit2': 'Role uma tela e as outras acompanham.',
-  'welcome.benefit3': 'Tudo fica no seu computador. Sem conta, sem coleta.',
+  'welcome.benefit3':
+    'Tudo fica no seu computador. Sem conta e sem dados pessoais; só estatística anônima de uso, que você pode desligar.',
   'welcome.start': 'Começar',
   'welcome.skip': 'Pular',
 
@@ -228,6 +229,9 @@ export const ptBR = {
   'shortcuts.remap': 'Mudar atalhos',
   'settings.capture.title': 'Padrões de captura',
   'settings.capture.quality': 'Qualidade (JPG e WebP)',
+  'settings.analytics.label': 'Enviar estatísticas anônimas de uso',
+  'settings.analytics.hint':
+    'Não envia o endereço nem o conteúdo das páginas que você abre. Só quais recursos são usados.',
   'settings.data.title': 'Seus dados',
   'settings.data.hint':
     'Tudo fica neste navegador. O arquivo exportado traz suas preferências, favoritos e kits.',
