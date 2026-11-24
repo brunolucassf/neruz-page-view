@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img src="docs/assets/badges.es.svg" alt="Licencia MIT · Manifest V3 · Chrome, Edge, Opera, Brave, Firefox · Sin recopilar datos" width="640"></a>
+  <a href="LICENSE"><img src="docs/assets/badges.es.svg" alt="Licencia MIT · Manifest V3 · Chrome, Edge, Opera, Brave, Firefox · Estadística anónima de uso" width="640"></a>
 </p>
 
 <p align="center">
@@ -68,7 +68,7 @@ Todas las versiones: [Releases](../../releases).
 
 ## Privacidad y permisos
 
-Nada sale de tu computadora. La extensión no tiene servidor, no usa analytics y no recopila datos. La configuración queda en el almacenamiento local del navegador. Política completa: [pt-BR](docs/PRIVACIDADE.md) · [en](docs/PRIVACIDADE.en.md) · [es](docs/PRIVACIDADE.es.md).
+Las capturas, los videos y las páginas que ves se quedan en tu computadora. La extensión no tiene servidor propio y no pide cuenta. Envía estadísticas anónimas de uso a Google Analytics 4: un identificador aleatorio, la versión y qué herramientas se usaron, sin dirección de página, contenido ni capturas. Puedes desactivarlo en las opciones (en Firefox solo envía si aceptas el permiso opcional). La configuración queda en el almacenamiento local del navegador. Política completa: [pt-BR](docs/PRIVACIDADE.md) · [en](docs/PRIVACIDADE.en.md) · [es](docs/PRIVACIDADE.es.md).
 
 | Permiso                                     | Para qué                                                                                                                                  |
 | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |

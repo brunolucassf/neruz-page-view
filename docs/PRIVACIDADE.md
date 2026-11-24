@@ -7,7 +7,7 @@
 **Neruz Page View** · Última atualização: [data de publicação]
 
 ## Resumo
-O Neruz Page View funciona no seu dispositivo. Não temos servidor próprio para a extensão, não criamos conta e não coletamos nem recebemos seus dados pessoais, o conteúdo dos sites que você visualiza ou as capturas que você faz.
+O Neruz Page View funciona no seu dispositivo. Não temos servidor próprio para a extensão, não criamos conta e não recebemos os sites que você visualiza, o conteúdo deles nem as capturas que você faz. A extensão envia estatística anônima de uso ao Google Analytics 4, que você pode desligar (seção "Estatística anônima de uso").
 
 ## O que a extensão acessa
 Para funcionar, a extensão acessa, no seu navegador e por sua iniciativa:
@@ -18,7 +18,7 @@ Para funcionar, a extensão acessa, no seu navegador e por sua iniciativa:
 ## Onde ficam os dados
 - Configurações: no armazenamento local do seu navegador. Ficam até você apagá-las ou remover a extensão.
 - Capturas (prints, vídeos, mockups, relatórios): geradas no seu dispositivo e salvas onde você escolher. Arquivos temporários são descartados após a exportação ou ao fechar a extensão.
-- Nada disso é enviado para nós nem para terceiros pela extensão.
+- Nada disso é enviado para nós nem para terceiros pela extensão. A única coisa que sai é a estatística anônima de uso descrita abaixo.
 
 Ao visualizar um site, o navegador faz requisições a esse site, como em uma visita normal. O site visitado pode registrar o acesso conforme a própria política dele.
 
@@ -30,8 +30,28 @@ A extensão solicita permissões amplas porque você pode visualizar qualquer si
 
 Apenas dentro das telas do Estúdio, e somente nos sites aos quais você deu acesso, a extensão injeta um pequeno script que ajusta a identificação do aparelho simulado (como o navegador se apresenta ao site) e a preferência de "reduzir movimento", para que o site apareça como apareceria naquele aparelho. Ele só funciona quando recebe, pelo nome da própria tela, o código do aparelho simulado (por exemplo, o tamanho de tela escolhido); sem esse código, não faz nada. Esse código não contém dado pessoal, mas o site exibido pode lê-lo. O script não lê nem envia dados, não recebe nem manda mensagens e não usa recursos da extensão. Ele é ativado quando você abre o Estúdio e removido quando você o fecha, e não age nas abas comuns do navegador.
 
+## Estatística anônima de uso
+A extensão envia estatística anônima de uso ao Google Analytics 4 (Google LLC), em uma propriedade da Fonte Dev. A finalidade é saber quais ferramentas são usadas, para priorizar melhorias.
+
+O que é enviado:
+- um identificador aleatório, gerado na instalação e guardado só no seu navegador;
+- um identificador de sessão;
+- o nome e a versão da extensão;
+- eventos de uso: instalação ou atualização, abertura do popup, do Estúdio ou das opções, e qual ferramenta ou ação foi usada, por categoria (por exemplo, o tipo de captura ou o formato de exportação).
+
+O que não é enviado: o endereço ou o domínio das páginas que você visualiza, o conteúdo delas, as capturas, textos copiados, nome ou e-mail. O Google Analytics 4 não registra nem armazena endereços IP.
+
+O envio vai direto da extensão ao Google. Não usa cookies nem script remoto, e a extensão não passa por servidor nosso. Nada é vendido nem usado para anúncios. O Google trata os dados conforme a política dele e pode processá-los fora do Brasil. [advogado validar]
+
+Como controlar:
+- Chrome, Edge, Opera e Brave: o envio vem ligado. Para desligar, abra as opções da extensão e desmarque "Enviar estatísticas anônimas de uso".
+- Firefox: a extensão só envia se você aceitar a permissão opcional de dados técnicos e de interação. Você liga ou desliga nas opções da extensão e nas configurações de permissões do Firefox.
+
+Base legal: legítimo interesse da Fonte Dev em entender e melhorar o produto, com a opção de desligar. [advogado validar a base legal e a avaliação de balanceamento]
+Prazo de retenção no Google Analytics: [Bruno confirmar o prazo configurado na propriedade GA4].
+
 ## Rastreamento
-A extensão não contém analytics, anúncios, rastreadores nem código remoto.
+A extensão não contém anúncios, rastreadores de terceiros nem código remoto. A única medição é a estatística anônima descrita acima.
 
 ## Site (landing page)
 - [Versão sem analytics] O site não usa cookies de rastreamento nem ferramentas de análise.
@@ -44,13 +64,13 @@ A extensão não contém analytics, anúncios, rastreadores nem código remoto.
 O código é aberto sob licença MIT em [URL do repositório], e você pode conferir como a extensão funciona.
 
 ## Seus direitos
-Como não mantemos dados pessoais seus, em geral não há o que acessar, corrigir ou excluir conosco. Você pode apagar os dados locais a qualquer momento removendo a extensão ou limpando os dados dela no navegador. Para dúvidas, ou pedidos relacionados aos logs do site, fale com [e-mail de contato]. Se você estiver no Brasil, também pode procurar a Autoridade Nacional de Proteção de Dados. [advogado validar redação e demais jurisdições]
+Não mantemos seu nome, e-mail nem conta. O que existe é o identificador aleatório da estatística de uso, que sozinho não diz quem você é. Você pode desligar o envio nas opções e apagar os dados locais a qualquer momento, removendo a extensão ou limpando os dados dela no navegador. [Bruno/advogado: definir como atender pedido de exclusão da estatística no GA4, que depende do identificador guardado no navegador.] Para dúvidas, ou pedidos relacionados aos logs do site, fale com [e-mail de contato]. Se você estiver no Brasil, também pode procurar a Autoridade Nacional de Proteção de Dados. [advogado validar redação e demais jurisdições]
 
 ## Crianças
 A extensão é uma ferramenta de trabalho geral e não é direcionada a crianças. [advogado validar]
 
 ## Mudanças
-Se a extensão passar a tratar dados de outra forma, atualizaremos esta política antes disso e indicaremos a data de atualização. Mudanças desse tipo também seguem as regras das lojas.
+Esta atualização inclui a estatística anônima de uso, que antes não existia. Se a extensão passar a tratar dados de outra forma, atualizaremos esta política antes disso e indicaremos a data de atualização. Mudanças desse tipo também seguem as regras das lojas.
 
 ## Responsável
 Bruno Lucas (Fonte Dev) · [e-mail] · [identificação do responsável conforme orientação do advogado]

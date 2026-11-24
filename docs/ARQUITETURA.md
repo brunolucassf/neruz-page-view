@@ -164,7 +164,7 @@ Contrato em API.md §10 (v1.5, ADR-019 e ADR-020). Tudo roda no Estúdio, sem me
 | `contextMenus` | não usado na v1 (ADR-016) | |
 | Proibidos | `debugger`, `tabs`, `webNavigation`, `cookies`, `history`, `downloads`, `unlimitedStorage`, `declarativeNetRequest`, `<all_urls>` obrigatório | CI compara com allowlist |
 | CSP | `script-src 'self' 'wasm-unsafe-eval'` só se algum wasm entrar (hoje nenhum); `object-src 'self'` | |
-| Firefox | `browser_specific_settings.gecko.id`, `data_collection_permissions: {required:["none"]}`; sem `offscreen`/`tabCapture` | |
+| Firefox | `browser_specific_settings.gecko.id`, `data_collection_permissions: {required:["none"], optional:["technicalAndInteraction"]}`; sem `offscreen`/`tabCapture` | |
 
 Resultado: instalação sem nenhum aviso de permissão; o pedido de acesso acontece no primeiro site, explicado em uma frase.
 
@@ -204,7 +204,7 @@ Mensagens tipadas em `packages/core/messaging` como união discriminada no envel
 
 ## 9. Observabilidade
 
-Sem telemetria (promessa central). Em seu lugar:
+Telemetria limitada a estatística anônima de uso (Google Analytics 4, Measurement Protocol, sem cookies, sem URLs nem conteúdo; opt-out nas opções; no Firefox, só com a permissão opcional `technicalAndInteraction`). Descrição em [PRIVACIDADE.md](PRIVACIDADE.md). Além disso:
 - Logger interno com níveis, desligado em produção; painel "Diagnóstico" no Estúdio mostra versão, navegador, permissões, últimas 200 entradas em memória e botão "copiar diagnóstico" (texto que o usuário cola numa issue do GitHub, sem URLs por padrão).
 - Erros amigáveis com código curto (`NPV-IFRAME-BLOCKED`, `NPV-CAPTURE-RATE`, `NPV-ENCODER-UNSUPPORTED` e demais), lista completa em [API.md](API.md) §2.1, também publicada na wiki do repositório.
 
